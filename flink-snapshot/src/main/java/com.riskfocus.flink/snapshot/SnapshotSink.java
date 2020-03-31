@@ -1,5 +1,6 @@
 package com.riskfocus.flink.snapshot;
 
+import com.google.common.annotations.Beta;
 import com.riskfocus.flink.snapshot.redis.RedisSnapshotExecutor;
 import com.riskfocus.flink.storage.cache.EntityTypeEnum;
 import io.lettuce.core.RedisClient;
@@ -12,6 +13,7 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 /**
  * @author Khokhlov Pavel
  */
+@Beta
 public class SnapshotSink<IN> extends RichSinkFunction<IN> {
     private static final long serialVersionUID = 6805501266870217945L;
 

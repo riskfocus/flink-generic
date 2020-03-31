@@ -1,5 +1,8 @@
 package com.riskfocus.flink.storage.cache;
 
+import com.google.common.annotations.Beta;
+
+@Beta
 public enum EntityTypeEnum {
 
     MEM_CACHE_ONLY(":"),

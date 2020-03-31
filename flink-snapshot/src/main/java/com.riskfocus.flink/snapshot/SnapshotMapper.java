@@ -1,5 +1,6 @@
 package com.riskfocus.flink.snapshot;
 
+import com.google.common.annotations.Beta;
 import com.riskfocus.flink.batch.BatchAware;
 import com.riskfocus.flink.util.DateTimeUtils;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 /**
  * @author Khokhlov Pavel
  */
+@Beta
 @AllArgsConstructor
 public abstract class SnapshotMapper<T> implements Serializable {
     private static final long serialVersionUID = -4643297908380913314L;

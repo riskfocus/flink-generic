@@ -14,6 +14,7 @@ public class SinkInfo<S> {
 
     /**
      * Name of Sink required for pipeline
+     * Sink registration (addSink) in general requires a name and uuid of sink.
      */
     private final String name;
 

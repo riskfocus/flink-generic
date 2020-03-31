@@ -20,8 +20,13 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EnvironmentConfiguration {
 
+    public static final String TIME_CHARACTERISTIC_PARAM_NAME = "time.characteristic";
+    public static final String AUTO_WATERMARK_INTERVAL_PARAM_NAME = "auto.watermark.interval";
+    public static final String LOCAL_DEV_PARAM_NAME = "local.dev";
+    public static final String LOCAL_DEFAULT_PARALLELISM_PARAM_NAME = "local.default.parallelism";
+
     public static StreamExecutionEnvironment getEnvironment(ParamUtils paramUtils) {
-        boolean localDevEnabled = paramUtils.getBoolean("local.dev", false);
+        boolean localDevEnabled = paramUtils.getBoolean(LOCAL_DEV_PARAM_NAME, false);
         StreamExecutionEnvironment env;
         if (localDevEnabled) {
             Configuration config = new Configuration();
@@ -33,14 +38,14 @@ public class EnvironmentConfiguration {
 
             env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
             int availableProcessors = Runtime.getRuntime().availableProcessors();
-            env.setParallelism(paramUtils.getInt("local.default.parallelism", availableProcessors));
+            env.setParallelism(paramUtils.getInt(LOCAL_DEFAULT_PARALLELISM_PARAM_NAME, availableProcessors));
         } else {
             env = StreamExecutionEnvironment.getExecutionEnvironment();
         }
         env.getConfig().setLatencyTrackingInterval(paramUtils.getLong(MetricOptions.LATENCY_INTERVAL.key(), 0L));
 
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        long autoWatermarkInterval = paramUtils.getLong("auto.watermark.interval", 500);
+        env.setStreamTimeCharacteristic(getTimeCharacteristic(paramUtils));
+        long autoWatermarkInterval = paramUtils.getLong(AUTO_WATERMARK_INTERVAL_PARAM_NAME, 500);
         env.getConfig().setAutoWatermarkInterval(autoWatermarkInterval);
 
         CheckpointingConfiguration.configure(paramUtils, env);
@@ -49,5 +54,10 @@ public class EnvironmentConfiguration {
         // See https://ci.apache.org/projects/flink/flink-docs-stable/dev/best_practices.html
         env.getConfig().setGlobalJobParameters(paramUtils.getParams());
         return env;
+    }
+
+    private static TimeCharacteristic getTimeCharacteristic(ParamUtils paramUtils) {
+        String timeCharacteristicStr = paramUtils.getString(TIME_CHARACTERISTIC_PARAM_NAME, TimeCharacteristic.EventTime.name());
+        return TimeCharacteristic.valueOf(timeCharacteristicStr);
     }
 }
