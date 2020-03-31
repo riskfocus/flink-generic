@@ -26,7 +26,12 @@ public class BasicGeneratorTest {
 
         BatchContext startWindow = batchAware.generateWindowPeriod(1578037890000L);
 
+        Assert.assertEquals(startWindow.duration(), windowSize, "Size of the batch must be equals to provided settings");
+
         Assert.assertEquals(windowId, startWindow.getId());
+
+        long endOfBatch = context.endOfBatch();
+        Assert.assertEquals(batchAware.generateWindowPeriod(endOfBatch).getId(), windowId, "endOfBatch must be part of the same batch");
 
         long nextWindow = context.getEnd();
 
