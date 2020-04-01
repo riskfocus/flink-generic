@@ -1,7 +1,7 @@
-package com.riskfocus.flink.batch.generator.impl;
+package com.riskfocus.flink.window.generator.impl;
 
-import com.riskfocus.flink.batch.BatchAware;
-import com.riskfocus.flink.batch.BatchContext;
+import com.riskfocus.flink.window.WindowAware;
+import com.riskfocus.flink.window.WindowContext;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -15,27 +15,27 @@ public class BasicGeneratorTest {
     public void generateWindowPeriod() {
 
         long windowSize = 10_000;
-        BatchAware batchAware = new BasicGenerator(windowSize);
+        WindowAware windowAware = new BasicGenerator(windowSize);
 
-        BatchContext context = batchAware.generateWindowPeriod(1578037899903L);
+        WindowContext context = windowAware.generateWindowPeriod(1578037899903L);
         Assert.assertNotNull(context);
         long windowId = 157803790L;
         Assert.assertEquals(windowId, context.getId());
         Assert.assertEquals(1578037890000L, context.getStart());
         Assert.assertEquals(1578037900000L, context.getEnd());
 
-        BatchContext startWindow = batchAware.generateWindowPeriod(1578037890000L);
+        WindowContext startWindow = windowAware.generateWindowPeriod(1578037890000L);
 
         Assert.assertEquals(startWindow.duration(), windowSize, "Size of the batch must be equals to provided settings");
 
         Assert.assertEquals(windowId, startWindow.getId());
 
-        long endOfBatch = context.endOfBatch();
-        Assert.assertEquals(batchAware.generateWindowPeriod(endOfBatch).getId(), windowId, "endOfBatch must be part of the same batch");
+        long endOfBatch = context.endOfWindow();
+        Assert.assertEquals(windowAware.generateWindowPeriod(endOfBatch).getId(), windowId, "endOfBatch must be part of the same batch");
 
         long nextWindow = context.getEnd();
 
-        BatchContext contextNext = batchAware.generateWindowPeriod(nextWindow);
+        WindowContext contextNext = windowAware.generateWindowPeriod(nextWindow);
         Assert.assertEquals(windowId + 1, contextNext.getId());
 
 
@@ -44,10 +44,10 @@ public class BasicGeneratorTest {
     @Test
     public void convertToTimestamp() {
         long windowSize = 10_000;
-        BatchAware batchAware = new BasicGenerator(windowSize);
+        WindowAware windowAware = new BasicGenerator(windowSize);
         long time = 1578037899903L;
-        long windowId = batchAware.generateWindowPeriod(time).getId();
-        long timestampConverted = batchAware.convertToTimestamp(windowId);
+        long windowId = windowAware.generateWindowPeriod(time).getId();
+        long timestampConverted = windowAware.convertToTimestamp(windowId);
         // check that we got time which less then Window size
         Assert.assertTrue(Math.abs(timestampConverted - time) - windowSize < windowSize);
     }

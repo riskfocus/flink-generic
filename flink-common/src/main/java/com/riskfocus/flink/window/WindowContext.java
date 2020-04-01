@@ -1,4 +1,4 @@
-package com.riskfocus.flink.batch;
+package com.riskfocus.flink.window;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,26 +7,37 @@ import lombok.ToString;
 import java.io.Serializable;
 
 /**
- * Context Service should provide BatchContext
+ * Context of the Window
  *
  * @author Khokhlov Pavel
  */
 @ToString
 @AllArgsConstructor
 @Getter
-public class BatchContext implements Serializable {
+public class WindowContext implements Serializable {
 
     private static final long serialVersionUID = -8423785994398814432L;
 
+    /**
+     * Window identifier
+     */
     private final long id;
+
+    /**
+     * Start time of Window
+     */
     private final long start;
+
+    /**
+     * End time of Window (when new Window starts)
+     */
     private final long end;
 
     /**
      *
-     * @return the end time for current batch
+     * @return returns last time belongs to this Window
      */
-    public long endOfBatch() {
+    public long endOfWindow() {
         return end - 1;
     }
 

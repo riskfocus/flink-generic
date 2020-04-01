@@ -1,16 +1,18 @@
-package com.riskfocus.flink.batch.generator.impl;
+package com.riskfocus.flink.window.generator.impl;
 
-import com.riskfocus.flink.batch.BatchAware;
-import com.riskfocus.flink.batch.BatchContext;
+import com.riskfocus.flink.window.WindowAware;
+import com.riskfocus.flink.window.WindowContext;
 import lombok.ToString;
 
 import java.io.Serializable;
 
 /**
+ * Basic generator based on time calculation
+ *
  * @author Khokhlov Pavel
  */
 @ToString
-public class BasicGenerator implements Serializable, BatchAware {
+public class BasicGenerator implements Serializable, WindowAware {
     private static final long serialVersionUID = 1670857446143857575L;
 
     private static final long zero = calculateZeroTime();
@@ -33,14 +35,14 @@ public class BasicGenerator implements Serializable, BatchAware {
     }
 
     @Override
-    public BatchContext generateWindowPeriod(long timestamp) {
+    public WindowContext generateWindowPeriod(long timestamp) {
         long windowId = generateWindow(timestamp);
         long startEpoch = zero + (windowId - 1) * windowDuration;
         long endEpoch = startEpoch + windowDuration;
         if (endEpoch < timestamp) {
             throw new IllegalArgumentException("Got wrong time calculation");
         }
-        return new BatchContext(windowId, startEpoch, endEpoch);
+        return new WindowContext(windowId, startEpoch, endEpoch);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.riskfocus.flink.batch.generator;
+package com.riskfocus.flink.window.generator;
 
 /**
  * @author Khokhlov Pavel
