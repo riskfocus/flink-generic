@@ -1,6 +1,5 @@
 package com.riskfocus.flink.config.channel.kafka;
 
-import com.riskfocus.flink.window.WindowAware;
 import com.riskfocus.flink.config.channel.Source;
 import com.riskfocus.flink.config.kafka.KafkaProperties;
 import com.riskfocus.flink.util.ParamUtils;
@@ -16,11 +15,9 @@ public abstract class KafkaSource<S> implements Source<S> {
 
     private final KafkaProperties kafkaProperties;
     protected final ParamUtils paramUtils;
-    protected final WindowAware windowAware;
 
-    public KafkaSource(ParamUtils paramUtils, WindowAware windowAware) {
+    public KafkaSource(ParamUtils paramUtils) {
         this.paramUtils = paramUtils;
-        this.windowAware = windowAware;
         this.kafkaProperties = new KafkaProperties(paramUtils);
     }
 
