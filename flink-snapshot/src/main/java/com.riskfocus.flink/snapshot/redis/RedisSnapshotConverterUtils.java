@@ -22,14 +22,14 @@ public class RedisSnapshotConverterUtils<T> implements Serializable {
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
-    public ContextHolder<T> convertTo(Class<T> destClass, byte[] bytes) throws JsonProcessingException {
+    public SnapshotData<T> convertTo(Class<T> destClass, byte[] bytes) throws JsonProcessingException {
         String src = new String(bytes);
         int delimiterIdx = src.indexOf(DELIMITER);
         String contextIdStr = src.substring(0, delimiterIdx);
         String data = src.substring(delimiterIdx + 1);
         long contextId = Long.parseLong(contextIdStr);
         T t = mapper.readValue(data, destClass);
-        return new ContextHolder<>(contextId, t);
+        return new SnapshotData<>(contextId, t);
     }
 
 }
