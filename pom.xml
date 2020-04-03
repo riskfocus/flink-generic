@@ -9,8 +9,8 @@
     <artifactId>flink-generic</artifactId>
     <version>1.0-master-SNAPSHOT</version>
     <modules>
-        <module>flink-common</module>
-        <module>flink-snapshot</module>
+        <module>flink-domain</module>
+        <module>flink-baseline</module>
     </modules>
     <packaging>pom</packaging>
     <description>Shared Flink Libraries</description>
@@ -23,9 +23,6 @@
         <lombok.version>1.18.12</lombok.version>
         <guava.version>28.2-jre</guava.version>
         <testng.version>7.1.0</testng.version>
-        <flink.version>1.10.0</flink.version>
-        <scala.binary.version>2.12</scala.binary.version>
-        <redis.lettuce.version>5.2.2.RELEASE</redis.lettuce.version>
     </properties>
 
     <dependencyManagement>
@@ -46,11 +43,6 @@
                 <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>io.lettuce</groupId>
-                <artifactId>lettuce-core</artifactId>
-                <version>${redis.lettuce.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -62,37 +54,6 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-java</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Local Dev Web Runtime -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime-web_${scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka_${scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-metrics-jmx_${scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

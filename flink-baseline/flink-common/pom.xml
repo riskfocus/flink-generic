@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>flink-generic</artifactId>
+        <artifactId>flink-baseline</artifactId>
         <groupId>com.riskfocus.flink.generic</groupId>
         <version>1.0-master-SNAPSHOT</version>
     </parent>
@@ -19,7 +19,11 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.riskfocus.flink.generic</groupId>
+            <artifactId>flink-domain</artifactId>
+            <version>${version}</version>
         </dependency>
     </dependencies>
 

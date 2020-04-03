@@ -9,14 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>flink-snapshot</artifactId>
+    <artifactId>flink-domain</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.riskfocus.flink.generic</groupId>
-            <artifactId>flink-common</artifactId>
-            <version>1.0-master-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
 
 </project>
