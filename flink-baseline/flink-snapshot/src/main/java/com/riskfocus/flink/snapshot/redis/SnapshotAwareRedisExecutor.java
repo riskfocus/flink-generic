@@ -13,5 +13,6 @@ import java.io.IOException;
  */
 @FunctionalInterface
 public interface SnapshotAwareRedisExecutor<T extends TimeAware> extends Function {
-    void execute(@NonNull T element, @NonNull ContextService contextService, @NonNull StatefulRedisConnection<byte[], byte[]> connection) throws IOException;
+    void execute(@NonNull T element, @NonNull ContextService contextService, @NonNull String contextName,
+                 @NonNull StatefulRedisConnection<byte[], byte[]> connection) throws IOException;
 }

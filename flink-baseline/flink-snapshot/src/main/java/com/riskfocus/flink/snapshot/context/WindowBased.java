@@ -17,10 +17,10 @@ public class WindowBased implements ContextService {
     private final WindowAware windowAware;
 
     @Override
-    public Context generate(TimeAware timeAware) {
+    public Context generate(TimeAware timeAware, String contextName) {
         WindowContext windowContext = windowAware.generateWindowPeriod(timeAware.getTimestamp());
         String dateStr = DateTimeUtils.formatDate(windowContext.getStart());
-        return new Context(windowContext.getId(), dateStr);
+        return new Context(windowContext.getId(), dateStr, contextName);
     }
 
     @Override

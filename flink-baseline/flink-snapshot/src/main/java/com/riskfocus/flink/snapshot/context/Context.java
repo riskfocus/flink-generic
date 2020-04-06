@@ -21,4 +21,9 @@ public class Context implements Serializable {
      * Date of snapshot in format "yyyyMMdd" (has to be provided by ContextService)
      */
     private String date;
+
+    /**
+     * Name of provided Context
+     */
+    private String contextName;
 }

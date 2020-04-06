@@ -44,26 +44,29 @@ public class RestBased implements ContextService {
     }
 
     @Override
-    public Context generate(TimeAware timeAware) {
+    public Context generate(TimeAware timeAware, String contextName) {
         WindowContext windowContext = windowAware.generateWindowPeriod(timeAware.getTimestamp());
         String dateStr = DateTimeUtils.formatDate(windowContext.getStart());
-        long ctxId = createOrGet(windowContext.getId(), dateStr);
-        return new Context(ctxId, dateStr);
+        long ctxId = createOrGet(windowContext.getId(), dateStr, contextName);
+        return new Context(ctxId, dateStr, contextName);
     }
 
-    private Long createOrGet(long windowId, String dateStr) {
+    private Long createOrGet(long windowId, String dateStr, String type) {
         return contextCache.computeIfAbsent(windowId, aLong -> {
             log.debug("Miss cache for: W{}", windowId);
             try {
-                return create(windowId, dateStr);
+                return create(windowId, dateStr, type);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    private long create(long windowId, String dateStr) throws IOException, InterruptedException {
-        ContextRequestDTO requestDTO = ContextRequestDTO.builder().windowId(windowId).dateStr(dateStr).build();
+    private long create(long windowId, String dateStr, String contextName) throws IOException, InterruptedException {
+        ContextRequestDTO requestDTO = ContextRequestDTO.builder()
+                .windowId(windowId)
+                .dateStr(dateStr)
+                .contextName(contextName).build();
         String requestStr = mapper.writeValueAsString(requestDTO);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url + "/create/"))

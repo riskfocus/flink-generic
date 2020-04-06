@@ -28,8 +28,8 @@ public class RedisSnapshotExecutor<T extends TimeAware> implements SnapshotAware
     private final SnapshotMapper<T> snapshotMapper;
 
     @Override
-    public void execute(T data, ContextService contextService, StatefulRedisConnection<byte[], byte[]> connection) throws IOException {
-        Context ctx = contextService.generate(data);
+    public void execute(T data, ContextService contextService, String contextName, StatefulRedisConnection<byte[], byte[]> connection) throws IOException {
+        Context ctx = contextService.generate(data, contextName);
         long contextId = ctx.getId();
         long expireAt = expireAt();
         RedisCommands<byte[], byte[]> commands = connection.sync();

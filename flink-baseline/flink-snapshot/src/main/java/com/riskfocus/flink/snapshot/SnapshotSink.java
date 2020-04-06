@@ -41,9 +41,10 @@ public class SnapshotSink<IN extends TimeAware> extends RichSinkFunction<IN> {
 
     @Override
     public void invoke(IN input, Context context) throws Exception {
+        final String contextName = input.getClass().getSimpleName();
         switch (entityTypeEnum) {
             case MEM_CACHE_WITH_INDEX_SUPPORT_ONLY:
-                new RedisSnapshotExecutor<>(snapshotMapper).execute(input, contextService, connect);
+                new RedisSnapshotExecutor<>(snapshotMapper).execute(input, contextService, contextName, connect);
                 return;
             case MEM_CACHE_ONLY:
                 // todo

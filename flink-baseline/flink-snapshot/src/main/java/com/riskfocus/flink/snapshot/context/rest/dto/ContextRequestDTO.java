@@ -18,4 +18,5 @@ public class ContextRequestDTO implements Serializable {
     private static final long serialVersionUID = 1684955987856874019L;
     private long windowId;
     private String dateStr;
+    private String contextName;
 }
