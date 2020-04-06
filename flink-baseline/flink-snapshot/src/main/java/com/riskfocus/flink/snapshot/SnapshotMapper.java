@@ -18,19 +18,13 @@ public abstract class SnapshotMapper<T> implements Serializable {
 
     protected final String delimiter;
 
-    public String buildSnapshotPrefix() {
-        return snapShot + delimiter + getEntityPrefix();
+    public String buildSnapshotPrefix(Context ctx) {
+        return snapShot + delimiter + ctx.getContextName();
     }
 
-    public String buildSnapshotIndexKey() {
-        return buildSnapshotPrefix() + delimiter + index;
+    public String buildSnapshotIndexKey(Context ctx) {
+        return buildSnapshotPrefix(ctx) + delimiter + index;
     }
-
-    /**
-     * Provides entity prefix for example: interestRates
-     * @return name of prefix which will be part of key
-     */
-    protected abstract String getEntityPrefix();
 
     public abstract String buildKey(T data, Context ctx);
 

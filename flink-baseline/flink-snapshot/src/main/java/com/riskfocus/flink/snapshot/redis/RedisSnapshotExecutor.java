@@ -39,7 +39,7 @@ public class RedisSnapshotExecutor<T extends TimeAware> implements SnapshotAware
         if (data != null) {
             commands.psetex(snapshotMapper.buildKey(data, ctx).getBytes(), expireAt, snapshotMapper.getValueFromData(data).getBytes());
             byte[] windowBytes = String.valueOf(contextId).getBytes();
-            byte[] indexKey = snapshotMapper.buildSnapshotIndexKey().getBytes();
+            byte[] indexKey = snapshotMapper.buildSnapshotIndexKey(ctx).getBytes();
             commands.zadd(indexKey, new ZAddArgs(), (double) contextId, windowBytes);
             TransactionResult result = commands.exec();
             if (result.wasDiscarded()) {
