@@ -14,7 +14,7 @@ public interface ContextService extends AutoCloseable {
      * @param contextName name of provided context
      * @return context ready for use
      */
-    Context generate(TimeAware timeAware, String contextName);
+    ContextMetadata generate(TimeAware timeAware, String contextName);
 
     /**
      * Service initialization

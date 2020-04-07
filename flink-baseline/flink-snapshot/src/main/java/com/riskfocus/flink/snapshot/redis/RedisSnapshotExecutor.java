@@ -2,7 +2,7 @@ package com.riskfocus.flink.snapshot.redis;
 
 import com.riskfocus.flink.domain.TimeAware;
 import com.riskfocus.flink.snapshot.SnapshotMapper;
-import com.riskfocus.flink.snapshot.context.Context;
+import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import com.riskfocus.flink.snapshot.context.ContextService;
 import io.lettuce.core.TransactionResult;
 import io.lettuce.core.ZAddArgs;
@@ -29,7 +29,7 @@ public class RedisSnapshotExecutor<T extends TimeAware> implements SnapshotAware
 
     @Override
     public void execute(T data, ContextService contextService, String contextName, StatefulRedisConnection<byte[], byte[]> connection) throws IOException {
-        Context ctx = contextService.generate(data, contextName);
+        ContextMetadata ctx = contextService.generate(data, contextName);
         long contextId = ctx.getId();
         long expireAt = expireAt();
         RedisCommands<byte[], byte[]> commands = connection.sync();

@@ -6,7 +6,7 @@ import com.riskfocus.flink.example.redis.WithEmbeddedRedis;
 import com.riskfocus.flink.example.snapshot.SimpleCurrencyLoader;
 import com.riskfocus.flink.example.snapshot.SimpleCurrencyMapper;
 import com.riskfocus.flink.snapshot.SnapshotSink;
-import com.riskfocus.flink.snapshot.context.Context;
+import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import com.riskfocus.flink.snapshot.context.ContextService;
 import com.riskfocus.flink.snapshot.context.ContextServiceProvider;
 import com.riskfocus.flink.snapshot.redis.SnapshotData;
@@ -63,7 +63,7 @@ public class RedisSimpleCurrencyLoaderTest extends WithEmbeddedRedis {
         Assert.assertFalse(loadedUsd.isPresent());
 
         long expectedContextId = generateCtx(now).getId();
-        Context ctx = generateCtx(now + windowSize);
+        ContextMetadata ctx = generateCtx(now + windowSize);
 
         loadedUsd = load(ctx, "USD");
         Assert.assertTrue(loadedUsd.isPresent());
@@ -73,16 +73,16 @@ public class RedisSimpleCurrencyLoaderTest extends WithEmbeddedRedis {
     }
 
     private Optional<SnapshotData<SimpleCurrency>> loadByTime(long timestamp, String code) throws IOException {
-        Context ctx = contextService.generate(() -> timestamp, SimpleCurrency.class.getSimpleName());
+        ContextMetadata ctx = contextService.generate(() -> timestamp, SimpleCurrency.class.getSimpleName());
         return load(ctx, code);
     }
 
-    private Context generateCtx(long timestamp) {
+    private ContextMetadata generateCtx(long timestamp) {
         return contextService.generate(() -> timestamp, SimpleCurrency.class.getSimpleName());
     }
 
-    private Optional<SnapshotData<SimpleCurrency>> load(Context context, String code) throws IOException {
-        return currencyLoader.loadSimpleCurrency(context, code);
+    private Optional<SnapshotData<SimpleCurrency>> load(ContextMetadata contextMetadata, String code) throws IOException {
+        return currencyLoader.loadSimpleCurrency(contextMetadata, code);
     }
 
     private SimpleCurrency save(long timestamp, String code, double rate) throws Exception {

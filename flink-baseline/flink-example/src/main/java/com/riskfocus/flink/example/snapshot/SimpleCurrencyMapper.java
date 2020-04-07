@@ -2,7 +2,7 @@ package com.riskfocus.flink.example.snapshot;
 
 import com.riskfocus.flink.example.domain.SimpleCurrency;
 import com.riskfocus.flink.snapshot.SnapshotMapper;
-import com.riskfocus.flink.snapshot.context.Context;
+import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -22,9 +22,9 @@ public class SimpleCurrencyMapper extends SnapshotMapper<SimpleCurrency> {
     }
 
     @Override
-    public String buildKey(SimpleCurrency data, Context context) {
-        long contextId = context.getId();
-        return buildSnapshotPrefix(context) + delimiter + context.getDate() + delimiter + contextId + delimiter + data.getCode();
+    public String buildKey(SimpleCurrency data, ContextMetadata contextMetadata) {
+        long contextId = contextMetadata.getId();
+        return buildSnapshotPrefix(contextMetadata) + delimiter + contextMetadata.getDate() + delimiter + contextId + delimiter + data.getCode();
     }
 
     @Override

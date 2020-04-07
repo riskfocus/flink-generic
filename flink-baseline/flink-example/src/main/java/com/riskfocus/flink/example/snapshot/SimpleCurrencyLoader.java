@@ -1,7 +1,7 @@
 package com.riskfocus.flink.example.snapshot;
 
 import com.riskfocus.flink.example.domain.SimpleCurrency;
-import com.riskfocus.flink.snapshot.context.Context;
+import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import com.riskfocus.flink.snapshot.redis.SnapshotData;
 
 import java.io.IOException;
@@ -22,6 +22,6 @@ public interface SimpleCurrencyLoader extends Serializable, AutoCloseable {
     void init() throws IOException;
 
 
-    Optional<SnapshotData<SimpleCurrency>> loadSimpleCurrency(Context context, String code) throws IOException;
+    Optional<SnapshotData<SimpleCurrency>> loadSimpleCurrency(ContextMetadata contextMetadata, String code) throws IOException;
 
 }

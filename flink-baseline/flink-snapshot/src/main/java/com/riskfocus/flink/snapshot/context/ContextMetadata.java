@@ -1,16 +1,17 @@
 package com.riskfocus.flink.snapshot.context;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 
 import java.io.Serializable;
 
 /**
  * @author Khokhlov Pavel
  */
-@AllArgsConstructor
+@Builder
 @Getter
-public class Context implements Serializable {
+@Setter
+@ToString
+public class ContextMetadata implements Serializable {
     private static final long serialVersionUID = 3175629303519227784L;
 
     /**

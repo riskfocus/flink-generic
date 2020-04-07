@@ -1,7 +1,7 @@
 package com.riskfocus.flink.snapshot.context.rest;
 
 import com.riskfocus.flink.domain.TimeAware;
-import com.riskfocus.flink.snapshot.context.Context;
+import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import com.riskfocus.flink.snapshot.context.ContextService;
 import com.riskfocus.flink.snapshot.context.rest.dto.ContextRequestDTO;
 import com.riskfocus.flink.snapshot.context.rest.dto.ContextResponseDTO;
@@ -44,11 +44,11 @@ public class RestBased implements ContextService {
     }
 
     @Override
-    public Context generate(TimeAware timeAware, String contextName) {
+    public ContextMetadata generate(TimeAware timeAware, String contextName) {
         WindowContext windowContext = windowAware.generateWindowPeriod(timeAware.getTimestamp());
         String dateStr = DateTimeUtils.formatDate(windowContext.getStart());
         long ctxId = createOrGet(windowContext.getId(), dateStr, contextName);
-        return new Context(ctxId, dateStr, contextName);
+        return ContextMetadata.builder().contextName(contextName).id(ctxId).date(dateStr).build();
     }
 
     private Long createOrGet(long windowId, String dateStr, String type) {

@@ -6,7 +6,7 @@ import com.riskfocus.flink.example.domain.SimpleCurrency;
 import com.riskfocus.flink.example.snapshot.SimpleCurrencyLoader;
 import com.riskfocus.flink.example.snapshot.SimpleCurrencyMapper;
 import com.riskfocus.flink.snapshot.SnapshotMapper;
-import com.riskfocus.flink.snapshot.context.Context;
+import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import com.riskfocus.flink.snapshot.redis.RedisSnapshotConverterUtils;
 import com.riskfocus.flink.snapshot.redis.SnapshotData;
 import io.lettuce.core.RedisClient;
@@ -54,17 +54,17 @@ public class RedisSimpleCurrencyLoader implements SimpleCurrencyLoader {
     }
 
     @Override
-    public Optional<SnapshotData<SimpleCurrency>> loadSimpleCurrency(Context context, String code) throws IOException {
+    public Optional<SnapshotData<SimpleCurrency>> loadSimpleCurrency(ContextMetadata contextMetadata, String code) throws IOException {
         SimpleCurrency currency = SimpleCurrency.builder().code(code).build();
-        String directKeyStr = interestRatesMapper.buildKey(currency, context);
-        String indexKeyStr = interestRatesMapper.buildSnapshotIndexKey(context);
-        String snapshotPrefixStr = interestRatesMapper.buildSnapshotPrefix(context);
+        String directKeyStr = interestRatesMapper.buildKey(currency, contextMetadata);
+        String indexKeyStr = interestRatesMapper.buildSnapshotIndexKey(contextMetadata);
+        String snapshotPrefixStr = interestRatesMapper.buildSnapshotPrefix(contextMetadata);
         byte[] directKey = directKeyStr.getBytes();
         byte[] indexKey = indexKeyStr.getBytes();
         byte[] snapshotPrefix = snapshotPrefixStr.getBytes();
 
-        long ctxId = context.getId();
-        String dateStr = context.getDate();
+        long ctxId = contextMetadata.getId();
+        String dateStr = contextMetadata.getDate();
 
         byte[][] keys = convert(directKey, indexKey, snapshotPrefix);
 

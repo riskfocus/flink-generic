@@ -1,6 +1,6 @@
 package com.riskfocus.flink.snapshot;
 
-import com.riskfocus.flink.snapshot.context.Context;
+import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
@@ -18,15 +18,15 @@ public abstract class SnapshotMapper<T> implements Serializable {
 
     protected final String delimiter;
 
-    public String buildSnapshotPrefix(Context ctx) {
+    public String buildSnapshotPrefix(ContextMetadata ctx) {
         return snapShot + delimiter + ctx.getContextName();
     }
 
-    public String buildSnapshotIndexKey(Context ctx) {
+    public String buildSnapshotIndexKey(ContextMetadata ctx) {
         return buildSnapshotPrefix(ctx) + delimiter + index;
     }
 
-    public abstract String buildKey(T data, Context ctx);
+    public abstract String buildKey(T data, ContextMetadata ctx);
 
     public abstract String getValueFromData(T data) throws IOException;
 }
