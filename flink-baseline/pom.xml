@@ -13,6 +13,7 @@
     <modules>
         <module>flink-common</module>
         <module>flink-snapshot</module>
+        <module>flink-example</module>
     </modules>
 
     <artifactId>flink-baseline</artifactId>
@@ -21,6 +22,9 @@
         <flink.version>1.10.0</flink.version>
         <scala.binary.version>2.12</scala.binary.version>
         <redis.lettuce.version>5.2.2.RELEASE</redis.lettuce.version>
+        <embedded.redis.version>0.7.2</embedded.redis.version>
+        <log4j.version>1.2.17</log4j.version>
+        <slf4j.version>1.7.7</slf4j.version>
     </properties>
 
     <dependencyManagement>
@@ -29,6 +33,31 @@
                 <groupId>io.lettuce</groupId>
                 <artifactId>lettuce-core</artifactId>
                 <version>${redis.lettuce.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>it.ozimov</groupId>
+                <artifactId>embedded-redis</artifactId>
+                <version>${embedded.redis.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- Add logging framework, to produce console output when running in the IDE. -->
+            <!-- These dependencies are excluded from the application JAR by default. -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -63,6 +92,23 @@
             <artifactId>flink-metrics-jmx_${scala.binary.version}</artifactId>
             <version>${flink.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
     </dependencies>
 
