@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  * @author Khokhlov Pavel
  */
 @NoArgsConstructor
-public class SinkUtils<S> {
+public final class SinkUtils<S> {
 
     /**
      * Build collection of Sinks

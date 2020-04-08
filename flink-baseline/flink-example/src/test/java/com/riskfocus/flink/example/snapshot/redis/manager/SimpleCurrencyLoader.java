@@ -1,6 +1,6 @@
-package com.riskfocus.flink.example.snapshot;
+package com.riskfocus.flink.example.snapshot.redis.manager;
 
-import com.riskfocus.flink.example.domain.SimpleCurrency;
+import com.riskfocus.flink.example.snapshot.redis.domain.SimpleCurrency;
 import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import com.riskfocus.flink.snapshot.redis.SnapshotData;
 

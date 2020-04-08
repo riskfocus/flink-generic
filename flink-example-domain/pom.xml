@@ -3,29 +3,21 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>flink-baseline</artifactId>
+        <artifactId>flink-generic</artifactId>
         <groupId>com.riskfocus.flink.generic</groupId>
         <version>1.0-master-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>flink-example</artifactId>
+    <artifactId>flink-example-domain</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.riskfocus.flink.generic</groupId>
-            <artifactId>flink-snapshot</artifactId>
-            <version>${version}</version>
-        </dependency>
-        <dependency>
-            <groupId>it.ozimov</groupId>
-            <artifactId>embedded-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.riskfocus.flink.generic</groupId>
-            <artifactId>flink-example-domain</artifactId>
+            <artifactId>flink-domain</artifactId>
             <version>${version}</version>
         </dependency>
     </dependencies>
+
 
 </project>
