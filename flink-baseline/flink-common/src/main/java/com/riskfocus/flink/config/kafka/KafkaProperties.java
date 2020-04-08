@@ -66,9 +66,10 @@ public class KafkaProperties {
         // https://kafka.apache.org/10/documentation/streams/developer-guide/config-streams.html
         String autoOffsetReset = params.getString(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
+        String groupId = params.getString("group.id", "flink-app");
         Properties consumerProps = new Properties();
         consumerProps.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
-        consumerProps.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "smoothing-flink-app");
+        consumerProps.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         consumerProps.setProperty(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinBytes);
         consumerProps.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         consumerProps.setProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG, isolationLevel);
