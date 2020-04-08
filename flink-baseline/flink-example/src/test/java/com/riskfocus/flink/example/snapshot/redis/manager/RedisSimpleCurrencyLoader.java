@@ -1,10 +1,8 @@
-package com.riskfocus.flink.example.snapshot.redis;
+package com.riskfocus.flink.example.snapshot.redis.manager;
 
 import com.google.common.io.Resources;
 import com.riskfocus.flink.config.redis.RedisProperties;
-import com.riskfocus.flink.example.domain.SimpleCurrency;
-import com.riskfocus.flink.example.snapshot.SimpleCurrencyLoader;
-import com.riskfocus.flink.example.snapshot.SimpleCurrencyMapper;
+import com.riskfocus.flink.example.snapshot.redis.domain.SimpleCurrency;
 import com.riskfocus.flink.snapshot.SnapshotMapper;
 import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import com.riskfocus.flink.snapshot.redis.RedisSnapshotConverterUtils;

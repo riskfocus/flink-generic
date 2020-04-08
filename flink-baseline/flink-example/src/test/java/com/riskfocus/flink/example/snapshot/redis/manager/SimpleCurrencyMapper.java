@@ -1,6 +1,6 @@
-package com.riskfocus.flink.example.snapshot;
+package com.riskfocus.flink.example.snapshot.redis.manager;
 
-import com.riskfocus.flink.example.domain.SimpleCurrency;
+import com.riskfocus.flink.example.snapshot.redis.domain.SimpleCurrency;
 import com.riskfocus.flink.snapshot.SnapshotMapper;
 import com.riskfocus.flink.snapshot.context.ContextMetadata;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.riskfocus.flink.example.domain;
+package com.riskfocus.flink.example.snapshot.redis.domain;
 
 import com.riskfocus.flink.domain.TimeAware;
 import lombok.*;

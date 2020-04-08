@@ -11,6 +11,7 @@
     <modules>
         <module>flink-domain</module>
         <module>flink-baseline</module>
+        <module>flink-example-domain</module>
     </modules>
     <packaging>pom</packaging>
     <description>Shared Flink Libraries</description>

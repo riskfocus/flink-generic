@@ -18,15 +18,19 @@ public class WindowGeneratorProvider {
     public static final String WINDOW_PROVIDER_TYPE_PARAM_NAME = "window.provider.type";
 
     public static WindowAware create(ParamUtils params) {
-        String batchTypeStr = params.getString(WINDOW_PROVIDER_TYPE_PARAM_NAME, GeneratorType.BASIC.name());
-        long batchSize = params.getLong(WINDOW_SIZE_PARAM_NAME, Duration.ofSeconds(10).toMillis());
-        final GeneratorType generatorType = GeneratorType.valueOf(batchTypeStr);
+        String windowProvider = params.getString(WINDOW_PROVIDER_TYPE_PARAM_NAME, GeneratorType.BASIC.name());
+        long windowSize = getWindowSize(params);
+        final GeneratorType generatorType = GeneratorType.valueOf(windowProvider);
         switch (generatorType) {
             case BASIC:
-                return new BasicGenerator(batchSize);
+                return new BasicGenerator(windowSize);
             case REST:
             default:
                 throw new UnsupportedOperationException("Implementation required");
         }
+    }
+
+    public static long getWindowSize(ParamUtils params) {
+        return params.getLong(WINDOW_SIZE_PARAM_NAME, Duration.ofSeconds(10).toMillis());
     }
 }

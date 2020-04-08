@@ -1,6 +1,6 @@
 # Modules description baseline
 ## flink-baseline
-For usage you need to specify `<parent>` in project pom.xml file: 
+For usage you need to specify `parent` in your own project `pom.xml` file: 
 ```
 <parent>
     <groupId>com.riskfocus.flink.generic</groupId>
@@ -16,7 +16,10 @@ Provides:
  - Redis Sink function
  - Redis configuration (Redis lettuce client: https://lettuce.io) 
  - Provides basic interfaces Source/Sink.
- - Provides Window based tools
- - Provides common `EventTimeAssigner` for event based approach
+ - Provides `Window` based tools (generator etc)
+ - Provides TimestampAssigner `EventTimeAssigner` for event based time characteristic
 ## flink-snapshot module
-Module has Beta status. Provides common snapshot functions.
+Provides common snapshot functions (in atomic way):
+ - Ability to Sink data into Redis
+ - Ability to use that data from Redis
+For now Module has Beta status. 
