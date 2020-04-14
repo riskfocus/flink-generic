@@ -10,7 +10,7 @@ import java.util.List;
  * @author Khokhlov Pavel
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ByteUtils {
+public final class ByteUtils {
     public static byte[][] convert(byte[]... keys) {
         List<byte[]> keysList = Arrays.asList(keys);
         return listToArray(keysList);
