@@ -16,5 +16,6 @@ public class Customer extends IncomingEvent {
 
     private int customerId;
     private String name;
+    private String email;
 
 }

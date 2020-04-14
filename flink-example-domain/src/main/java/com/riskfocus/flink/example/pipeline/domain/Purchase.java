@@ -19,12 +19,12 @@ import java.util.Collection;
 public class Purchase extends IncomingEvent implements KeyedAware {
     private static final long serialVersionUID = -7464403908757902162L;
 
-    private int customerId;
+    private Customer customer;
 
     private Collection<Order> orders;
 
     @Override
     public byte[] key() {
-        return String.valueOf(customerId).getBytes();
+        return String.valueOf(customer.getCustomerId()).getBytes();
     }
 }

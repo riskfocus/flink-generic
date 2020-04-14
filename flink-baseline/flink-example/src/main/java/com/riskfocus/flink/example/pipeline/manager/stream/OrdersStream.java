@@ -40,7 +40,7 @@ public class OrdersStream {
                     List<Order> orders = new ArrayList<>();
                     orders.add(order);
                     return Purchase.builder()
-                            .customerId(customerAndAccount.getCustomer().getCustomerId())
+                            .customer(customerAndAccount.getCustomer())
                             .orders(orders)
                             .build();
                 });
