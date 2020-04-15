@@ -19,5 +19,4 @@ public class Order extends IncomingEvent {
     private int commodityId;
     private int customerId;
     private int quantity;
-    private BigDecimal totalPrice;
 }
