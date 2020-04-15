@@ -13,8 +13,8 @@ import lombok.Getter;
 public class ChannelProperties {
     private final ParamUtils paramUtils;
 
-    public boolean isChannelSplit() {
-        return paramUtils.getBoolean("channel.split", false);
+    public boolean isInterestRatesKafkaSnapshotEnabled() {
+        return paramUtils.getBoolean("interest.rates.kafka.snapshot.enabled", false);
     }
 
     public JobMode getJobMode() {

@@ -10,8 +10,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum JobMode {
 
-    CUSTOMER_ACCOUNT("e-commerce-customer-account-join"),
-    FULL("e-commerce-full");
+    INTEREST_RATES_ONLY("smoothing-interest-rates"),
+    OPTION_PRICES_ONLY("smoothing-option-prices"),
+    FULL("smoothing-full");
 
     private final String jobName;
 }

@@ -1,6 +1,5 @@
-# Damain objects of Flink example application
+# Domain objects used by Flink example application
 
-Contains Domain objects for Flink example application 
 
 This domain objects have to be shared between Flink and Test application.
-Test Application shouldn't has Flink dependencies.
+Test Application shouldn't have Flink dependencies.

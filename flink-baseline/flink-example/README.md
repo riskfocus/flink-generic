@@ -1,9 +1,9 @@
 # Example of simple application 
-This module contains basic example of Flink application
-(currently application in developing status)
+This module contains example of Flink application (SmoothingPrices).
+
 ## Application Description
 
-https://wiki.riskfocus.com/pages/viewpage.action?pageId=147395358
+https://wiki.riskfocus.com/display/OCC/Flink+based+Topology
 
 
 ## Run example of pipeline
@@ -17,7 +17,7 @@ https://wiki.riskfocus.com/pages/viewpage.action?pageId=147395358
     $ docker-compose up -d
     ```
  3. You can run application locally in IntelliJ IDEA.
-    1. You have to specify as a `Main class:` in Run Configuration `com.riskfocus.flink.example.pipeline.ECommerce`.
+    1. You have to specify as a `Main class:` in Run Configuration `com.riskfocus.flink.example.pipeline.SmoothingPricesJob`.
     2. Then check setting: `Include dependencies with "Provided" scope`
     3. Also you need to specify parameter `-local.dev true` in `Program arguments:` field.
 
