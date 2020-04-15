@@ -1,5 +1,6 @@
 package com.riskfocus.flink.test.example.config;
 
+import com.riskfocus.flink.test.common.metrics.MetricsService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.boot.actuate.autoconfigure.metrics.KafkaMetricsAutoConfiguration;
@@ -33,6 +34,11 @@ public class TestConfig {
         props.putAll(producerProperties);
 
         return new KafkaProducer<>(props);
+    }
+
+    @Bean
+    public MetricsService metricsService() {
+        return new MetricsService();
     }
 
 }

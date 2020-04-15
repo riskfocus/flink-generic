@@ -9,4 +9,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "example.test")
 @Data
 public class TestProperties {
+
+    private int customersCount;
+    private int commoditiesCount;
+
+    private String commodityTopic = "commodity";
+    private String customerTopic = "customer";
+    private String accountTopic = "account";
+
 }
