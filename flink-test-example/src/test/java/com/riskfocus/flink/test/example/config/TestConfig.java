@@ -23,7 +23,7 @@ import java.util.Properties;
 @Configuration
 @ComponentScan(basePackages = {"com.riskfocus.flink.test"})
 @Import({TestProperties.class})
-@EnableAutoConfiguration(exclude = {RedisAutoConfiguration.class, RedisRepositoriesAutoConfiguration.class, KafkaMetricsAutoConfiguration.class, TomcatMetricsAutoConfiguration.class,})
+@EnableAutoConfiguration(exclude = {RedisAutoConfiguration.class, RedisRepositoriesAutoConfiguration.class, KafkaMetricsAutoConfiguration.class, TomcatMetricsAutoConfiguration.class})
 @Slf4j
 public class TestConfig {
 
