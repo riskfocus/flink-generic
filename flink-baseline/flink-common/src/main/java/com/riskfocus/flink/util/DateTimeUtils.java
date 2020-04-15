@@ -18,7 +18,11 @@ public final class DateTimeUtils {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     public static String format(long timestamp) {
-        return Instant.ofEpochMilli(timestamp).atZone(UTC).format(DATE_TIME);
+        return format(timestamp, DATE_TIME);
+    }
+
+    public static String format(long timestamp, DateTimeFormatter pattern) {
+        return Instant.ofEpochMilli(timestamp).atZone(UTC).format(pattern);
     }
 
     public static String formatDate(long timestamp) {

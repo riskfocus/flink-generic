@@ -12,6 +12,7 @@
         <module>flink-domain</module>
         <module>flink-baseline</module>
         <module>flink-example-domain</module>
+        <module>flink-test-example</module>
     </modules>
     <packaging>pom</packaging>
     <description>Shared Flink Libraries</description>
@@ -24,6 +25,7 @@
         <lombok.version>1.18.12</lombok.version>
         <guava.version>28.2-jre</guava.version>
         <testng.version>7.1.0</testng.version>
+        <spring.boot.version>2.2.6.RELEASE</spring.boot.version>
     </properties>
 
     <dependencyManagement>

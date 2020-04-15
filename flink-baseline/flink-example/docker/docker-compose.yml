@@ -82,13 +82,10 @@ services:
                        /etc/confluent/docker/configure && \
                        cub kafka-ready -b kafka:9093 1 60 && \
                        sleep 5 && \
-                       kafka-topics --zookeeper zookeeper:2182 --topic customer --create --replication-factor 1 --partitions 4 && \
-                       kafka-topics --zookeeper zookeeper:2182 --topic account --create --replication-factor 1 --partitions 4 && \
-                       kafka-topics --zookeeper zookeeper:2182 --topic commodity --create --replication-factor 1 --partitions 4 && \
-                       kafka-topics --zookeeper zookeeper:2182 --topic customerAndAccount --create --replication-factor 1 --partitions 4 && \
-                       kafka-topics --zookeeper zookeeper:2182 --topic order-request --create --replication-factor 1 --partitions 4 && \
-                       kafka-topics --zookeeper zookeeper:2182 --topic purchase --create --replication-factor 1 --partitions 4 '"
-
+                       kafka-topics --zookeeper zookeeper:2182 --topic optionsPricesLive --create --replication-factor 1 --partitions 4 && \
+                       kafka-topics --zookeeper zookeeper:2182 --topic ycInputsLive --create --replication-factor 1 --partitions 4 && \
+                       kafka-topics --zookeeper zookeeper:2182 --topic interestRatesSnapshot --create --replication-factor 1 --partitions 1 && \
+                       kafka-topics --zookeeper zookeeper:2182 --topic smoothingInputsLatest --create --replication-factor 1 --partitions 4 '"
     environment:
       CONNECT_BOOTSTRAP_SERVERS: ignored
       KAFKA_ZOOKEEPER_CONNECT: ignored

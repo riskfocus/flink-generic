@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.riskfocus.flink.generic</groupId>
             <artifactId>flink-domain</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

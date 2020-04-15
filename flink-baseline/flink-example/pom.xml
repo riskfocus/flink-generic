@@ -15,7 +15,7 @@
         <dependency>
             <groupId>com.riskfocus.flink.generic</groupId>
             <artifactId>flink-snapshot</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>it.ozimov</groupId>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.riskfocus.flink.generic</groupId>
             <artifactId>flink-example-domain</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
