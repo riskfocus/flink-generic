@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.riskfocus.flink.example.pipeline.domain.Account;
 import com.riskfocus.flink.example.pipeline.domain.Commodity;
 import com.riskfocus.flink.example.pipeline.domain.Customer;
+import com.riskfocus.flink.example.pipeline.domain.Order;
 import com.riskfocus.flink.test.common.kafka.KafkaJsonMessageSender;
 import com.riskfocus.flink.test.common.kafka.SendInfoHolder;
 import com.riskfocus.flink.test.common.metrics.MetricsService;
@@ -57,6 +58,16 @@ public class DataSender extends KafkaJsonMessageSender {
         }
         sendInfoHolder.waitForAll();
         log.info("All commodities have been sent");
+        return sendInfoHolder.getSentMessages();
+    }
+
+    public Map<String, Order> sendOrders(Collection<Order> orders) throws JsonProcessingException {
+        var sendInfoHolder = new SendInfoHolder<String, Order, Order>(true);
+        for (var commodity : orders) {
+            sendMessage(properties.getOrderRequestTopic(), String.valueOf(commodity.getCustomerId()), commodity, sendInfoHolder);
+        }
+        sendInfoHolder.waitForAll();
+        log.info("All orders have been sent");
         return sendInfoHolder.getSentMessages();
     }
 

@@ -3,6 +3,7 @@ package com.riskfocus.flink.test.example;
 import com.riskfocus.flink.example.pipeline.domain.Account;
 import com.riskfocus.flink.example.pipeline.domain.Commodity;
 import com.riskfocus.flink.example.pipeline.domain.Customer;
+import com.riskfocus.flink.example.pipeline.domain.Order;
 import com.riskfocus.flink.test.example.config.TestConfig;
 import com.riskfocus.flink.test.example.config.TestProperties;
 import com.riskfocus.flink.test.example.data.MockDataGenerator;
@@ -15,7 +16,7 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.Test;
 
 import java.time.ZoneId;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Khokhlov Pavel
@@ -36,13 +37,16 @@ public class PurchaseIT extends AbstractTestNGSpringContextTests {
         int customersCount = testProperties.getCustomersCount();
         int commoditiesCount = testProperties.getCommoditiesCount();
 
-        Collection<Customer> customers = MockDataGenerator.generateCustomers(customersCount);
-        Collection<Account> accounts = MockDataGenerator.generateAccounts(customers);
-        Collection<Commodity> commodities = MockDataGenerator.generateCommodities(commoditiesCount);
+        List<Customer> customers = MockDataGenerator.generateCustomers(customersCount);
+        List<Account> accounts = MockDataGenerator.generateAccounts(customers);
+        List<Commodity> commodities = MockDataGenerator.generateCommodities(commoditiesCount);
 
         sender.sendCustomers(customers);
         sender.sendAccounts(accounts);
         sender.sendCommodities(commodities);
+
+        List<Order> orders = MockDataGenerator.generateOrderRequests(testProperties.getOrdersCount(), customers, commodities);
+        sender.sendOrders(orders);
 
         sender.close();
 

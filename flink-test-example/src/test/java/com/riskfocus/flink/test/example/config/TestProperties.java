@@ -12,9 +12,11 @@ public class TestProperties {
 
     private int customersCount;
     private int commoditiesCount;
+    private int ordersCount;
 
     private String commodityTopic = "commodity";
     private String customerTopic = "customer";
     private String accountTopic = "account";
+    private String orderRequestTopic = "order-request";
 
 }
