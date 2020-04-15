@@ -15,7 +15,7 @@
         <dependency>
             <groupId>com.riskfocus.flink.generic</groupId>
             <artifactId>flink-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
