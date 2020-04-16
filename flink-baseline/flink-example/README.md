@@ -3,7 +3,7 @@ This module contains example of Flink application (SmoothingPrices).
 
 ## Application Description
 
-https://wiki.riskfocus.com/display/OCC/Flink+based+Topology
+https://wiki.riskfocus.com/pages/viewpage.action?pageId=147395358
 
 
 ## Run example of pipeline
