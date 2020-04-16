@@ -88,14 +88,12 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
         log.debug("{} processing, timestamp: {}", underlying, timestamp);
         boolean pricesUpdateRequired = updateOptionPrice(value);
 
-        long fireTime;
         if (!Boolean.TRUE.equals(pricesUpdateRequiredState.value())) {
             pricesUpdateRequiredState.update(true);
-
             log.debug("{} pricesUpdateRequired: {} , duration: {} ms", underlying, pricesUpdateRequired, System.currentTimeMillis() - start);
             // Register timer
             WindowContext context = windowAware.generateWindowPeriod(timestamp);
-            fireTime = context.endOfWindow();
+            final long fireTime = context.endOfWindow();
             ctx.timerService().registerEventTimeTimer(fireTime);
         }
     }
@@ -103,10 +101,6 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
     @Override
     public void onTimer(long timestamp, OnTimerContext ctx, Collector<SmoothingRequest> out) throws Exception {
         super.onTimer(timestamp, ctx, out);
-
-        if (timestamp == Long.MAX_VALUE) {
-            timestamp = System.currentTimeMillis();
-        }
 
         final String underlying = ctx.getCurrentKey();
         final WindowContext context = windowAware.generateWindowPeriod(timestamp);
