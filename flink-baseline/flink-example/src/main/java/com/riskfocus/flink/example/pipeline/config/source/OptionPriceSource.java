@@ -1,6 +1,6 @@
 package com.riskfocus.flink.example.pipeline.config.source;
 
-import com.riskfocus.flink.assigner.EventTimeAssigner;
+import com.riskfocus.flink.assigner.TimeAwareWithIdlePeriodAssigner;
 import com.riskfocus.flink.config.channel.kafka.KafkaSource;
 import com.riskfocus.flink.example.pipeline.domain.OptionPrice;
 import com.riskfocus.flink.schema.EventDeserializationSchema;
@@ -20,12 +20,11 @@ public class OptionPriceSource extends KafkaSource<OptionPrice> {
 
     @Override
     public DataStream<OptionPrice> build(StreamExecutionEnvironment env) {
-        long maxLagTimeMs = getMaxLagTimeMs();
         final int defaultParallelism = env.getParallelism();
         int pricesConsumerParallelism = paramUtils.getInt("parallelism", defaultParallelism);
         String topic = paramUtils.getString("options.prices.inbound.topic", "optionsPricesLive");
         FlinkKafkaConsumer<OptionPrice> sourceFunction = new FlinkKafkaConsumer<>(topic, new EventDeserializationSchema<>(OptionPrice.class), buildConsumerProps());
-        sourceFunction.assignTimestampsAndWatermarks(new EventTimeAssigner<>(maxLagTimeMs, 0));
+        sourceFunction.assignTimestampsAndWatermarks(new TimeAwareWithIdlePeriodAssigner<>(getMaxIdleTimeMs(), 0));
         env.registerType(OptionPrice.class);
 
         return env.addSource(sourceFunction)

@@ -16,7 +16,6 @@ import java.util.Properties;
  */
 @AllArgsConstructor
 public class KafkaProperties {
-    public final static String MAX_LAG_TIME_PARAM_NAME = "max.lag.time.ms";
 
     private final static String defaultServer = "localhost:19093";
     private final ParamUtils params;
