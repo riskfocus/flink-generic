@@ -6,7 +6,8 @@ import com.riskfocus.flink.util.ParamUtils;
 
 import java.util.Properties;
 
-import static com.riskfocus.flink.config.kafka.KafkaProperties.MAX_LAG_TIME_PARAM_NAME;
+import static com.riskfocus.flink.assigner.AssignerParameters.MAX_IDLE_TIME_PARAM_NAME;
+import static com.riskfocus.flink.assigner.AssignerParameters.MAX_LAG_TIME_PARAM_NAME;
 
 /**
  * @author Khokhlov Pavel
@@ -23,6 +24,10 @@ public abstract class KafkaSource<S> implements Source<S> {
 
     protected long getMaxLagTimeMs() {
         return paramUtils.getLong(MAX_LAG_TIME_PARAM_NAME, 5000);
+    }
+
+    protected long getMaxIdleTimeMs() {
+        return paramUtils.getLong(MAX_IDLE_TIME_PARAM_NAME, 3000);
     }
 
     protected Properties buildConsumerProps() {

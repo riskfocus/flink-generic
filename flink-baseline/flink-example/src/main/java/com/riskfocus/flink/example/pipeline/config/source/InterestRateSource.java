@@ -1,6 +1,6 @@
 package com.riskfocus.flink.example.pipeline.config.source;
 
-import com.riskfocus.flink.assigner.EventTimeAssigner;
+import com.riskfocus.flink.assigner.TimeAwareWithIdlePeriodAssigner;
 import com.riskfocus.flink.config.channel.kafka.KafkaSource;
 import com.riskfocus.flink.example.pipeline.domain.InterestRate;
 import com.riskfocus.flink.schema.EventDeserializationSchema;
@@ -20,11 +20,10 @@ public class InterestRateSource extends KafkaSource<InterestRate> {
 
     @Override
     public DataStream<InterestRate> build(StreamExecutionEnvironment env) {
-        long maxLagTimeMs = getMaxLagTimeMs();
         int interestRatesConsumerParallelism = paramUtils.getInt("interests.consumer.parallelism", env.getParallelism());
         String topic = paramUtils.getString("interest.rates.inbound.topic", "ycInputsLive");
         FlinkKafkaConsumer<InterestRate> sourceFunction = new FlinkKafkaConsumer<>(topic, new EventDeserializationSchema<>(InterestRate.class), buildConsumerProps());
-        sourceFunction.assignTimestampsAndWatermarks(new EventTimeAssigner<>(maxLagTimeMs, 0));
+        sourceFunction.assignTimestampsAndWatermarks(new TimeAwareWithIdlePeriodAssigner<>(getMaxIdleTimeMs(), 0));
         env.registerType(InterestRate.class);
 
         return env.addSource(sourceFunction)
