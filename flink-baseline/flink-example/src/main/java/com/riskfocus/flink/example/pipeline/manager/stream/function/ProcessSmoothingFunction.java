@@ -99,7 +99,7 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
     }
 
     @Override
-    public void onTimer(long timestamp, OnTimerContext ctx, Collector<SmoothingRequest> out) throws Exception {
+    public void onTimer(final long timestamp, OnTimerContext ctx, Collector<SmoothingRequest> out) throws Exception {
         super.onTimer(timestamp, ctx, out);
 
         final String underlying = ctx.getCurrentKey();
@@ -111,8 +111,7 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
         boolean updatePrices = pricesUpdateRequiredState.value();
 
         InterestRates loadedRates = InterestRates.EMPTY;
-        final long ctxTime = timestamp;
-        ContextMetadata ctxMetadata = contextService.generate(() -> ctxTime, InterestRates.class.getSimpleName());
+        ContextMetadata ctxMetadata = contextService.generate(() -> timestamp, InterestRates.class.getSimpleName());
         Optional<SnapshotData<InterestRates>> ratesHolder = loader.loadInterestRates(ctxMetadata);
         if (ratesHolder.isPresent()) {
             loadedRates = ratesHolder.get().getElement();
@@ -128,9 +127,7 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
         // For this Underlying we've finished processing data
         pricesUpdateRequiredState.update(false);
         // Register Timer for this Underlying for periodic check Rates
-        if (ctx.timerService().currentWatermark() != Long.MAX_VALUE) {
-            ctx.timerService().registerEventTimeTimer(nextFireTime);
-        }
+        ctx.timerService().registerEventTimeTimer(nextFireTime);
     }
 
     private void produce(String underlyingKey, Long windowId, InterestRates currentRates, Collector<SmoothingRequest> out) throws Exception {
