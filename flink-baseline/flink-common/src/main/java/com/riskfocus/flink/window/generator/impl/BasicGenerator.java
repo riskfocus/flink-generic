@@ -2,26 +2,24 @@ package com.riskfocus.flink.window.generator.impl;
 
 import com.riskfocus.flink.window.WindowAware;
 import com.riskfocus.flink.window.WindowContext;
+import lombok.AllArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
 
 /**
- * Basic generator based on time calculation
+ * Wall clock based generator
  *
  * @author Khokhlov Pavel
  */
 @ToString
+@AllArgsConstructor
 public class BasicGenerator implements Serializable, WindowAware {
     private static final long serialVersionUID = 1670857446143857575L;
 
     private static final long zero = calculateZeroTime();
 
     private final long windowDuration;
-
-    public BasicGenerator(long windowDuration) {
-        this.windowDuration = windowDuration;
-    }
 
     protected long generateWindow(long timestamp) {
         if (timestamp < 0) {
