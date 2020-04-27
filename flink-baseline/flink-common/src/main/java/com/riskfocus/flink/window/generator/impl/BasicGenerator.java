@@ -43,11 +43,6 @@ public class BasicGenerator implements Serializable, WindowAware {
         return new WindowContext(windowId, startEpoch, endEpoch);
     }
 
-    @Override
-    public long convertToTimestamp(long windowId) {
-        return (windowDuration * (windowId - 1)) + zero;
-    }
-
     private static long calculateZeroTime() {
         return 0;
     }

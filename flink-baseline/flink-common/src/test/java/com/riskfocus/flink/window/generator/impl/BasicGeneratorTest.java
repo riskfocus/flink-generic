@@ -41,15 +41,4 @@ public class BasicGeneratorTest {
 
     }
 
-    @Test
-    public void convertToTimestamp() {
-        long windowSize = 10_000;
-        WindowAware windowAware = new BasicGenerator(windowSize);
-        long time = 1578037899903L;
-        long windowId = windowAware.generateWindowPeriod(time).getId();
-        long timestampConverted = windowAware.convertToTimestamp(windowId);
-        // check that we got time which less then Window size
-        Assert.assertTrue(Math.abs(timestampConverted - time) - windowSize < windowSize);
-    }
-
 }
