@@ -60,6 +60,8 @@ public class KafkaProperties {
         String maxPollRecords = params.getString("max.poll.records", "500");
         String isolationLevel = params.getString("isolation.level", "read_uncommitted");
         String fetchMaxWaitMs = params.getString("fetch.max.wait.ms", "500");
+        String autoCommitIntervalMs = params.getString("auto.commit.interval.ms", "1000");
+        String enableAutoCommit = params.getString("enable.auto.commit", "true");
         // Default is latest: "automatically reset the offset to the latest offset" which is odd
         // See for example Kafka Streams configuration:
         // https://kafka.apache.org/10/documentation/streams/developer-guide/config-streams.html
@@ -75,8 +77,8 @@ public class KafkaProperties {
         consumerProps.setProperty(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, fetchMaxWaitMs);
         consumerProps.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
 
-        consumerProps.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-        consumerProps.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
+        consumerProps.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit);
+        consumerProps.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, autoCommitIntervalMs);
 
 
         return consumerProps;
