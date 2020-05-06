@@ -9,7 +9,7 @@ import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import javax.annotation.Nullable;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 /**
  * @author Khokhlov Pavel
@@ -25,12 +25,12 @@ public class NonKeyedEventSerializationSchema<T> implements KafkaSerializationSc
     }
 
     private final String topic;
-    private final Supplier<byte[]> keySupplier;
+    private final Function<T, byte[]> keySupplier;
 
     @Override
     public ProducerRecord<byte[], byte[]> serialize(T element, @Nullable Long timestamp) {
         try {
-            final byte[] key = keySupplier.get();
+            final byte[] key = keySupplier.apply(element);
             ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<>(topic, key, objectMapper.writeValueAsBytes(element));
             log.debug("Create producer record for topic: {}, key: {}, value: {}", topic, key, element);
             return producerRecord;
