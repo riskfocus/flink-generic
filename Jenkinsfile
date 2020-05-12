@@ -8,7 +8,7 @@ pipeline {
     environment {
         ORG = 'RiskFocus'
         APP_NAME = 'flink-generic'
-        CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
+        CHARTMUSEUM_CREDS = credentials('chartmuseum-secret')
         CHART_REPOSITORY = "http://${CHARTMUSEUM_CREDS}@jenkins-x-chartmuseum:8080"
 
         SONAR_OPTS = ' '
