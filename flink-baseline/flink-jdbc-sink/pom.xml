@@ -17,11 +17,6 @@
             <artifactId>flink-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <!-- Switch to ${scala.binary.version} when version becomes available -->
-            <artifactId>flink-jdbc_2.11</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
