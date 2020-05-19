@@ -5,6 +5,7 @@ Project contains sub-modules:
 - [Flink-baseline](flink-baseline/README.md)
 - [Flink-common](flink-baseline/flink-common) 
 - [Flink-snapshot](flink-baseline/flink-snapshot/README.md) 
+- [Flink-jdbc-sink](flink-baseline/flink-jdbc-sink/README.md)
 - [Sample of Flink application](flink-baseline/flink-example/README.md)
 - [Integration test](flink-test-example/src/test/java/com/riskfocus/flink/test/example/SmoothingIT.java)
 

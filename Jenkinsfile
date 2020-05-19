@@ -27,7 +27,7 @@ pipeline {
                 container('maven') {
                     withMaven(publisherStrategy: 'EXPLICIT', mavenOpts: MAVEN_OPTS) {
                         sh "mvn versions:set -DnewVersion=PREVIEW_VERSION"
-                        sh "mvn install"
+                        sh "mvn clean install"
 
                         // Only works with the webhook enabled
                         // timeout(time: 1, unit: 'HOURS') {
@@ -55,7 +55,7 @@ pipeline {
                 container('maven') {
                     withMaven(publisherStrategy: 'EXPLICIT', mavenOpts: MAVEN_OPTS) {
                         sh "mvn versions:set -DnewVersion=$PREVIEW_VERSION"
-                        sh "mvn deploy"
+                        sh "mvn clean deploy"
                     }
                 }
             }
