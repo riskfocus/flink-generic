@@ -14,6 +14,7 @@
         <module>flink-common</module>
         <module>flink-snapshot</module>
         <module>flink-example</module>
+        <module>flink-jdbc-sink</module>
     </modules>
 
     <artifactId>flink-baseline</artifactId>
@@ -25,6 +26,8 @@
         <embedded.redis.version>0.7.2</embedded.redis.version>
         <log4j.version>1.2.17</log4j.version>
         <slf4j.version>1.7.7</slf4j.version>
+        <!-- Use stable version when it will become available -->
+        <flink.jdbc.version>1.11-SNAPSHOT</flink.jdbc.version>
     </properties>
 
     <dependencyManagement>
@@ -58,6 +61,12 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <!-- Switch to ${scala.binary.version} when version becomes available -->
+                <artifactId>flink-jdbc_2.11</artifactId>
+                <version>${flink.jdbc.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

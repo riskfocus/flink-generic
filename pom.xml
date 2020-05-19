@@ -28,6 +28,14 @@
         <spring.boot.version>2.2.6.RELEASE</spring.boot.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>apache-maven-snapshots</id>
+            <name>apache-maven-snapshots</name>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
