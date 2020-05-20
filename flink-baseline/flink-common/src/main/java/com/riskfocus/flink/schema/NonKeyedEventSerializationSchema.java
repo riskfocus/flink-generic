@@ -12,7 +12,12 @@ import javax.annotation.Nullable;
 import java.util.function.Function;
 
 /**
- * @author Khokhlov Pavel
+ * Event serialization schema with custom {@code Function<T, byte[]> keySupplier} key extractor function.
+ * <br>Suitable for any classes implementing NO interface, where key should be extracted manually
+ * <br>When initialized, <i>keySupplier</i> function should be defined as <b>Serializable</b>, for example:
+ * <br>{@code (Function<TradeBundle, byte[]> & Serializable) (t) -> "1".getBytes()}
+ * @author NIakovlev
+ *
  */
 @AllArgsConstructor
 @Slf4j
