@@ -34,7 +34,7 @@ public final class CheckpointingConfiguration {
             if (enableExternalizedCheckpoints) {
                 checkpointConfig.enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.DELETE_ON_CANCELLATION);
             }
-            checkpointConfig.setPreferCheckpointForRecovery(true);
+            //checkpointConfig.setPreferCheckpointForRecovery(true);
         }
 
     }

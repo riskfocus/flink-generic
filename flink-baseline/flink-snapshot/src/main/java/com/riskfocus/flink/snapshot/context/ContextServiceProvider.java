@@ -1,6 +1,5 @@
 package com.riskfocus.flink.snapshot.context;
 
-import com.riskfocus.flink.snapshot.context.rest.RestBased;
 import com.riskfocus.flink.util.ParamUtils;
 import com.riskfocus.flink.window.WindowAware;
 import com.riskfocus.flink.window.generator.GeneratorType;
@@ -24,9 +23,6 @@ public final class ContextServiceProvider {
         switch (generatorType) {
             case BASIC:
                 return new WindowBased(windowAware);
-            case REST:
-                String url = params.getString(CONTEXT_SERVICE_URL_PARAM_NAME, "http://test.example.com");
-                return new RestBased(windowAware, url);
             default:
                 throw new UnsupportedOperationException("Implementation required");
         }

@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,7 +64,9 @@ public class SmoothingIT extends AbstractTestNGSpringContextTests {
             expectedInitial = messageSender.sendInitialMessages();
 
             log.info("Waiting for services to process initial prices&rates...");
-            checkPriesAndRates(Map.of(expectedInitial.getKey(), expectedInitial));
+            Map<String, ExpectedResultHolder> map = new HashMap<>();
+            map.put(expectedInitial.getKey(), expectedInitial);
+            checkPriesAndRates(map);
             log.info("All initial prices&rates have been recieved and verified");
         }
 

@@ -20,7 +20,7 @@
     <artifactId>flink-baseline</artifactId>
 
     <properties>
-        <flink.version>1.10.1</flink.version>
+        <flink.version>1.8.3</flink.version>
         <scala.binary.version>2.12</scala.binary.version>
         <redis.lettuce.version>5.2.2.RELEASE</redis.lettuce.version>
         <embedded.redis.version>0.7.2</embedded.redis.version>
@@ -67,6 +67,11 @@
                 <!-- Switch to ${scala.binary.version} when version becomes available -->
                 <artifactId>flink-jdbc_2.11</artifactId>
                 <version>${flink.jdbc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.12</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

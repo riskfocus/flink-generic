@@ -20,10 +20,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
+        <java.version>1.8</java.version>
         <sonar.organization>riskfocus</sonar.organization>
         <lombok.version>1.18.12</lombok.version>
-        <guava.version>28.2-jre</guava.version>
+        <guava.version>18.0</guava.version>
         <testng.version>7.1.0</testng.version>
         <spring.boot.version>2.2.6.RELEASE</spring.boot.version>
     </properties>
@@ -76,7 +76,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <release>${java.version}</release>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
 

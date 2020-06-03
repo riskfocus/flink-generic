@@ -10,6 +10,7 @@ import org.testng.Assert;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -65,7 +66,7 @@ public class CheckUtil {
                         map1.putAll(map2);
                         return map1;
                     })
-                    .orElseThrow();
+                    .orElseThrow(RuntimeException::new);
 
             checkPrices(allPrices, expectedResultHolder.getData());
 
