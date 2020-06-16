@@ -27,43 +27,35 @@ public final class ParamUtils implements Serializable {
      * @return value of parameter
      */
     public String getString(String parameterName, String defaultValue) {
-        String envKey = buildEnvKey(parameterName);
-        String envValue = getEnv().get(envKey);
-        if (StringUtils.isBlank(envValue)) {
-            return params.get(parameterName, defaultValue);
-        } else {
-            return envValue;
+        String paramValue = retrieveParam(parameterName);
+        if (paramValue == null) {
+            return defaultValue;
         }
+        return paramValue;
     }
 
     public int getInt(String parameterName, int defaultValue) {
-        String envKey = buildEnvKey(parameterName);
-        String envValue = getEnv().get(envKey);
-        if (StringUtils.isBlank(envValue)) {
-            return params.getInt(parameterName, defaultValue);
-        } else {
-            return Integer.parseInt(envValue);
+        String paramValue = retrieveParam(parameterName);
+        if (StringUtils.isBlank(paramValue)) {
+            return defaultValue;
         }
+        return Integer.parseInt(paramValue);
     }
 
     public long getLong(String parameterName, long defaultValue) {
-        String envKey = buildEnvKey(parameterName);
-        String envValue = getEnv().get(envKey);
-        if (StringUtils.isBlank(envValue)) {
-            return params.getLong(parameterName, defaultValue);
-        } else {
-            return Long.parseLong(envValue);
+        String paramValue = retrieveParam(parameterName);
+        if (StringUtils.isBlank(paramValue)) {
+            return defaultValue;
         }
+        return Long.parseLong(paramValue);
     }
 
     public boolean getBoolean(String parameterName, boolean defaultValue) {
-        String envKey = buildEnvKey(parameterName);
-        String envValue = getEnv().get(envKey);
-        if (StringUtils.isBlank(envValue)) {
-            return params.getBoolean(parameterName, defaultValue);
-        } else {
-            return Boolean.parseBoolean(envValue);
+        String paramValue = retrieveParam(parameterName);
+        if (StringUtils.isBlank(paramValue)) {
+            return defaultValue;
         }
+        return Boolean.parseBoolean(paramValue);
     }
 
     /**
@@ -72,13 +64,20 @@ public final class ParamUtils implements Serializable {
      * @return true if parameter has value
      */
     public boolean has(String parameterName) {
+        String paramValue = retrieveParam(parameterName);
+        return !StringUtils.isBlank(paramValue);
+    }
+
+    private String retrieveParam(String parameterName) {
+        String paramValue = params.get(parameterName);
         String envKey = buildEnvKey(parameterName);
         String envValue = getEnv().get(envKey);
-        if (StringUtils.isBlank(envValue)) {
-            return params.has(parameterName);
-        } else {
-            return true;
+        if (paramValue == null) {
+            if (envValue != null) {
+                return envValue;
+            }
         }
+        return paramValue;
     }
 
     private String buildEnvKey(String parameterName) {
