@@ -77,6 +77,9 @@ public class KafkaProperties {
         consumerProps.setProperty(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, fetchMaxWaitMs);
         consumerProps.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
 
+        consumerProps.setProperty(ConsumerConfig.SEND_BUFFER_CONFIG, params.getString(ConsumerConfig.SEND_BUFFER_CONFIG, "131072"));
+        consumerProps.setProperty(ConsumerConfig.RECEIVE_BUFFER_CONFIG, params.getString(ConsumerConfig.RECEIVE_BUFFER_CONFIG, "65536"));
+
         consumerProps.setProperty(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, params.getString(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, "1048576"));
         consumerProps.setProperty(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, params.getString(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, "57671680"));
 
