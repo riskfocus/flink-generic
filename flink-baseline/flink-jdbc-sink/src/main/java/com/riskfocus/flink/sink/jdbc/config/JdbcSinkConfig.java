@@ -41,16 +41,21 @@ public class JdbcSinkConfig {
     }
 
     /**
-     * After which period of time batch should be released if it doesn't achieve required batch size.
+     * How often executor should run thread and check batch expiration
      *
-     * There is additional thread which periodically runs and check last batch released time and batch size.
      * @see #getMaxWaitThreshold()
-     * @return jdbc batch interval in milliseconds
+     * @return how often run batch check expiration thread in milliseconds
      */
     public long getJdbcBatchIntervalMs() {
-        return paramUtils.getLong("jdbc.batch.interval.ms", JdbcExecutionOptions.DEFAULT_INTERVAL_MILLIS);
+        return paramUtils.getLong("jdbc.batch.interval.ms", JdbcExecutionOptions.DEFAULT_THREAD_BATCH_CHECK_INTERVAL_MILLIS);
     }
 
+    /**
+     * After which period of time batch should be released if it doesn't achieve required batch size.
+     *
+     * @see #getJdbcBatchIntervalMs()
+     * @return how long Jdbc Sink should waits (accumulates batch) before sending the data over JDBC API in milliseconds
+     */
     public long getMaxWaitThreshold() {
         return paramUtils.getLong("jdbc.max.wait.threshold.ms", JdbcExecutionOptions.DEFAULT_MAX_WAIT_THRESHOLD);
     }
