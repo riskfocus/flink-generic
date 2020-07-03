@@ -28,6 +28,7 @@
         <slf4j.version>1.7.7</slf4j.version>
         <!-- Use stable version when it will become available -->
         <flink.jdbc.version>1.11-SNAPSHOT</flink.jdbc.version>
+        <dropwizard.metrics.version>4.1.10.1</dropwizard.metrics.version>
     </properties>
 
     <dependencyManagement>
@@ -67,6 +68,16 @@
                 <!-- Switch to ${scala.binary.version} when version becomes available -->
                 <artifactId>flink-jdbc_2.11</artifactId>
                 <version>${flink.jdbc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-metrics-dropwizard</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${dropwizard.metrics.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -123,7 +134,21 @@
              <groupId>org.apache.flink</groupId>
              <!-- Switch to ${scala.binary.version} when version becomes available -->
              <artifactId>flink-jdbc_2.11</artifactId>
-         </dependency>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-metrics-dropwizard</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.dropwizard.metrics</groupId>
+                    <artifactId>metrics-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

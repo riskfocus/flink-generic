@@ -47,7 +47,6 @@ public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExe
     @Override
     public void executeBatch() throws SQLException {
         if (!batch.isEmpty()) {
-            long start = System.currentTimeMillis();
             for (V r : batch) {
                 parameterSetter.accept(st, r);
                 st.addBatch();
@@ -58,8 +57,6 @@ public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExe
                 log.trace("Commit batch: {}", batch.size());
                 connection.commit();
             }
-            long end = System.currentTimeMillis();
-            log.info("Batch size: {} released, took time: {} ms", batch.size(), end - start);
             batch.clear();
         }
     }
