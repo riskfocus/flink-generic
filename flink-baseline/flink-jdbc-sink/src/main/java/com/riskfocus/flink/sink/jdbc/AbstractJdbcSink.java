@@ -44,10 +44,10 @@ public abstract class AbstractJdbcSink<T> implements Sink<T>, SinkMetaInfo<T>, S
 
     protected JdbcExecutionOptions buildJdbcExecutionOptions() {
         return JdbcExecutionOptions.builder()
-                .withBatchIntervalMs(jdbcSinkConfig.getJdbcBatchIntervalMs())
+                .withBatchCheckIntervalMs(jdbcSinkConfig.getJdbcBatchIntervalMs())
                 .withBatchSize(jdbcSinkConfig.getJdbcBatchSize())
                 .withMaxRetries(jdbcSinkConfig.getJdbcMaxRetries())
-                .withMaxWaitThreshold(jdbcSinkConfig.getMaxWaitThreshold())
+                .withBatchMaxWaitThresholdMs(jdbcSinkConfig.getMaxWaitThreshold())
                 .build();
     }
 
