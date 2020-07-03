@@ -1,11 +1,16 @@
 package com.riskfocus.flink.sink.jdbc.core.output;
 
+import com.codahale.metrics.SlidingTimeWindowArrayReservoir;
 import com.riskfocus.flink.sink.jdbc.config.JdbcExecutionOptions;
 import com.riskfocus.flink.sink.jdbc.core.executor.JdbcBatchStatementExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.java.io.jdbc.JdbcConnectionProvider;
+import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
+import org.apache.flink.metrics.Histogram;
+import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
+import org.apache.flink.shaded.guava18.com.google.common.base.Stopwatch;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -27,6 +32,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>> extends AbstractJdbcOutputFormat<In> {
 
     private static final long serialVersionUID = -5076203649890526253L;
+    private static final int RESET_TIME = -1;
+    private static final String JDBC_METRICS_GROUP = "jdbc.sink";
 
     public interface RecordExtractor<F, T> extends Function<F, T>, Serializable {
         static <T> JdbcBatchingOutputFormat.RecordExtractor<T, T> identity() {
@@ -45,11 +52,13 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     private transient JdbcExec jdbcStatementExecutor;
     private transient int batchCount = 0;
     private transient volatile boolean closed = false;
-    private transient AtomicLong lastTimeWhenElementWasAdded;
+    private transient AtomicLong startBatchTime;
 
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
     private transient volatile Exception flushException;
+    private transient MetricGroup metricGroup;
+    private transient Histogram latencyHistogram;
 
     public JdbcBatchingOutputFormat(
             @Nonnull JdbcConnectionProvider connectionProvider,
@@ -60,7 +69,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         this.executionOptions = checkNotNull(executionOptions);
         this.statementExecutorFactory = checkNotNull(statementExecutorFactory);
         this.jdbcRecordExtractor = checkNotNull(recordExtractor);
-        this.maxWaitThreshold = executionOptions.getMaxWaitThreshold();
+        this.maxWaitThreshold = executionOptions.getBatchMaxWaitThresholdMs();
         log.debug("Created: {}", this);
     }
 
@@ -73,9 +82,14 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     public void open(int taskNumber, int numTasks) throws IOException {
         super.open(taskNumber, numTasks);
         log.info("Open taskNumber: {}, numTasks: {} for: {}", taskNumber, numTasks, this);
-        lastTimeWhenElementWasAdded = new AtomicLong(System.currentTimeMillis());
         jdbcStatementExecutor = createAndOpenStatementExecutor(statementExecutorFactory);
-        if (executionOptions.getBatchIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
+        startBatchTime = new AtomicLong(RESET_TIME);
+        metricGroup = getRuntimeContext().getMetricGroup().addGroup(JDBC_METRICS_GROUP);
+
+        latencyHistogram = metricGroup.histogram("batch-latency",
+                new DropwizardHistogramWrapper(new com.codahale.metrics.Histogram(new SlidingTimeWindowArrayReservoir(30, TimeUnit.SECONDS))));
+
+        if (executionOptions.getBatchCheckIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
             // Register one thread in background since we have to emit batch which couldn't be fulled by incoming data
             this.scheduler = Executors.newSingleThreadScheduledExecutor(new ExecutorThreadFactory("jdbc-scheduled-" + taskNumber));
             this.scheduledFuture = this.scheduler.scheduleWithFixedDelay(() -> {
@@ -89,7 +103,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                         flushException = e;
                     }
                 }
-            }, executionOptions.getBatchIntervalMs(), executionOptions.getBatchIntervalMs(), TimeUnit.MILLISECONDS);
+            }, executionOptions.getBatchCheckIntervalMs(), executionOptions.getBatchCheckIntervalMs(), TimeUnit.MILLISECONDS);
         }
     }
 
@@ -113,6 +127,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     public final synchronized void writeRecord(In record) throws IOException {
         log.trace("Write record");
         checkFlushException();
+        if (batchCount == 0) {
+            startBatchTime.set(now());
+        }
         try {
             addToBatch(jdbcRecordExtractor.apply(record));
             batchCount++;
@@ -124,18 +141,33 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
     }
 
-    void addToBatch(JdbcIn extracted) throws SQLException {
-        lastTimeWhenElementWasAdded.set(System.currentTimeMillis());
+    private long now() {
+        return System.currentTimeMillis();
+    }
+
+    private void addToBatch(JdbcIn extracted) throws SQLException {
         jdbcStatementExecutor.addToBatch(extracted);
     }
 
-    private boolean flushRequired() {
-        long passed = System.currentTimeMillis() - lastTimeWhenElementWasAdded.get();
-        if (passed >= maxWaitThreshold && batchCount > 0) {
-            log.info("Passed threshold: {} ms, unprocessed batch size: {}", passed, batchCount);
+    private synchronized boolean flushRequired() {
+        long passedTimeMs = passedTime();
+        if (passedTimeMs >= maxWaitThreshold && batchCount > 0) {
+            log.info("Passed time since last update: {} ms, unprocessed batch size: {}", passedTimeMs, batchCount);
             return true;
         }
+        log.debug("Flush doesn't required last update was: {} ms ago, unprocessed batch size: {}", passedTimeMs, batchCount);
         return false;
+    }
+
+    private long passedTime() {
+        long now = System.currentTimeMillis();
+        long startBatch = startBatchTime.get();
+        if (RESET_TIME == startBatch) {
+            log.trace("Flush doesn't required because there is no data, batch size is: {}", batchCount);
+            // There is no any data
+            return RESET_TIME;
+        }
+        return now - startBatch;
     }
 
     @Override
@@ -160,10 +192,15 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                 }
             }
         }
+        startBatchTime.set(RESET_TIME);
     }
 
-    void attemptFlush() throws SQLException {
+    private void attemptFlush() throws SQLException {
+        Stopwatch watch = Stopwatch.createStarted();
         jdbcStatementExecutor.executeBatch();
+        long batchLatency = watch.elapsed(TimeUnit.MILLISECONDS);
+        latencyHistogram.update(batchLatency);
+        log.info("Executed batch: {} size, took time: {} ms", batchCount, batchLatency);
     }
 
     /**
