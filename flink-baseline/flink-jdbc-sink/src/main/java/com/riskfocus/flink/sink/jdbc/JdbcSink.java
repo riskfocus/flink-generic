@@ -3,6 +3,8 @@ package com.riskfocus.flink.sink.jdbc;
 import com.riskfocus.flink.sink.jdbc.config.JdbcConnectionOptions;
 import com.riskfocus.flink.sink.jdbc.config.JdbcExecutionOptions;
 import com.riskfocus.flink.sink.jdbc.connector.SimpleJdbcConnectionProvider;
+import com.riskfocus.flink.sink.jdbc.core.JdbcSqlBuilderWithMetadata;
+import com.riskfocus.flink.sink.jdbc.core.JdbcStatementBuilderWithMetadata;
 import com.riskfocus.flink.sink.jdbc.core.executor.JdbcBatchStatementExecutor;
 import com.riskfocus.flink.sink.jdbc.core.output.JdbcBatchingOutputFormat;
 import lombok.AccessLevel;
@@ -31,6 +33,24 @@ public class JdbcSink {
                     Preconditions.checkState(!context.getExecutionConfig().isObjectReuseEnabled(),
                             "objects can not be reused with JDBC sink function");
                     return JdbcBatchStatementExecutor.simple(sql, statementBuilder, Function.identity(), executionOptions);
+                },
+                JdbcBatchingOutputFormat.RecordExtractor.identity()
+        ));
+    }
+
+    public static <T> SinkFunction<T> sinkWithTableMetadata(
+            String tableName,
+            JdbcSqlBuilderWithMetadata sql,
+            JdbcStatementBuilderWithMetadata<T> statementBuilder,
+            JdbcExecutionOptions executionOptions,
+            JdbcConnectionOptions connectionOptions) {
+        return new JdbcSinkFunction<>(new JdbcBatchingOutputFormat<>(
+                new SimpleJdbcConnectionProvider(connectionOptions),
+                executionOptions,
+                context -> {
+                    Preconditions.checkState(!context.getExecutionConfig().isObjectReuseEnabled(),
+                            "objects can not be reused with JDBC sink function");
+                    return JdbcBatchStatementExecutor.withTableMetadata(tableName, sql, statementBuilder, Function.identity(), executionOptions);
                 },
                 JdbcBatchingOutputFormat.RecordExtractor.identity()
         ));
