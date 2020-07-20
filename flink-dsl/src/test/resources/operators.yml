@@ -1,0 +1,13 @@
+testSource:
+  parallelism: 1
+  topic: testSource
+  bootstrap.servers: localhost:9092
+  max.poll.records: 100
+  enable.auto.commit: "true"
+  auto.commit.interval.ms: 100
+
+testSink:
+  topic: testSink
+  bootstrap.servers: kafka:9092
+  acks: "all"
+  semantic: EXACTLY_ONCE

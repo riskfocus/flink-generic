@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package com.riskfocus.flink.domain;
+package com.riskfocus.dsl.definition;
+
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
 /**
- * @author Khokhlov Pavel
+ * Adds sink capabilities to operator definition.
+ *
+ * @param <T> Sink event type
  */
-public interface KeyedAware {
+public interface SinkDefinition<T> extends SimpleDefinition {
+
     /**
-     *
-     * @return the byte[] value to be used as the Key when reading/writing to Kafka. Null if there is no key.
+     * Builds Flink {@link SinkFunction}
      */
-    byte[] key();
+    SinkFunction<T> buildSink();
+
 }

@@ -16,16 +16,17 @@
 
 package com.riskfocus.flink.domain;
 
-import java.io.Serializable;
-
 /**
- * Inbound/Outbound message has to implement this interface
+ * Common interface for all events are written to Kafka.
  *
  * @author Khokhlov Pavel
  */
 @FunctionalInterface
-public interface TimeAware extends Serializable {
+public interface KafkaKeyedAware {
 
-    long getTimestamp();
+    /**
+     * @return the byte[] value to be used as the key when writing to Kafka
+     */
+    byte[] kafkaKey();
 
 }

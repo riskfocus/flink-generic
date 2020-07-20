@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.riskfocus.flink.domain;
+package com.riskfocus.dsl.serialization;
 
 import java.io.Serializable;
 
 /**
- * Inbound/Outbound message has to implement this interface
+ * Auxiliary interface, providing serialization capabilities to {@link com.riskfocus.dsl.definition.kafka.CommonKafkaSink}.
+ * Required, due to Flink cannot serialize/infer type from lambdas.
  *
- * @author Khokhlov Pavel
+ * @param <T> type of event to send to sink
  */
-@FunctionalInterface
-public interface TimeAware extends Serializable {
+public interface KafkaSinkSerializer<T> extends Serializable {
 
-    long getTimestamp();
+    byte[] apply(T t);
 
 }

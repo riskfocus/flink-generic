@@ -17,10 +17,12 @@
 package com.riskfocus.flink.domain;
 
 /**
+ * Common interface for all mutable events, consuming by Kafka source.
+ *
  * @author Khokhlov Pavel
  */
 public interface Event extends TimeAware {
+
     void setTimestamp(long timestamp);
-    void setEos(boolean isEos);
-    boolean isEos();
+
 }

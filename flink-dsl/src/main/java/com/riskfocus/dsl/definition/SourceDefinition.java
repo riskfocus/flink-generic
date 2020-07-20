@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.riskfocus.flink.domain;
+package com.riskfocus.dsl.definition;
 
-import java.io.Serializable;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 /**
- * Inbound/Outbound message has to implement this interface
+ * Adds source capabilities to operator definition.
  *
- * @author Khokhlov Pavel
+ * @param <T> Source event type
  */
-@FunctionalInterface
-public interface TimeAware extends Serializable {
+public interface SourceDefinition<T> extends SimpleDefinition {
 
-    long getTimestamp();
+    /**
+     * Builds Flink {@link SourceFunction}
+     */
+    SourceFunction<T> buildSource();
 
 }

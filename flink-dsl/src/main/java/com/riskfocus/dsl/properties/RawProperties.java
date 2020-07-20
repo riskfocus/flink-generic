@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package com.riskfocus.flink.domain;
+package com.riskfocus.dsl.properties;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
- * Inbound/Outbound message has to implement this interface
+ * Internal interface for properties instantiation.
  *
- * @author Khokhlov Pavel
+ * @param <T> properties subclass, see {@link KafkaConsumerProperties}
  */
-@FunctionalInterface
-public interface TimeAware extends Serializable {
+interface RawProperties<T> extends Serializable {
 
-    long getTimestamp();
+    /**
+     * Factory method for instantiation
+     */
+    @SuppressWarnings("unchecked")
+    default T withRawValues(Map<String, String> defaults) {
+        return (T) this;
+    }
 
 }

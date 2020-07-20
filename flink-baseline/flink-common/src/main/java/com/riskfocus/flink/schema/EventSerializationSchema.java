@@ -16,41 +16,33 @@
 
 package com.riskfocus.flink.schema;
 
-import com.riskfocus.flink.domain.KeyedAware;
+import com.riskfocus.flink.domain.KafkaKeyedAware;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.DeserializationFeature;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import javax.annotation.Nullable;
+
+import static com.riskfocus.flink.json.UncheckedObjectMapper.MAPPER;
 
 /**
  * @author Khokhlov Pavel
  */
 @AllArgsConstructor
 @Slf4j
-public class EventSerializationSchema<T extends KeyedAware> implements KafkaSerializationSchema<T> {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final long serialVersionUID = -7630400380854325462L;
+public class EventSerializationSchema<T extends KafkaKeyedAware> implements KafkaSerializationSchema<T> {
 
-    static {
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    }
+    private static final long serialVersionUID = -7630400380854325462L;
 
     private final String topic;
 
     @Override
     public ProducerRecord<byte[], byte[]> serialize(T element, @Nullable Long timestamp) {
-        try {
-            final byte[] key = element.key();
-            ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<>(topic, key, objectMapper.writeValueAsBytes(element));
-            log.debug("Create producer record for topic: {}, key: {}, value: {}", topic, key, element);
-            return producerRecord;
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Could not serialize record: " + element, e);
-        }
+        final byte[] key = element.kafkaKey();
+        ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<>(topic, element.kafkaKey(), MAPPER.writeValueAsBytes(element));
+        log.debug("Create producer record for topic: {}, key: {}, value: {}", topic, key, element);
+        return producerRecord;
     }
+
 }

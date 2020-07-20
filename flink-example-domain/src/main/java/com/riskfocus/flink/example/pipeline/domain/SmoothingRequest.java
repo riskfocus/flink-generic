@@ -17,7 +17,7 @@
 package com.riskfocus.flink.example.pipeline.domain;
 
 import com.riskfocus.flink.domain.IncomingEvent;
-import com.riskfocus.flink.domain.KeyedAware;
+import com.riskfocus.flink.domain.KafkaKeyedAware;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,7 +32,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class SmoothingRequest extends IncomingEvent implements KeyedAware {
+public class SmoothingRequest extends IncomingEvent implements KafkaKeyedAware {
 
     private Underlying underlying;
     /**
@@ -46,7 +46,7 @@ public class SmoothingRequest extends IncomingEvent implements KeyedAware {
     private Map<String, InterestRate> interestRates;
 
     @Override
-    public byte[] key() {
+    public byte[] kafkaKey() {
         return underlying.getName().getBytes();
     }
 }

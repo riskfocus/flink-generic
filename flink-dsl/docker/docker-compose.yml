@@ -1,0 +1,86 @@
+#Copyright 2020 Risk Focus Inc
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+
+version: '3.3'
+# Creates all infrastructure needed
+
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.3.1
+    ports:
+      - 2182:2182
+    environment:
+      HOSTNAME: localhost
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 2182
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: localhost:2889:3889
+
+  kafka:
+    image: confluentinc/cp-enterprise-kafka:5.3.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+
+    environment:
+      KAFKA_BROKER_ID: 10
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2182
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: OUTER:PLAINTEXT,INNER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: OUTER://localhost:19092,INNER://kafka:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INNER
+      KAFKA_LOG_RETENTION_MINUTES: 5
+      KAFKA_LOG_RETENTION_BYTES: 26214400 # 25 MB
+      KAFKA_LOG_SEGMENT_BYTES: 52428800 # 50 MB
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_MIN_ISYNC_REPLICAS: 1
+      KAFKA_LOG4J_LOGGERS: "kafka=WARN,kafka.server=WARN,kafka.controller=WARN"
+      KAFKA_LOG4J_ROOT_LOGLEVEL: "WARN"
+      KAFKA_TOOLS_LOG4J_LOGLEVEL: "ERROR"
+      KAFKA_TRANSACTION_STATE_LOG_NUM_PARTITIONS: 2
+      KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: 2
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+      CONFLUENT_METRICS_REPORTER_PUBLISH_MS: 3000
+      KAFKA_MAX_MESSAGE_BYTES: 9000000
+
+    ports:
+      - 19092:19092
+      - 9092:9092
+
+  topic-initializer:
+    image: confluentinc/cp-enterprise-kafka:5.3.1
+    hostname: localhost
+    container_name: initializer
+    depends_on:
+      - kafka
+      - zookeeper
+    command: "bash -c -a 'echo Waiting for Kafka to be ready... && \
+                         /etc/confluent/docker/configure && \
+                         cub kafka-ready -b kafka:9092 1 60 && \
+                         sleep 5 && \
+                         kafka-topics --zookeeper zookeeper:2182 --topic testSource --create --replication-factor 1 --partitions 4 && \
+                         kafka-topics --zookeeper zookeeper:2182 --topic testSink --create --replication-factor 1 --partitions 4 '"
+
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: ignored
+      KAFKA_ZOOKEEPER_CONNECT: ignored
+      KAFKA_ADVERTISED_LISTENERS: ignored

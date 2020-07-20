@@ -29,7 +29,9 @@
         <module>flink-baseline</module>
         <module>flink-example-domain</module>
         <module>flink-test-example</module>
+        <module>flink-dsl</module>
     </modules>
+
     <packaging>pom</packaging>
     <description>Shared Flink Libraries</description>
 

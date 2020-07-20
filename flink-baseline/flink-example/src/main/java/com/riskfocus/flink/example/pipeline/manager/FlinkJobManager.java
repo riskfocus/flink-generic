@@ -17,7 +17,7 @@
 package com.riskfocus.flink.example.pipeline.manager;
 
 import com.riskfocus.flink.config.CheckpointingConfiguration;
-import com.riskfocus.flink.config.EnvironmentConfiguration;
+import com.riskfocus.flink.config.EnvironmentFactory;
 import com.riskfocus.flink.example.pipeline.config.JobMode;
 import com.riskfocus.flink.example.pipeline.config.channel.ChannelProperties;
 import com.riskfocus.flink.example.pipeline.config.channel.InterestRateChannelFactory;
@@ -43,11 +43,7 @@ public class FlinkJobManager {
 
     public void runJob() throws Exception {
         ParamUtils paramUtils = new ParamUtils(params);
-        StreamExecutionEnvironment env = EnvironmentConfiguration.getEnvironment(paramUtils);
-        // Register parameters https://ci.apache.org/projects/flink/flink-docs-stable/dev/best_practices.html
-        env.getConfig().setGlobalJobParameters(params);
-
-        CheckpointingConfiguration.configure(paramUtils, env);
+        StreamExecutionEnvironment env = EnvironmentFactory.from(paramUtils);
 
         ChannelProperties channelProperties = new ChannelProperties(paramUtils);
 
