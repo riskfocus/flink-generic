@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.storage.cache;
 
 import com.google.common.annotations.Beta;
