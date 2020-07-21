@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.snapshot.redis;
 
 import com.riskfocus.flink.domain.TimeAware;

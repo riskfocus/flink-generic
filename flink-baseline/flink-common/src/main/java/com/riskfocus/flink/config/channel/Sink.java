@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.config.channel;
 
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
