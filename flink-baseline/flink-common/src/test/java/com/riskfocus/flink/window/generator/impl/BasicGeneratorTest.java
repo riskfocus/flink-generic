@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.window.generator.impl;
 
 import com.riskfocus.flink.window.WindowAware;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.test.example;
 
 import com.riskfocus.flink.domain.IncomingEvent;

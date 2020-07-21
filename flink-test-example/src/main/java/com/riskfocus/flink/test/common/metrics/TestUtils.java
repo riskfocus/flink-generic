@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.test.common.metrics;
 
 import lombok.extern.slf4j.Slf4j;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.test.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

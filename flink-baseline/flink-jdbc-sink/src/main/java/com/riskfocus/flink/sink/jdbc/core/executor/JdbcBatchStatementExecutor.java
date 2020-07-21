@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.sink.jdbc.core.executor;
 
 import com.riskfocus.flink.sink.jdbc.config.JdbcExecutionOptions;
