@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.example.pipeline.manager.stream.function;
 
 import com.riskfocus.flink.example.pipeline.config.SmoothingConfig;

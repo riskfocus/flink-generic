@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Risk Focus, Inc.
+ */
+
 package com.riskfocus.flink.example.snapshot.redis.manager;
 
 import com.riskfocus.flink.example.snapshot.redis.domain.SimpleCurrency;
