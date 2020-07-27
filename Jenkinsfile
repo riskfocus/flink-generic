@@ -63,10 +63,10 @@ pipeline {
 
         stage('Build Release') {
             when {
-                branch 'master'
-            }
-            environment {
-                RELEASE_VERSION = "1.0-master-SNAPSHOT"
+                anyOf {
+                    branch 'master'
+                    branch pattern: "release-.*", comparator: "REGEXP"
+                }
             }
             steps {
                 container('maven') {
@@ -77,8 +77,8 @@ pipeline {
                     sh "jx step git credentials"
 
                     // so we can retrieve the version in later steps
-                    sh "echo \$(jx-release-version) > VERSION"
-                    sh "mvn versions:set -DnewVersion=$RELEASE_VERSION"
+                    sh "echo \$(jx-release-version -same-release) > VERSION"
+                    sh "mvn versions:set -DnewVersion=\$(cat VERSION)"
 
                     script {
                         currentBuild.displayName = readFile('VERSION')
@@ -89,7 +89,6 @@ pipeline {
 
                     // TestNG
                     step([$class: 'Publisher', reportFilenamePattern: '**/testng-results.xml'])
-
                 }
             }
         }
