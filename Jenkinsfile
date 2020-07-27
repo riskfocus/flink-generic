@@ -44,7 +44,13 @@ pipeline {
 
         stage('FeatureBranch Build and push snapshot') {
             when {
-                not { anyOf { branch 'master'; changeRequest() } }
+                not {
+                    anyOf {
+                        branch 'master'
+                        branch pattern: "release-.*", comparator: "REGEXP"
+                        changeRequest()
+                    }
+                }
             }
             environment {
                 PREVIEW_VERSION = "1.0-${BRANCH_NAME.replace('/', '-')}-SNAPSHOT"
