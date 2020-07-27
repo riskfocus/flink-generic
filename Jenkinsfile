@@ -76,20 +76,19 @@ pipeline {
                     sh "git config --global credential.helper store"
                     sh "jx step git credentials"
 
+                    // so we can retrieve the version in later steps
+                    sh "echo \$(jx-release-version -same-release) > VERSION"
+                    sh "mvn versions:set -DnewVersion=\$(cat VERSION)"
+
                     script {
-                        RELEASE_VERSION = sh(returnStdout: true, script: 'jx-release-version -same-release').trim()
-                        currentBuild.displayName = $RELEASE_VERSION
+                        currentBuild.displayName = readFile('VERSION')
                     }
-                    sh "echo ${RELEASE_VERSION} > VERSION"
 
-                    sh "mvn versions:set -DnewVersion=${RELEASE_VERSION}"
-
-                    sh "jx step tag --version ${RELEASE_VERSION}"
+                    sh "jx step tag --version \$(cat VERSION)"
                     sh "mvn clean deploy"
 
                     // TestNG
                     step([$class: 'Publisher', reportFilenamePattern: '**/testng-results.xml'])
-
                 }
             }
         }
