@@ -76,7 +76,6 @@ pipeline {
                     sh "git config --global credential.helper store"
                     sh "jx step git credentials"
 
-                    def RELEASE_VERSION = "1.0-${BRANCH_NAME}-SNAPSHOT"
                     script {
                         RELEASE_VERSION = sh(returnStdout: true, script: 'jx-release-version -same-release').trim()
                         currentBuild.displayName = $RELEASE_VERSION
