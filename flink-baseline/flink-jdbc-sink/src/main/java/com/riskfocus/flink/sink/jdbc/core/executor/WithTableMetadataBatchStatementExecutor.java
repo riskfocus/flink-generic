@@ -52,25 +52,41 @@ public class WithTableMetadataBatchStatementExecutor<T, V> implements JdbcBatchS
     }
 
     private List<FieldMetadata> getTableMetadata() throws SQLException {
-        ResultSet descSet = connection.prepareStatement("DESCRIBE " + tableName).executeQuery();
-        ResultSet columnsSet = connection.prepareStatement("select * from " + tableName + " limit 0").executeQuery();
-
-        ResultSetMetaData metaData = columnsSet.getMetaData();
         List<FieldMetadata> fieldMetadataList = new ArrayList<>();
-        for (int i = 1; i <= metaData.getColumnCount(); i++) {
-            descSet.next(); //move the cursor
+        List<String> primaryKeys = getPrimaryKeysDesc();
 
-            fieldMetadataList.add(FieldMetadata.builder()
-                    .fieldName(metaData.getColumnName(i))
-                    .jdbcType(JDBCType.valueOf(metaData.getColumnType(i)))
-                    .nullable("YES".equals(descSet.getString(3)))
-                    .primaryKey("PRI".equals(descSet.getString(4)))
-                    .withDefault(descSet.getObject(5) != null)
-                    .build()
-            );
+        try (ResultSet columns = connection.getMetaData().getColumns(null, null, tableName, null)) {
+            while (columns.next()) {
+                // See java.sql.DatabaseMetaData.getColumns documentation
+                String columnName = columns.getString("COLUMN_NAME");
+                JDBCType dataType = JDBCType.valueOf(columns.getInt("DATA_TYPE"));
+                String nullabe = columns.getString("IS_NULLABLE");
+                String defaultValue = columns.getString("COLUMN_DEF");
+                boolean primaryKey = primaryKeys.contains(columnName);
+                log.info("Got description for table: {}, columnName: {}, dataType: {}, nullabe: {}, defaultValue: {}, primaryKey: {}", tableName, columnName,
+                        dataType, nullabe, defaultValue,
+                        primaryKey);
+                fieldMetadataList.add(FieldMetadata.builder()
+                        .fieldName(columnName)
+                        .jdbcType(dataType)
+                        .nullable("YES".equalsIgnoreCase(nullabe))
+                        .primaryKey(primaryKey)
+                        .withDefault(defaultValue != null)
+                        .build());
+            }
         }
-        connection.commit(); //close transaction for releasing metadata lock
         return fieldMetadataList;
+    }
+
+    private List<String> getPrimaryKeysDesc() throws SQLException {
+        List<String> res = new ArrayList<>();
+        try (ResultSet primaryKeys = connection.getMetaData().getPrimaryKeys(null, null, tableName)) {
+            while (primaryKeys.next()) {
+                String column = primaryKeys.getString("COLUMN_NAME");
+                res.add(column);
+            }
+        }
+        return res;
     }
 
     @Override
