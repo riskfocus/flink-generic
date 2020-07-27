@@ -23,7 +23,7 @@ public class FieldMetadata {
     /**
      * is field a part of PRIMARY KEY
      */
-    private final boolean isPrimary;
+    private final boolean primaryKey;
     /**
      * can field be a NULL
      */

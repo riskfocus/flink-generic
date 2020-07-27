@@ -19,11 +19,6 @@
 package com.riskfocus.flink.sink.jdbc.core;
 
 import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.util.ExceptionUtils;
-import org.apache.flink.util.function.TriConsumer;
-import org.apache.flink.util.function.TriFunction;
-
-import java.util.function.BiFunction;
 
 /**
  * Consumer which takes three arguments.
@@ -46,23 +41,4 @@ public interface TriConsumerWithException<S, T, U, E extends Throwable> {
 	 * @throws E if it fails
 	 */
 	void accept(S s, T t, U u) throws E;
-
-	/**
-	 * Convert at {@link TriConsumerWithException} into a {@link TriFunction}.
-	 *
-	 * @param triConsumerWithException function with exception to convert into a function
-	 * @param <A> first input type
-	 * @param <B> second input type
-	 * @param <C> third input type
-	 * @return {@link BiFunction} which throws all checked exception as an unchecked exception.
-	 */
-	static <A, B, C> TriConsumer<A, B, C> unchecked(TriConsumerWithException<A, B, C, ?> triConsumerWithException) {
-		return (A a, B b, C c) -> {
-			try {
-				triConsumerWithException.accept(a, b, c);
-			} catch (Throwable t) {
-				ExceptionUtils.rethrow(t);
-			}
-		};
-	}
 }
