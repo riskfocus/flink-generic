@@ -7,7 +7,7 @@
 
     <groupId>com.riskfocus.flink.generic</groupId>
     <artifactId>flink-generic</artifactId>
-    <version>1.0-master-SNAPSHOT</version>
+    <version>1.0.0</version>
     <modules>
         <module>flink-domain</module>
         <module>flink-baseline</module>
