@@ -63,10 +63,10 @@ pipeline {
 
         stage('Build Release') {
             when {
-                branch 'master'
-            }
-            environment {
-                RELEASE_VERSION = "1.0-master-SNAPSHOT"
+                anyOf {
+                    branch 'master'
+                    branch pattern: "release-.*", comparator: "REGEXP"
+                }
             }
             steps {
                 container('maven') {
@@ -76,15 +76,16 @@ pipeline {
                     sh "git config --global credential.helper store"
                     sh "jx step git credentials"
 
-                    // so we can retrieve the version in later steps
-                    sh "echo \$(jx-release-version) > VERSION"
-                    sh "mvn versions:set -DnewVersion=$RELEASE_VERSION"
-
+                    RELEASE_VERSION = "1.0-${BRANCH_NAME}-SNAPSHOT"
                     script {
-                        currentBuild.displayName = readFile('VERSION')
+                        RELEASE_VERSION = sh(returnStdout: true, script: 'jx-release-version -same-release').trim()
+                        currentBuild.displayName = $RELEASE_VERSION
                     }
+                    sh "echo ${RELEASE_VERSION} > VERSION"
 
-                    sh "jx step tag --version \$(cat VERSION)"
+                    sh "mvn versions:set -DnewVersion=${RELEASE_VERSION}"
+
+                    sh "jx step tag --version ${RELEASE_VERSION}"
                     sh "mvn clean deploy"
 
                     // TestNG
