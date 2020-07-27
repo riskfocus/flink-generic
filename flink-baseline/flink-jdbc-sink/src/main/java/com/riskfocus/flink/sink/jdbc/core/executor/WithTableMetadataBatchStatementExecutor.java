@@ -64,7 +64,7 @@ public class WithTableMetadataBatchStatementExecutor<T, V> implements JdbcBatchS
                     .fieldName(metaData.getColumnName(i))
                     .jdbcType(JDBCType.valueOf(metaData.getColumnType(i)))
                     .nullable("YES".equals(descSet.getString(3)))
-                    .isPrimary("PRI".equals(descSet.getString(4)))
+                    .primaryKey("PRI".equals(descSet.getString(4)))
                     .withDefault(descSet.getObject(5) != null)
                     .build()
             );
