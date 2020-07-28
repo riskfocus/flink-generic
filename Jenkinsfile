@@ -14,7 +14,7 @@ pipeline {
         SONAR_OPTS = ' '
     }
     stages {
-        stage('CI Build and push snapshot') {
+        stage('CI Build') {
             when {
                 changeRequest()
             }
@@ -42,7 +42,7 @@ pipeline {
             }
         }
 
-        stage('FeatureBranch Build and push snapshot') {
+        stage('Build and push snapshot') {
             when {
                 not {
                     anyOf {
@@ -67,7 +67,7 @@ pipeline {
             }
         }
 
-        stage('Build Release') {
+        stage('Build and push Release') {
             when {
                 anyOf {
                     branch 'master'
