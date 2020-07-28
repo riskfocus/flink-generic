@@ -152,7 +152,6 @@
                     <!-- exclude all licenses to use only fully matched -->
                     <addDefaultLicenseMatchers>false</addDefaultLicenseMatchers>
                     <reportFile>${project.basedir}/license-check.txt</reportFile>
-                    <addLicenseHeaders>forced</addLicenseHeaders>
                     <licenses>
                         <license implementation="org.apache.rat.analysis.license.FullTextMatchingLicense">
                             <licenseFamilyCategory>RF OS</licenseFamilyCategory>
