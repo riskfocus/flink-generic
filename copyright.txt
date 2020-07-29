@@ -1,4 +1,4 @@
-License for materials provided by Risk Focus Inc in this repository.  Source code developed by Risk Focus Inc prior to engagement with Instinet is provided under copyright.
+License for materials provided by Risk Focus Inc in this repository. Source code developed by Risk Focus Inc is provided under copyright.
 
 Copyright (c) 2020, Risk Focus Inc
 All rights reserved.
@@ -17,7 +17,7 @@ modification, are permitted provided that the following conditions are met:
    names of its contributors may be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-Notwithstanding other agreements between Risk Focus and Instinet, the unmodified source code originally provided by Risk Focus is governed by the following:
+The unmodified source code originally provided by Risk Focus is governed by the following:
 
 THIS SOFTWARE IS PROVIDED BY RISK FOCUS INC ''AS IS'' AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
