@@ -176,6 +176,20 @@ public class StreamBuilder {
             return this;
         }
 
+        /**
+         * Allows to modify Flink data stream directly, by calling usual Flink DataStream API methods. Example:
+         * <pre> {@code
+         * StreamBuilder.from(env, params)
+         *     .newDataStream()
+         *     .source(sourceFunction)
+         *     .addToStream(stream -> stream
+         *           .keyBy(selector)
+         *           .map(mapper)
+         *           .addSink(sinkFunction))
+         *      .build()
+         *      .run(job);
+         * } </pre>
+         */
         public <U> FlinkDataStream<U> addToStream(Function<SingleOutputStreamOperator<T>, SingleOutputStreamOperator<U>> steps) {
             return new FlinkDataStream<>(steps.apply(streamFromSource));
         }
