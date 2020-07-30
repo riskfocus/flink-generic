@@ -11,3 +11,6 @@ testSink:
   bootstrap.servers: kafka:9092
   acks: "all"
   semantic: EXACTLY_ONCE
+
+AWSConfiguration.sink:
+  topic: aws

@@ -28,6 +28,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class KafkaProducerProperties implements RawProperties<KafkaProducerPrope
     @Getter
     @Nullable
     private final Integer parallelism;
-    @Getter
+    @Nullable
     private final FlinkKafkaProducer.Semantic semantic;
     private final Map<String, String> rawValues = new HashMap<>();
 
@@ -64,6 +65,10 @@ public class KafkaProducerProperties implements RawProperties<KafkaProducerPrope
         rawValues.putAll(defaults);
 
         return this;
+    }
+
+    public Optional<FlinkKafkaProducer.Semantic> getSemantic(){
+        return Optional.ofNullable(semantic);
     }
 
     /**

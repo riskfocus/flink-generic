@@ -38,6 +38,8 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 
+import java.util.function.Function;
+
 /**
  * Main class, providing single configuration point for Flink {@link StreamExecutionEnvironment}.
  * Allows to add different operators to stream, using {@link com.riskfocus.dsl.definition.SimpleDefinition}
@@ -172,6 +174,10 @@ public class StreamBuilder {
                     .name(def.getName()).uid(def.getName());
 
             return this;
+        }
+
+        public <U> FlinkDataStream<U> addToStream(Function<SingleOutputStreamOperator<T>, SingleOutputStreamOperator<U>> steps) {
+            return new FlinkDataStream<>(steps.apply(streamFromSource));
         }
 
         /**

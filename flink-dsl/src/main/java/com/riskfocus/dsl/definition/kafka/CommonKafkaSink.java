@@ -31,6 +31,8 @@ import java.util.Optional;
  * Creates Flink {@link SinkFunction} for Kafka. Requires serializers for keys and values,
  * to decouple event type from any interface. Value serializer might be a static method in
  * entity class, similar to how Avro/Protobuf provide serialization.
+ * <p>
+ * NOTE: sets default producer semantic to AT_LEAST_ONCE, if none provided.
  *
  * @param <T> event type to send to Kafka
  */
@@ -56,7 +58,7 @@ public class CommonKafkaSink<T> implements SinkDefinition<T>, SimpleDefinition {
         KafkaSerializationSchema<T> schema = (value, timestamp) ->
                 new ProducerRecord<>(properties.getTopic(), keySerializer.apply(value), valueSerializer.apply(value));
         FlinkKafkaProducer<T> sinkFunction = new FlinkKafkaProducer<>(properties.getTopic(), schema,
-                properties.getProducerProperties(), properties.getSemantic());
+                properties.getProducerProperties(), properties.getSemantic().orElse(FlinkKafkaProducer.Semantic.AT_LEAST_ONCE));
         sinkFunction.setWriteTimestampToKafka(true);
 
         return sinkFunction;

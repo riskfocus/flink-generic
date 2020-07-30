@@ -10,8 +10,7 @@ import java.util.Properties;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
 import static org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.Semantic.EXACTLY_ONCE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class KafkaProducerPropertiesTest {
 
@@ -22,11 +21,22 @@ class KafkaProducerPropertiesTest {
 
         assertNull(kafkaProducerProperties.getParallelism());
         assertEquals("testSink", kafkaProducerProperties.getTopic());
-        assertEquals(EXACTLY_ONCE, kafkaProducerProperties.getSemantic());
+        assertTrue(kafkaProducerProperties.getSemantic().isPresent());
+        assertEquals(EXACTLY_ONCE, kafkaProducerProperties.getSemantic().get());
 
         Properties rawProperties = kafkaProducerProperties.getProducerProperties();
         assertEquals("kafka:9092", rawProperties.getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
         assertEquals("all", rawProperties.getProperty(ProducerConfig.ACKS_CONFIG));
+    }
+
+    @Test
+    void shouldSupportPrefixedName() {
+        KafkaProducerProperties kafkaProducerProperties = KafkaProducerProperties.from("AWSConfiguration.sink",
+                ParameterTool.fromMap(Collections.emptyMap()));
+
+        assertNull(kafkaProducerProperties.getParallelism());
+        assertEquals("aws", kafkaProducerProperties.getTopic());
+        assertTrue(kafkaProducerProperties.getSemantic().isEmpty());
     }
 
     @Test
