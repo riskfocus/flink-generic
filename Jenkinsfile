@@ -116,7 +116,7 @@ pipeline {
         }
     }
     post {
-        failure {
+        always {
             container('maven') {
                 archive (includes: '/home/jenkins/agent/workspace/*/license-check.txt')
             }
