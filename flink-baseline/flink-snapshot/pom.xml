@@ -21,7 +21,7 @@
     <parent>
         <artifactId>flink-baseline</artifactId>
         <groupId>com.riskfocus.flink.generic</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.48</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
