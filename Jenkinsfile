@@ -115,4 +115,11 @@ pipeline {
             }
         }
     }
+    post {
+        failure {
+            container('maven') {
+                archive (includes: '/home/jenkins/agent/workspace/*/license-check.txt')
+            }
+        }
+    }
 }
