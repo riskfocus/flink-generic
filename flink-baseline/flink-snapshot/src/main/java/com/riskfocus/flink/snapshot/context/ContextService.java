@@ -24,9 +24,9 @@ import com.riskfocus.flink.domain.TimeAware;
 public interface ContextService extends AutoCloseable {
 
     /**
-     * See create method
-     * https://wiki.riskfocus.com/display/OCC/Context+Service
-     * @param timeAware element which can provide timestamp
+     * See create method.
+     *
+     * @param timeAware   element which can provide timestamp
      * @param contextName name of provided context
      * @return context ready for use
      */

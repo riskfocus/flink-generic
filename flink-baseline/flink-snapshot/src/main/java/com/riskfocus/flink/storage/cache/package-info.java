@@ -15,7 +15,7 @@
  */
 
 /**
- * This package is OCC specific and should be moved outside RF module
+ * Cache-specific code.
  *
  * @author Khokhlov Pavel
  */

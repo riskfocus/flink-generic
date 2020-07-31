@@ -74,7 +74,3 @@ public class PriceSink extends AbstractJdbcSink<PriceDto> {
     }
 }
 ```
-
-Working example you could find [here](https://github.com/riskfocus/instinetkst-flink/tree/master/jdbc-sink)
-
-
