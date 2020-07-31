@@ -78,7 +78,6 @@ pipeline {
                     withMaven(publisherStrategy: 'EXPLICIT', mavenOpts: MAVEN_OPTS) {
                         sh "mvn versions:set -DnewVersion=$PREVIEW_VERSION"
                         sh "mvn clean deploy"
-                        sh "sleep 9999"    
                     }
                 }
             }
@@ -117,7 +116,7 @@ pipeline {
         }
     }
     post {
-        failure {
+        always {
             container('maven') {
                 archive (includes: '/home/jenkins/agent/workspace/*/license-check.txt')
             }
