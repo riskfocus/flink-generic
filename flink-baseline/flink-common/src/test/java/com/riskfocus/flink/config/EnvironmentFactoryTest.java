@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * @author Khokhlov Pavel
  */
-public class EnvironmentConfigurationTest {
+public class EnvironmentFactoryTest {
 
     @Test
     public void testGetEnvironment() {
@@ -21,7 +21,7 @@ public class EnvironmentConfigurationTest {
         ParameterTool params = ParameterTool.fromMap(properties);
         ParamUtils paramUtils = new ParamUtils(params);
 
-        StreamExecutionEnvironment env = EnvironmentConfiguration.getEnvironment(paramUtils);
+        StreamExecutionEnvironment env = EnvironmentFactory.from(paramUtils);
 
         Assert.assertEquals(env.getCheckpointInterval(), -1, "By default checkpoint is disabled");
         Assert.assertEquals(env.getStreamTimeCharacteristic(), TimeCharacteristic.EventTime);

@@ -14,18 +14,28 @@
  * limitations under the License.
  */
 
-package com.riskfocus.flink.domain;
+package com.riskfocus.dsl.definition;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
- * Inbound/Outbound message has to implement this interface
- *
- * @author Khokhlov Pavel
+ * Basic definition of any Flink operator.
  */
-@FunctionalInterface
-public interface TimeAware extends Serializable {
+public interface SimpleDefinition extends Serializable {
 
-    long getTimestamp();
+    /**
+     * Uses both for operator's name, and operator's uid
+     */
+    default String getName() {
+        return getClass().getSimpleName().toLowerCase();
+    }
+
+    /**
+     * Operator's parallelism
+     */
+    default Optional<Integer> getParallelism() {
+        return Optional.of(1);
+    }
 
 }

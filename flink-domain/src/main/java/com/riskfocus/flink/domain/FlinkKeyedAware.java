@@ -16,16 +16,15 @@
 
 package com.riskfocus.flink.domain;
 
-import java.io.Serializable;
-
 /**
- * Inbound/Outbound message has to implement this interface
- *
- * @author Khokhlov Pavel
+ * Common interface for all events used in keyed operations in Flink.
  */
 @FunctionalInterface
-public interface TimeAware extends Serializable {
+public interface FlinkKeyedAware<K> {
 
-    long getTimestamp();
+    /**
+     * @return event key for keyBy() operator
+     */
+    K flinkKey();
 
 }

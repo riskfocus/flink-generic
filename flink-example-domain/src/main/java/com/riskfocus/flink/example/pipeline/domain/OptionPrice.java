@@ -17,7 +17,7 @@
 package com.riskfocus.flink.example.pipeline.domain;
 
 import com.riskfocus.flink.domain.IncomingEvent;
-import com.riskfocus.flink.domain.KeyedAware;
+import com.riskfocus.flink.domain.KafkaKeyedAware;
 import lombok.*;
 
 /**
@@ -28,7 +28,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class OptionPrice extends IncomingEvent implements KeyedAware {
+public class OptionPrice extends IncomingEvent implements KafkaKeyedAware {
     private static final long serialVersionUID = 5046115679955871440L;
 
     private String instrumentId;
@@ -41,7 +41,7 @@ public class OptionPrice extends IncomingEvent implements KeyedAware {
     }
 
     @Override
-    public byte[] key() {
+    public byte[] kafkaKey() {
         return instrumentId.getBytes();
     }
 }

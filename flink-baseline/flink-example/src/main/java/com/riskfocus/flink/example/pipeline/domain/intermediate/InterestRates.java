@@ -18,7 +18,7 @@ package com.riskfocus.flink.example.pipeline.domain.intermediate;
 
 import com.riskfocus.flink.domain.Event;
 import com.riskfocus.flink.domain.IncomingEvent;
-import com.riskfocus.flink.domain.KeyedAware;
+import com.riskfocus.flink.domain.KafkaKeyedAware;
 import com.riskfocus.flink.example.pipeline.domain.InterestRate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,7 +35,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class InterestRates extends IncomingEvent implements KeyedAware {
+public class InterestRates extends IncomingEvent implements KafkaKeyedAware {
     private static final long serialVersionUID = -2395400450763583099L;
 
     public static InterestRates EMPTY = new InterestRates();
@@ -62,7 +62,7 @@ public class InterestRates extends IncomingEvent implements KeyedAware {
     }
 
     @Override
-    public byte[] key() {
+    public byte[] kafkaKey() {
         return currency.getBytes();
     }
 }

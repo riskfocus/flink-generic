@@ -14,29 +14,21 @@
  * limitations under the License.
  */
 
-package com.riskfocus.flink.example.pipeline.domain;
+package com.riskfocus.dsl.definition.kafka;
 
-import com.riskfocus.flink.domain.IncomingEvent;
+import com.riskfocus.dsl.properties.KafkaProducerProperties;
 import com.riskfocus.flink.domain.KafkaKeyedAware;
-import lombok.*;
+
+import static com.riskfocus.flink.json.UncheckedObjectMapper.MAPPER;
 
 /**
- * @author Khokhlov Pavel
+ * Adds key extraction and serialization capabilities to Kafka sink. Event types is bound
+ * to {@link KafkaKeyedAware}, so any preceding step should explicitly return an implementation of this interface.
  */
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-@EqualsAndHashCode(callSuper = false)
-public class InterestRate extends IncomingEvent implements KafkaKeyedAware {
+public class KeyAwareJsonKafkaSink<T extends KafkaKeyedAware> extends CommonKafkaSink<T> {
 
-    private static final long serialVersionUID = 8613281459382114246L;
-
-    private String maturity;
-    private Double rate;
-
-    @Override
-    public byte[] kafkaKey() {
-        return maturity.getBytes();
+    public KeyAwareJsonKafkaSink(KafkaProducerProperties properties) {
+        super(properties, KafkaKeyedAware::kafkaKey, MAPPER::writeValueAsBytes);
     }
+
 }
