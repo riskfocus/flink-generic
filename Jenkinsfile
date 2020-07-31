@@ -118,7 +118,7 @@ pipeline {
     post {
         always {
             container('maven') {
-                archive (includes: '/home/jenkins/agent/workspace/*/license-check.txt')
+                archiveArtifacts (artifacts: '/home/jenkins/agent/workspace/**/license-check.txt', allowEmptyArchive: true, caseSensitive: false)
             }
         }
     }
