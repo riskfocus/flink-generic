@@ -187,6 +187,7 @@
                         <exclude>**/*.log</exclude>
                         <exclude>**/*.iml</exclude>
                         <exclude>**/LICENCE</exclude>
+                        <exclude>**/VERSION</exclude>
                         <exclude>**/*.md</exclude>
                         <exclude>**/dependency-reduced-pom.xml</exclude>
                         <!-- compiled classes and tests-->
