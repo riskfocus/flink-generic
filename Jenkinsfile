@@ -115,4 +115,11 @@ pipeline {
             }
         }
     }
+    post {
+        failure {
+            container('maven') {
+                archiveArtifacts (artifacts: '**/license-check.txt', allowEmptyArchive: true, caseSensitive: false)
+            }
+        }
+    }
 }
