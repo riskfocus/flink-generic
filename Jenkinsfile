@@ -78,6 +78,7 @@ pipeline {
                     withMaven(publisherStrategy: 'EXPLICIT', mavenOpts: MAVEN_OPTS) {
                         sh "mvn versions:set -DnewVersion=$PREVIEW_VERSION"
                         sh "mvn clean deploy"
+                        sh "sleep 9999"    
                     }
                 }
             }
@@ -108,8 +109,6 @@ pipeline {
 
                     sh "jx step tag --version \$(cat VERSION)"
                     sh "mvn clean deploy"
-
-                    sh "sleep 9999"
 
                     // TestNG
                     step([$class: 'Publisher', reportFilenamePattern: '**/testng-results.xml'])
