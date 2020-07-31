@@ -109,6 +109,8 @@ pipeline {
                     sh "jx step tag --version \$(cat VERSION)"
                     sh "mvn clean deploy"
 
+                    sh "sleep 9999"
+
                     // TestNG
                     step([$class: 'Publisher', reportFilenamePattern: '**/testng-results.xml'])
                 }
@@ -116,7 +118,7 @@ pipeline {
         }
     }
     post {
-        always {
+        failure {
             container('maven') {
                 archive (includes: '/home/jenkins/agent/workspace/*/license-check.txt')
             }
