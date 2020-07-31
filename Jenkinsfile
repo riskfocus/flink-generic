@@ -116,7 +116,7 @@ pipeline {
         }
     }
     post {
-        always {
+        failure {
             container('maven') {
                 archiveArtifacts (artifacts: '**/license-check.txt', allowEmptyArchive: true, caseSensitive: false)
             }
