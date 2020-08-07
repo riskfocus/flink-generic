@@ -67,7 +67,7 @@ public class WithTableMetadataBatchStatementExecutor<T, V> extends AbstractSimpl
         List<FieldMetadata> fieldMetadataList = new ArrayList<>();
         List<String> primaryKeys = getPrimaryKeysDesc();
 
-        try (ResultSet columns = connection.getMetaData().getColumns(null, null, tableName, null)) {
+        try (ResultSet columns = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), tableName, null)) {
             while (columns.next()) {
                 // See java.sql.DatabaseMetaData.getColumns documentation
                 String columnName = columns.getString("COLUMN_NAME");
@@ -92,7 +92,7 @@ public class WithTableMetadataBatchStatementExecutor<T, V> extends AbstractSimpl
 
     private List<String> getPrimaryKeysDesc() throws SQLException {
         List<String> res = new ArrayList<>();
-        try (ResultSet primaryKeys = connection.getMetaData().getPrimaryKeys(null, null, tableName)) {
+        try (ResultSet primaryKeys = connection.getMetaData().getPrimaryKeys(connection.getCatalog(), connection.getSchema(), tableName)) {
             while (primaryKeys.next()) {
                 String column = primaryKeys.getString("COLUMN_NAME");
                 res.add(column);
