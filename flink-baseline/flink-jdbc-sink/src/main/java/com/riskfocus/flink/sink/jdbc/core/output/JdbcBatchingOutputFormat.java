@@ -230,11 +230,12 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                     throw new RuntimeException("Writing records to JDBC failed.", e);
                 }
             }
-
-            try {
-                jdbcStatementExecutor.close();
-            } catch (SQLException e) {
-                log.warn("Close JDBC writer failed.", e);
+            if (jdbcStatementExecutor != null) {
+                try {
+                    jdbcStatementExecutor.close();
+                } catch (SQLException e) {
+                    log.warn("Close JDBC writer failed.", e);
+                }
             }
         }
         super.close();
