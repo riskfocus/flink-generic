@@ -8,6 +8,7 @@ import com.riskfocus.flink.sink.jdbc.config.JdbcExecutionOptions;
 import com.riskfocus.flink.sink.jdbc.core.FieldMetadata;
 import com.riskfocus.flink.sink.jdbc.core.JdbcSqlBuilderWithMetadata;
 import com.riskfocus.flink.sink.jdbc.core.JdbcStatementBuilderWithMetadata;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -44,8 +45,8 @@ public class WithTableMetadataBatchStatementExecutor<T, V> extends AbstractSimpl
     }
 
     @Override
-    void init(Connection connection) throws SQLException {
-        this.tableMetadata = getTableMetadata();
+    void init(Connection connection) {
+        this.tableMetadata = getTableMetadata(connection);
     }
 
     @Override
@@ -63,10 +64,10 @@ public class WithTableMetadataBatchStatementExecutor<T, V> extends AbstractSimpl
         return tableMetadata;
     }
 
-    private List<FieldMetadata> getTableMetadata() throws SQLException {
+    @SneakyThrows
+    private List<FieldMetadata> getTableMetadata(Connection connection) {
         List<FieldMetadata> fieldMetadataList = new ArrayList<>();
-        List<String> primaryKeys = getPrimaryKeysDesc();
-
+        List<String> primaryKeys = getPrimaryKeysDesc(connection);
         try (ResultSet columns = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), tableName, null)) {
             while (columns.next()) {
                 // See java.sql.DatabaseMetaData.getColumns documentation
@@ -86,19 +87,28 @@ public class WithTableMetadataBatchStatementExecutor<T, V> extends AbstractSimpl
                         .withDefault(defaultValue != null)
                         .build());
             }
+            connection.commit();
+            return fieldMetadataList;
+        } catch (SQLException e) {
+            connection.rollback();
+            throw e;
         }
-        return fieldMetadataList;
     }
 
-    private List<String> getPrimaryKeysDesc() throws SQLException {
+    @SneakyThrows
+    private List<String> getPrimaryKeysDesc(Connection connection) {
         List<String> res = new ArrayList<>();
         try (ResultSet primaryKeys = connection.getMetaData().getPrimaryKeys(connection.getCatalog(), connection.getSchema(), tableName)) {
             while (primaryKeys.next()) {
                 String column = primaryKeys.getString("COLUMN_NAME");
                 res.add(column);
             }
+            connection.commit();
+            return res;
+        } catch (SQLException e) {
+            connection.rollback();
+            throw e;
         }
-        return res;
     }
 
 }
