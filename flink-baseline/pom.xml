@@ -120,7 +120,6 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-metrics-jmx_${scala.binary.version}</artifactId>
             <version>${flink.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

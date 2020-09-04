@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.MetricOptions;
+import org.apache.flink.metrics.jmx.JMXReporter;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
@@ -34,8 +35,8 @@ public class EnvironmentConfiguration {
         if (localDevEnabled) {
             Configuration config = new Configuration();
             // Metrics config
-            //config.setString(ConfigConstants.METRICS_REPORTER_PREFIX + "jmx." + ConfigConstants.METRICS_REPORTER_FACTORY_CLASS_SUFFIX, JMXReporterFactory.class.getName());
-            //config.setString(ConfigConstants.METRICS_REPORTER_PREFIX + "jmx.port", "8789");
+            config.setString(ConfigConstants.METRICS_REPORTER_PREFIX + "jmx.class", JMXReporter.class.getName());
+            config.setString(ConfigConstants.METRICS_REPORTER_PREFIX + "jmx.port", paramUtils.getString("jmx.port", "8789"));
             config.setLong(MetricOptions.METRIC_FETCHER_UPDATE_INTERVAL, paramUtils.getLong(MetricOptions.METRIC_FETCHER_UPDATE_INTERVAL.key(), MetricOptions.METRIC_FETCHER_UPDATE_INTERVAL.defaultValue()));
             config.setBoolean(MetricOptions.SYSTEM_RESOURCE_METRICS, paramUtils.getBoolean(MetricOptions.SYSTEM_RESOURCE_METRICS.key(), MetricOptions.SYSTEM_RESOURCE_METRICS.defaultValue()));
 
