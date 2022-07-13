@@ -14,28 +14,20 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.definition;
+package com.ness.flink.dsl.definition;
 
-import java.io.Serializable;
-import java.util.Optional;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
 /**
- * Basic definition of any Flink operator.
+ * Adds sink capabilities to operator definition.
+ *
+ * @param <T> Sink event type
  */
-public interface SimpleDefinition extends Serializable {
+public interface SinkDefinition<T> extends SimpleDefinition {
 
     /**
-     * Uses both for operator's name, and operator's uid
+     * Builds Flink {@link SinkFunction}
      */
-    default String getName() {
-        return getClass().getSimpleName().toLowerCase();
-    }
-
-    /**
-     * Operator's parallelism
-     */
-    default Optional<Integer> getParallelism() {
-        return Optional.of(1);
-    }
+    SinkFunction<T> buildSink();
 
 }

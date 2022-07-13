@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.definition;
+package com.ness.flink.dsl.serialization;
 
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import java.io.Serializable;
 
 /**
- * Adds source capabilities to operator definition.
+ * Auxiliary interface, providing serialization capabilities to {@link com.ness.flink.dsl.definition.kafka.CommonKafkaSink}.
+ * Required, due to Flink cannot serialize/infer type from lambdas.
  *
- * @param <T> Source event type
+ * @param <T> type of event to send to sink
  */
-public interface SourceDefinition<T> extends SimpleDefinition {
+public interface KafkaSinkSerializer<T> extends Serializable {
 
-    /**
-     * Builds Flink {@link SourceFunction}
-     */
-    SourceFunction<T> buildSource();
+    byte[] apply(T t);
 
 }

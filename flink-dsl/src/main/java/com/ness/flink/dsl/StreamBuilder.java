@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Ness USA, Inc.
+ * Copyright 2020 Risk Focus Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl;
+package com.ness.flink.dsl;
 
-import com.riskfocus.dsl.definition.KeyedProcessorDefinition;
-import com.riskfocus.dsl.definition.SinkDefinition;
-import com.riskfocus.dsl.definition.SourceDefinition;
-import com.riskfocus.dsl.definition.kafka.CommonKafkaSource;
-import com.riskfocus.dsl.definition.kafka.KeyAwareJsonKafkaSink;
-import com.riskfocus.dsl.properties.KafkaConsumerProperties;
-import com.riskfocus.dsl.properties.KafkaProducerProperties;
-import com.riskfocus.dsl.properties.KeyedProcessorProperties;
+import com.ness.flink.dsl.definition.KeyedProcessorDefinition;
+import com.ness.flink.dsl.definition.SinkDefinition;
+import com.ness.flink.dsl.definition.SourceDefinition;
+import com.ness.flink.dsl.definition.kafka.CommonKafkaSource;
+import com.ness.flink.dsl.definition.kafka.KeyAwareJsonKafkaSink;
+import com.ness.flink.dsl.properties.KafkaConsumerProperties;
+import com.ness.flink.dsl.properties.KafkaProducerProperties;
+import com.ness.flink.dsl.properties.KeyedProcessorProperties;
 import com.riskfocus.flink.config.EnvironmentFactory;
 import com.riskfocus.flink.domain.Event;
 import com.riskfocus.flink.domain.FlinkKeyedAware;
@@ -42,7 +42,7 @@ import java.util.function.Function;
 
 /**
  * Main class, providing single configuration point for Flink {@link StreamExecutionEnvironment}.
- * Allows to add different operators to stream, using {@link com.riskfocus.dsl.definition.SimpleDefinition}
+ * Allows to add different operators to stream, using {@link com.ness.flink.dsl.definition.SimpleDefinition}
  * implementors, and provides specific stream types, restricted to event type, to ease configuration.
  * <p>
  * Usage example is:
@@ -63,7 +63,7 @@ public class StreamBuilder {
     private final ParameterTool params;
 
     /**
-     * Creates builder instance from program args
+     * Creates builder instance from program args, using Flink {@link ParameterTool}.
      */
     public static StreamBuilder from(String[] args) {
         ParameterTool params = ParameterTool.fromArgs(args);
@@ -73,7 +73,7 @@ public class StreamBuilder {
     }
 
     /**
-     * Creates builder instance from preconfigured environment and params
+     * Creates builder instance from preconfigured environment and params.
      */
     public static StreamBuilder from(StreamExecutionEnvironment env, ParameterTool params) {
         return new StreamBuilder(env, params);

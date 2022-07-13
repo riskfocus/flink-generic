@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.properties;
+package com.ness.flink.dsl.properties;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;

@@ -1,4 +1,4 @@
-package com.riskfocus.dsl.properties;
+package com.ness.flink.dsl.properties;
 
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

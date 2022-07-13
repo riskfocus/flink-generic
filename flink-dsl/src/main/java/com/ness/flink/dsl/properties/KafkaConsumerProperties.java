@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.properties;
+package com.ness.flink.dsl.properties;
 
-import com.riskfocus.dsl.definition.kafka.CommonKafkaSource;
+import com.ness.flink.dsl.definition.kafka.CommonKafkaSource;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
- * Kafka producer properties for {@link CommonKafkaSource}, created by {@link OperatorPropertiesFactory}
+ * Kafka consumer properties for {@link CommonKafkaSource},created by {@link OperatorPropertiesFactory}.
+ * Sets {@code group.id} equals to operator's name, if absent.
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class KafkaProducerProperties implements RawProperties<KafkaProducerProperties> {
+public class KafkaConsumerProperties implements RawProperties<KafkaConsumerProperties> {
 
     @Getter
     private final String name;
@@ -45,46 +44,43 @@ public class KafkaProducerProperties implements RawProperties<KafkaProducerPrope
     @Getter
     @Nullable
     private final Integer parallelism;
-    @Nullable
-    private final FlinkKafkaProducer.Semantic semantic;
     private final Map<String, String> rawValues = new HashMap<>();
 
     /**
      * @inheritDoc
      */
     @SneakyThrows
-    public static KafkaProducerProperties from(String name, ParameterTool params) {
-        return OperatorPropertiesFactory.from(name, params, KafkaProducerProperties.class);
+    public static KafkaConsumerProperties from(String name, ParameterTool params) {
+        KafkaConsumerProperties properties = OperatorPropertiesFactory.from(name, params, KafkaConsumerProperties.class);
+        properties.rawValues.putIfAbsent(ConsumerConfig.GROUP_ID_CONFIG, name);
+
+        return properties;
     }
 
     /**
      * @inheritDoc
      */
     @Override
-    public KafkaProducerProperties withRawValues(Map<String, String> defaults) {
+    public KafkaConsumerProperties withRawValues(Map<String, String> defaults) {
         rawValues.putAll(defaults);
 
         return this;
     }
 
-    public Optional<FlinkKafkaProducer.Semantic> getSemantic(){
-        return Optional.ofNullable(semantic);
-    }
-
     /**
-     * Returns all properties as {@link Properties} instance, for Kafka producer configuration.
+     * Returns all properties as {@link Properties} instance, for Kafka consumer configuration.
      * Perform property names filtering
      */
-    public Properties getProducerProperties() {
+    public Properties getConsumerProperties() {
         Properties properties = new Properties();
-        properties.putAll(filterNonProducerParameters());
+        properties.putAll(filterNonConsumerParameters());
 
         return properties;
     }
 
-    private Map<String, String> filterNonProducerParameters() {
+    private Map<String, String> filterNonConsumerParameters() {
         return rawValues.entrySet().stream()
-                .filter(e -> ProducerConfig.configNames().contains(e.getKey()))
+                .filter(e -> ConsumerConfig.configNames().contains(e.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 

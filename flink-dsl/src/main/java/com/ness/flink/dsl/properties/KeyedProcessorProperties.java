@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.properties;
+package com.ness.flink.dsl.properties;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Keyed processor properties for {@link com.riskfocus.dsl.definition.KeyedProcessorDefinition},
+ * Keyed processor properties for {@link com.ness.flink.dsl.definition.KeyedProcessorDefinition},
  * created by {@link OperatorPropertiesFactory}. Allows to configure any processor-specific properties.
  * <p>
  * NOTE: currently, only name and parallelism are used.

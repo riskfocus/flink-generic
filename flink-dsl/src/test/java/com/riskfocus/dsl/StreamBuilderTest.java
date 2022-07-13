@@ -1,7 +1,8 @@
 package com.riskfocus.dsl;
 
-import com.riskfocus.dsl.definition.KeyedProcessorDefinition;
-import com.riskfocus.dsl.properties.KeyedProcessorProperties;
+import com.ness.flink.dsl.StreamBuilder;
+import com.ness.flink.dsl.definition.KeyedProcessorDefinition;
+import com.ness.flink.dsl.properties.KeyedProcessorProperties;
 import com.riskfocus.dsl.test.TestEventString;
 import com.riskfocus.dsl.test.TestSourceFunction;
 import lombok.extern.slf4j.Slf4j;

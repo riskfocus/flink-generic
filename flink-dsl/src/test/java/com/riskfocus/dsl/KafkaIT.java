@@ -1,5 +1,6 @@
 package com.riskfocus.dsl;
 
+import com.ness.flink.dsl.StreamBuilder;
 import com.riskfocus.dsl.test.TestEventLong;
 import com.riskfocus.dsl.test.TestEventString;
 import com.riskfocus.flink.config.EnvironmentFactory;

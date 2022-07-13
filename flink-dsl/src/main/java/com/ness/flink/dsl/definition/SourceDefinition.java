@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.definition;
+package com.ness.flink.dsl.definition;
 
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 /**
- * Adds sink capabilities to operator definition.
+ * Adds source capabilities to operator definition.
  *
- * @param <T> Sink event type
+ * @param <T> Source event type
  */
-public interface SinkDefinition<T> extends SimpleDefinition {
+public interface SourceDefinition<T> extends SimpleDefinition {
 
     /**
-     * Builds Flink {@link SinkFunction}
+     * Builds Flink {@link SourceFunction}
      */
-    SinkFunction<T> buildSink();
+    SourceFunction<T> buildSource();
 
 }

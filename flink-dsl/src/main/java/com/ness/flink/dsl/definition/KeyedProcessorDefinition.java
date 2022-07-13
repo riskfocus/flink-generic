@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.definition;
+package com.ness.flink.dsl.definition;
 
-import com.riskfocus.dsl.properties.KeyedProcessorProperties;
+import com.ness.flink.dsl.properties.KeyedProcessorProperties;
 import lombok.Getter;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;

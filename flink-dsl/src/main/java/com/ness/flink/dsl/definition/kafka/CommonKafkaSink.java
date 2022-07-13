@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.definition.kafka;
+package com.ness.flink.dsl.definition.kafka;
 
-import com.riskfocus.dsl.definition.SimpleDefinition;
-import com.riskfocus.dsl.definition.SinkDefinition;
-import com.riskfocus.dsl.properties.KafkaProducerProperties;
-import com.riskfocus.dsl.serialization.KafkaSinkSerializer;
+import com.ness.flink.dsl.definition.SimpleDefinition;
+import com.ness.flink.dsl.definition.SinkDefinition;
+import com.ness.flink.dsl.properties.KafkaProducerProperties;
+import com.ness.flink.dsl.serialization.KafkaSinkSerializer;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;

@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.properties;
+package com.ness.flink.dsl.definition;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Optional;
 
 /**
- * Internal interface for properties instantiation.
- *
- * @param <T> properties subclass, see {@link KafkaConsumerProperties}
+ * Basic definition of any Flink operator.
  */
-interface RawProperties<T> extends Serializable {
+public interface SimpleDefinition extends Serializable {
 
     /**
-     * Factory method for instantiation
+     * Uses both for operator's name, and operator's uid
      */
-    @SuppressWarnings("unchecked")
-    default T withRawValues(Map<String, String> defaults) {
-        return (T) this;
+    default String getName() {
+        return getClass().getSimpleName().toLowerCase();
+    }
+
+    /**
+     * Operator's parallelism
+     */
+    default Optional<Integer> getParallelism() {
+        return Optional.of(1);
     }
 
 }

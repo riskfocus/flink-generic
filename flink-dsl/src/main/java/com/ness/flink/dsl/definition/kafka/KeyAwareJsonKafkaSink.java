@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.definition.kafka;
+package com.ness.flink.dsl.definition.kafka;
 
-import com.riskfocus.dsl.properties.KafkaProducerProperties;
+import com.ness.flink.dsl.properties.KafkaProducerProperties;
 import com.riskfocus.flink.domain.KafkaKeyedAware;
 
 import static com.riskfocus.flink.json.UncheckedObjectMapper.MAPPER;

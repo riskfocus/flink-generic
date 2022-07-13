@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package com.riskfocus.dsl.serialization;
+package com.ness.flink.dsl.properties;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
- * Auxiliary interface, providing serialization capabilities to {@link com.riskfocus.dsl.definition.kafka.CommonKafkaSink}.
- * Required, due to Flink cannot serialize/infer type from lambdas.
+ * Internal interface for properties instantiation.
  *
- * @param <T> type of event to send to sink
+ * @param <T> properties subclass, see {@link KafkaConsumerProperties}
  */
-public interface KafkaSinkSerializer<T> extends Serializable {
+interface RawProperties<T> extends Serializable {
 
-    byte[] apply(T t);
+    /**
+     * Factory method for instantiation
+     */
+    @SuppressWarnings("unchecked")
+    default T withRawValues(Map<String, String> defaults) {
+        return (T) this;
+    }
 
 }
