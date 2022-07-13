@@ -17,6 +17,12 @@
 package com.ness.flink.dsl.properties;
 
 import com.ness.flink.dsl.definition.kafka.CommonKafkaSource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,13 +30,6 @@ import lombok.SneakyThrows;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * Kafka producer properties for {@link CommonKafkaSource}, created by {@link OperatorPropertiesFactory}
@@ -67,13 +66,13 @@ public class KafkaProducerProperties implements RawProperties<KafkaProducerPrope
         return this;
     }
 
-    public Optional<FlinkKafkaProducer.Semantic> getSemantic(){
+    public Optional<FlinkKafkaProducer.Semantic> getSemantic() {
         return Optional.ofNullable(semantic);
     }
 
     /**
-     * Returns all properties as {@link Properties} instance, for Kafka producer configuration.
-     * Perform property names filtering
+     * Returns all properties as {@link Properties} instance, for Kafka producer configuration. Perform property names
+     * filtering
      */
     public Properties getProducerProperties() {
         Properties properties = new Properties();
@@ -84,8 +83,8 @@ public class KafkaProducerProperties implements RawProperties<KafkaProducerPrope
 
     private Map<String, String> filterNonProducerParameters() {
         return rawValues.entrySet().stream()
-                .filter(e -> ProducerConfig.configNames().contains(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .filter(e -> ProducerConfig.configNames().contains(e.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
 }

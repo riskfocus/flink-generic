@@ -17,6 +17,11 @@
 package com.ness.flink.dsl.properties;
 
 import com.ness.flink.dsl.definition.kafka.CommonKafkaSource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,15 +29,9 @@ import lombok.SneakyThrows;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
 /**
- * Kafka consumer properties for {@link CommonKafkaSource},created by {@link OperatorPropertiesFactory}.
- * Sets {@code group.id} equals to operator's name, if absent.
+ * Kafka consumer properties for {@link CommonKafkaSource},created by {@link OperatorPropertiesFactory}. Sets
+ * {@code group.id} equals to operator's name, if absent.
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class KafkaConsumerProperties implements RawProperties<KafkaConsumerProperties> {
@@ -51,7 +50,8 @@ public class KafkaConsumerProperties implements RawProperties<KafkaConsumerPrope
      */
     @SneakyThrows
     public static KafkaConsumerProperties from(String name, ParameterTool params) {
-        KafkaConsumerProperties properties = OperatorPropertiesFactory.from(name, params, KafkaConsumerProperties.class);
+        KafkaConsumerProperties properties = OperatorPropertiesFactory.from(name, params,
+            KafkaConsumerProperties.class);
         properties.rawValues.putIfAbsent(ConsumerConfig.GROUP_ID_CONFIG, name);
 
         return properties;
@@ -68,8 +68,8 @@ public class KafkaConsumerProperties implements RawProperties<KafkaConsumerPrope
     }
 
     /**
-     * Returns all properties as {@link Properties} instance, for Kafka consumer configuration.
-     * Perform property names filtering
+     * Returns all properties as {@link Properties} instance, for Kafka consumer configuration. Perform property names
+     * filtering
      */
     public Properties getConsumerProperties() {
         Properties properties = new Properties();
@@ -80,8 +80,8 @@ public class KafkaConsumerProperties implements RawProperties<KafkaConsumerPrope
 
     private Map<String, String> filterNonConsumerParameters() {
         return rawValues.entrySet().stream()
-                .filter(e -> ConsumerConfig.configNames().contains(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .filter(e -> ConsumerConfig.configNames().contains(e.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
 }

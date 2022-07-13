@@ -29,6 +29,7 @@ import com.riskfocus.flink.domain.Event;
 import com.riskfocus.flink.domain.FlinkKeyedAware;
 import com.riskfocus.flink.domain.KafkaKeyedAware;
 import com.riskfocus.flink.schema.EventDeserializationSchema;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -38,12 +39,10 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 
-import java.util.function.Function;
-
 /**
- * Main class, providing single configuration point for Flink {@link StreamExecutionEnvironment}.
- * Allows to add different operators to stream, using {@link com.ness.flink.dsl.definition.SimpleDefinition}
- * implementors, and provides specific stream types, restricted to event type, to ease configuration.
+ * Main class, providing single configuration point for Flink {@link StreamExecutionEnvironment}. Allows to add
+ * different operators to stream, using {@link com.ness.flink.dsl.definition.SimpleDefinition} implementors, and
+ * provides specific stream types, restricted to event type, to ease configuration.
  * <p>
  * Usage example is:
  * <pre> {@code
@@ -103,8 +102,8 @@ public class StreamBuilder {
     }
 
     /**
-     * Auxiliary class, providing only source functionality, and converting
-     * data stream wrapper to {@link FlinkDataStream} instance, for next operators.
+     * Auxiliary class, providing only source functionality, and converting data stream wrapper to
+     * {@link FlinkDataStream} instance, for next operators.
      */
     public class SourcedDataStream {
 
@@ -121,9 +120,9 @@ public class StreamBuilder {
         }
 
         /**
-         * Creates {@link FlinkKeyedAwareDataStream} instance, where event type is bound to {@link Event},
-         * providing deserialization, and to {@link FlinkKeyedAware},
-         * providing {@link org.apache.flink.api.java.functions.KeySelector} implementation
+         * Creates {@link FlinkKeyedAwareDataStream} instance, where event type is bound to {@link Event}, providing
+         * deserialization, and to {@link FlinkKeyedAware}, providing
+         * {@link org.apache.flink.api.java.functions.KeySelector} implementation
          *
          * @param <K> type of event key, for {@link org.apache.flink.api.java.functions.KeySelector}
          * @param <T> type of event
@@ -132,16 +131,17 @@ public class StreamBuilder {
         public <K, T extends Event & FlinkKeyedAware<K>>
         FlinkKeyedAwareDataStream<K, T> kafkaEventSource(String sourceName, Class<T> valueType) {
             KafkaConsumerProperties consumerProperties = KafkaConsumerProperties.from(sourceName, params);
-            CommonKafkaSource<T> source = new CommonKafkaSource<>(consumerProperties, new EventDeserializationSchema<>(valueType));
+            CommonKafkaSource<T> source = new CommonKafkaSource<>(consumerProperties,
+                new EventDeserializationSchema<>(valueType));
 
             return new FlinkKeyedAwareDataStream<>(configureEnv(source));
         }
 
         private <T> SingleOutputStreamOperator<T> configureEnv(SourceDefinition<T> def) {
             return env.addSource(def.buildSource())
-                    .setParallelism(def.getParallelism().orElse(env.getParallelism()))
-                    .name(def.getName())
-                    .uid(def.getName());
+                .setParallelism(def.getParallelism().orElse(env.getParallelism()))
+                .name(def.getName())
+                .uid(def.getName());
         }
 
     }
@@ -170,8 +170,8 @@ public class StreamBuilder {
          */
         public FlinkDataStream<T> addSink(SinkDefinition<T> def) {
             streamFromSource.addSink(def.buildSink())
-                    .setParallelism(def.getParallelism().orElse(env.getParallelism()))
-                    .name(def.getName()).uid(def.getName());
+                .setParallelism(def.getParallelism().orElse(env.getParallelism()))
+                .name(def.getName()).uid(def.getName());
 
             return this;
         }
@@ -190,7 +190,8 @@ public class StreamBuilder {
          *      .run(job);
          * } </pre>
          */
-        public <U> FlinkDataStream<U> addToStream(Function<SingleOutputStreamOperator<T>, SingleOutputStreamOperator<U>> steps) {
+        public <U> FlinkDataStream<U> addToStream(
+            Function<SingleOutputStreamOperator<T>, SingleOutputStreamOperator<U>> steps) {
             return new FlinkDataStream<>(steps.apply(streamFromSource));
         }
 
@@ -203,10 +204,10 @@ public class StreamBuilder {
 
         protected <K, U> SingleOutputStreamOperator<U> configureStream(KeyedProcessorDefinition<K, T, U> def) {
             return streamFromSource.keyBy(def.getKeySelector())
-                    .process(def.getProcessFunction())
-                    .setParallelism(def.getParallelism().orElse(env.getParallelism()))
-                    .name(def.getName())
-                    .uid(def.getName());
+                .process(def.getProcessFunction())
+                .setParallelism(def.getParallelism().orElse(env.getParallelism()))
+                .name(def.getName())
+                .uid(def.getName());
         }
 
     }
@@ -230,7 +231,8 @@ public class StreamBuilder {
          * @param <U>      result event type
          */
         public <U extends FlinkKeyedAware<K>>
-        FlinkKeyedAwareDataStream<K, U> addFlinkKeyedAwareProcessor(String name, KeyedProcessFunction<K, T, U> function) {
+        FlinkKeyedAwareDataStream<K, U> addFlinkKeyedAwareProcessor(String name,
+            KeyedProcessFunction<K, T, U> function) {
             return new FlinkKeyedAwareDataStream<>(configureStream(name, function));
         }
 
@@ -249,7 +251,8 @@ public class StreamBuilder {
 
         private <U> SingleOutputStreamOperator<U> configureStream(String name, KeyedProcessFunction<K, T, U> function) {
             KeyedProcessorProperties properties = KeyedProcessorProperties.from(name, params);
-            KeyedProcessorDefinition<K, T, U> def = new KeyedProcessorDefinition<>(properties, value -> value.flinkKey(), function);
+            KeyedProcessorDefinition<K, T, U> def = new KeyedProcessorDefinition<>(properties,
+                value -> value.flinkKey(), function);
 
             return configureStream(def);
         }

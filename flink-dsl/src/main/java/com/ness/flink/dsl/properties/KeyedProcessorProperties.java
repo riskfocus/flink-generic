@@ -16,19 +16,18 @@
 
 package com.ness.flink.dsl.properties;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.flink.api.java.utils.ParameterTool;
 
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Keyed processor properties for {@link com.ness.flink.dsl.definition.KeyedProcessorDefinition},
- * created by {@link OperatorPropertiesFactory}. Allows to configure any processor-specific properties.
+ * Keyed processor properties for {@link com.ness.flink.dsl.definition.KeyedProcessorDefinition}, created by
+ * {@link OperatorPropertiesFactory}. Allows to configure any processor-specific properties.
  * <p>
  * NOTE: currently, only name and parallelism are used.
  */

@@ -19,8 +19,9 @@ package com.ness.flink.dsl.serialization;
 import java.io.Serializable;
 
 /**
- * Auxiliary interface, providing serialization capabilities to {@link com.ness.flink.dsl.definition.kafka.CommonKafkaSink}.
- * Required, due to Flink cannot serialize/infer type from lambdas.
+ * Auxiliary interface, providing serialization capabilities to
+ * {@link com.ness.flink.dsl.definition.kafka.CommonKafkaSink}. Required, due to Flink cannot serialize/infer type from
+ * lambdas.
  *
  * @param <T> type of event to send to sink
  */

@@ -1,10 +1,9 @@
-package com.riskfocus.dsl.test;
+package com.ness.flink.dsl.test;
 
+import java.io.IOException;
 import lombok.SneakyThrows;
 import org.apache.flink.api.common.typeutils.base.StringSerializer;
 import org.apache.flink.streaming.api.functions.source.FromElementsFunction;
-
-import java.io.IOException;
 
 /**
  * Provides static factory method to hide exception handling.

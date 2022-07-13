@@ -20,16 +20,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Factory for properties instantiation. Allows to create individual set of properties by operator's name, which is used
@@ -48,14 +47,14 @@ import java.util.stream.Collectors;
 class OperatorPropertiesFactory {
 
     private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     private static final String CONFIG_FILE = "/operators.yml";
     private static final String NAME_FIELD = "name";
 
     /**
-     * Read defaults from properties file, overriding with environment variables, overriding with any values from ParameterTool. Usually,
-     * ParameterTool passing as argument is created from command line args in main method
+     * Read defaults from properties file, overriding with environment variables, overriding with any values from
+     * ParameterTool. Usually, ParameterTool passing as argument is created from command line args in main method
      *
      * @param name   source name, to filter records in configuration file
      * @param params overriding values, possibly prefixed with name
@@ -70,8 +69,8 @@ class OperatorPropertiesFactory {
             log.info("Configuration file is not found on classpath, continue with defaults: filename={}", CONFIG_FILE);
         } else {
             Map<String, Map<String, String>> fromFile = mapper.readValue(resourceAsStream,
-                    new TypeReference<Map<String, Map<String, String>>>() {
-                    });
+                new TypeReference<Map<String, Map<String, String>>>() {
+                });
             if (!fromFile.containsKey(name)) {
                 log.warn("Config not found: name={}", name);
             } else {
@@ -87,14 +86,14 @@ class OperatorPropertiesFactory {
 
     private static Map<String, String> readEnv() {
         return System.getenv().entrySet().stream()
-                .map(e -> Map.entry(e.getKey().replace('_', '.').toLowerCase(), e.getValue()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .map(e -> Map.entry(e.getKey().replace('_', '.').toLowerCase(), e.getValue()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private static Map<String, String> stripNames(String name, ParameterTool params) {
         return params.toMap().entrySet().stream()
-                .map(e -> Map.entry(e.getKey().replace(name + ".", ""), e.getValue()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .map(e -> Map.entry(e.getKey().replace(name + ".", ""), e.getValue()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
 }

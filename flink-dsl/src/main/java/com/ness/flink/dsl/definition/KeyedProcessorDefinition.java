@@ -17,16 +17,15 @@
 package com.ness.flink.dsl.definition;
 
 import com.ness.flink.dsl.properties.KeyedProcessorProperties;
+import java.io.Serializable;
+import java.util.Optional;
 import lombok.Getter;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 
-import java.io.Serializable;
-import java.util.Optional;
-
 /**
- * Wraps several entities, required for Flink keyed processor:
- * {@link KeySelector}, {@link KeyedProcessFunction}, and its properties.
+ * Wraps several entities, required for Flink keyed processor: {@link KeySelector}, {@link KeyedProcessFunction}, and
+ * its properties.
  *
  * @param <K> key type
  * @param <T> incoming event type
@@ -40,8 +39,8 @@ public class KeyedProcessorDefinition<K, T, U> implements SimpleDefinition, Seri
     private final KeyedProcessFunction<K, T, U> processFunction;
 
     public KeyedProcessorDefinition(KeyedProcessorProperties properties,
-                                    KeySelector<T, K> keySelector,
-                                    KeyedProcessFunction<K, T, U> processFunction) {
+        KeySelector<T, K> keySelector,
+        KeyedProcessFunction<K, T, U> processFunction) {
         this.properties = properties;
         this.keySelector = keySelector;
         this.processFunction = processFunction;
