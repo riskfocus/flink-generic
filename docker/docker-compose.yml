@@ -18,7 +18,7 @@ version: '3.3'
 services:
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.3.1
+    image: confluentinc/cp-zookeeper:7.2.0
     ports:
       - 2182:2182
     environment:
@@ -31,7 +31,7 @@ services:
       ZOOKEEPER_SERVERS: localhost:2889:3889
 
   kafka:
-    image: confluentinc/cp-enterprise-kafka:5.3.1
+    image: confluentinc/cp-enterprise-kafka:7.2.0
     container_name: kafka
     depends_on:
       - zookeeper
@@ -67,19 +67,17 @@ services:
       - 9092:9092
 
   topic-initializer:
-    image: confluentinc/cp-enterprise-kafka:5.3.1
+    image: confluentinc/cp-enterprise-kafka:7.2.0
     hostname: localhost
     container_name: initializer
     depends_on:
       - kafka
-      - zookeeper
     command: "bash -c -a 'echo Waiting for Kafka to be ready... && \
                          /etc/confluent/docker/configure && \
                          cub kafka-ready -b kafka:9092 1 60 && \
                          sleep 5 && \
-                         kafka-topics --zookeeper zookeeper:2182 --topic testSource --create --replication-factor 1 --partitions 4 && \
-                         kafka-topics --zookeeper zookeeper:2182 --topic testSink --create --replication-factor 1 --partitions 4 '"
-
+                         kafka-topics --bootstrap-server kafka:9092 --topic testSource --create --replication-factor 1 --partitions 4 && \
+                         kafka-topics --bootstrap-server kafka:9092 --topic testSink --create --replication-factor 1 --partitions 4 '"
     environment:
       CONNECT_BOOTSTRAP_SERVERS: ignored
       KAFKA_ZOOKEEPER_CONNECT: ignored
