@@ -5,7 +5,7 @@ For usage you need to specify `parent` in your own project `pom.xml` file:
 <parent>
     <groupId>com.riskfocus.flink.generic</groupId>
     <artifactId>flink-baseline</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
 </parent>
 ```
 ## flink-common module
