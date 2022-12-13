@@ -21,6 +21,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
+ * Any Incoming event for FLink pipeline should extend this class
+ *
  * @author Khokhlov Pavel
  */
 @Getter
