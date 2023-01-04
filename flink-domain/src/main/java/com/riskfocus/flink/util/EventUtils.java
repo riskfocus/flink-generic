@@ -29,7 +29,6 @@ public final class EventUtils {
     /**
      * Compare events based on timestamp
      * required for failover resilience
-     *
      * We should update data in case of new event has bigger or equals date
      *
      * @param previous event which was received before (e.g. previous event can be received from the storage)
