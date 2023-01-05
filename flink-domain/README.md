@@ -6,11 +6,11 @@ This module contains useful interfaces and utility classes which could be used i
 
 See details in classes documentation:
 - Time related
-  - [Event](src/main/java/com/riskfocus/flink/domain/Event.java)
-  - [IncomingEvent](src/main/java/com/riskfocus/flink/domain/IncomingEvent.java)
-  - [EventUtils](src/main/java/com/riskfocus/flink/util/EventUtils.java)
+  - [Event](src/main/java/com/ness/flink/domain/Event.java)
+  - [IncomingEvent](src/main/java/com/ness/flink/domain/IncomingEvent.java)
+  - [EventUtils](src/main/java/com/ness/flink/util/EventUtils.java)
 - Pipeline related  
-  - [KafkaKeyedAware](src/main/java/com/riskfocus/flink/domain/KafkaKeyedAware.java)
-  - [FlinkKeyedAware](src/main/java/com/riskfocus/flink/domain/FlinkKeyedAware.java)
+  - [KafkaKeyedAware](src/main/java/com/ness/flink/domain/KafkaKeyedAware.java)
+  - [FlinkKeyedAware](src/main/java/com/ness/flink/domain/FlinkKeyedAware.java)
 
 Usage of these classes you could find in [flink-example-domain](../flink-example-domain/src/main/java/com/riskfocus/flink/example/pipeline/domain) module

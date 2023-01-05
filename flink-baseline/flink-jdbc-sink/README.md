@@ -1,15 +1,17 @@
 # Flink JDBC Sink module
 This module provides JDBC Sink function.
 
+**For now module excluded from Build, see details**: [JIRA](https://ness-nde.atlassian.net/browse/FSIP-17)
+
 Original module has a bug which prevents of usage bulk inserts (see details: https://issues.apache.org/jira/browse/FLINK-17488)
 
-For now module supports these [dialects](src/main/java/com/riskfocus/flink/sink/jdbc/config/Dialect.java) 
+For now module supports these [dialects](src/main/java/com/ness/flink/sink/jdbc/config/Dialect.java) 
 
-[Job parameters configuration](src/main/java/com/riskfocus/flink/sink/jdbc/config/JdbcSinkConfig.java)
+[Job parameters configuration](src/main/java/com/ness/flink/sink/jdbc/config/JdbcSinkConfig.java)
 
 ## JDBC Sink Usage 
 You have to extend your own Sink class from 
-`com.riskfocus.flink.sink.jdbc.AbstractJdbcSink`
+`com.ness.flink.sink.jdbc.AbstractJdbcSink`
 
 For example:
 ```

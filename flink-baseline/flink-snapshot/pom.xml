@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2020-2022 Ness USA, Inc.
+  ~ Copyright 2020-2023 Ness USA, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>flink-baseline</artifactId>
-        <groupId>com.riskfocus.flink.generic</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <groupId>com.ness.flink.generic</groupId>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,7 +29,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.riskfocus.flink.generic</groupId>
+            <groupId>com.ness.flink.generic</groupId>
             <artifactId>flink-common</artifactId>
             <version>${project.version}</version>
         </dependency>

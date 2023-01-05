@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2020-2022 Ness USA, Inc.
+  ~ Copyright 2020-2023 Ness USA, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>flink-generic</artifactId>
-        <groupId>com.riskfocus.flink.generic</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <groupId>com.ness.flink.generic</groupId>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
@@ -30,59 +30,87 @@
         <module>flink-common</module>
         <module>flink-snapshot</module>
         <module>flink-example</module>
+        <!--
         <module>flink-jdbc-sink</module>
+        -->
     </modules>
 
     <artifactId>flink-baseline</artifactId>
 
     <properties>
-        <flink.version>1.13.2</flink.version>
-        <scala.binary.version>2.12</scala.binary.version>
-        <redis.lettuce.version>5.2.2.RELEASE</redis.lettuce.version>
+        <flink.version>1.15.3</flink.version>
+        <redis.lettuce.version>5.3.7.RELEASE</redis.lettuce.version>
         <embedded.redis.version>0.7.2</embedded.redis.version>
-        <log4j.version>1.2.17</log4j.version>
-        <slf4j.version>1.7.7</slf4j.version>
+        <log4j.version>2.19.0</log4j.version>
         <!-- Use stable version when it will become available -->
         <flink.jdbc.version>1.11-SNAPSHOT</flink.jdbc.version>
         <dropwizard.metrics.version>4.1.10.1</dropwizard.metrics.version>
-        <jackson.version>2.9.8</jackson.version>
+        <aws-kinesisanalytics-runtime.version>1.2.0</aws-kinesisanalytics-runtime.version>
+        <aws.glue.flink.serde.version>1.1.14</aws.glue.flink.serde.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Logging framework -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-avro-confluent-registry</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.lettuce</groupId>
                 <artifactId>lettuce-core</artifactId>
                 <version>${redis.lettuce.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>it.ozimov</groupId>
                 <artifactId>embedded-redis</artifactId>
                 <version>${embedded.redis.version}</version>
                 <scope>test</scope>
             </dependency>
-            <!-- Add logging framework, to produce console output when running in the IDE. -->
+
+
             <!-- These dependencies are excluded from the application JAR by default. -->
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-                <scope>runtime</scope>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-streaming-java</artifactId>
+                <version>${flink.version}</version>
+                <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log4j.version}</version>
-                <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
+
+            <!-- Required for checkpoint issues investigations when localDev=true  -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <!-- Switch to ${scala.binary.version} when version becomes available -->
+                <artifactId>flink-statebackend-rocksdb</artifactId>
+                <version>${flink.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
                 <artifactId>flink-jdbc_2.11</artifactId>
                 <version>${flink.jdbc.version}</version>
             </dependency>
@@ -97,67 +125,152 @@
                 <version>${dropwizard.metrics.version}</version>
             </dependency>
 
+            <!-- AWS -->
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-kinesisanalytics-runtime</artifactId>
+                <version>${aws-kinesisanalytics-runtime.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>software.amazon.glue</groupId>
+                <artifactId>schema-registry-flink-serde</artifactId>
+                <version>${aws.glue.flink.serde.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-connector-kafka</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-runtime-web</artifactId>
+                <version>${flink.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-clients</artifactId>
+                <version>${flink.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-metrics-jmx</artifactId>
+                <version>${flink.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-test-utils</artifactId>
+                <version>${flink.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Required for writing unit tests with (TestHarness) -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-streaming-java</artifactId>
+                <version>${flink.version}</version>
+                <scope>test</scope>
+                <classifier>tests</classifier>
+                <type>test-jar</type>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-java</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
+            <artifactId>flink-streaming-java</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-java</artifactId>
+            <scope>test</scope>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-test-utils</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka</artifactId>
+        </dependency>
+
+        <!-- These dependencies are excluded from the application JAR by default. -->
         <!-- Local Dev Web Runtime -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime-web_${scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
+            <artifactId>flink-runtime-web</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka_${scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
+            <artifactId>flink-clients</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-metrics-jmx_${scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
+            <artifactId>flink-metrics-jmx</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <!-- Switch to ${scala.binary.version} when version becomes available -->
+            <artifactId>flink-avro-confluent-registry</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-kinesisanalytics-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.glue</groupId>
+            <artifactId>schema-registry-flink-serde</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-statebackend-rocksdb</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-jdbc_2.11</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-metrics-dropwizard</artifactId>

@@ -1,0 +1,90 @@
+channel:
+  type: KAFKA_CONFLUENT
+#  type: KAFKA_MSK
+
+watermark:
+  watermarkType: MONOTONOUS_TIMESTAMPS
+  idlenessMs: 1000
+  windowSizeMs: 10000
+
+kafka:
+  bootstrap.servers: localhost:29092
+  schema.registry.url: http://localhost:8085
+  schema.registry.basic.auth.credentials.source: URL
+  #schema.registry.basic.auth.credentials.source: USER_INFO
+  schema.registry.basic.auth.user.info: user:pwd
+  #security.protocol: SASL_SSL
+  #sasl.mechanism: PLAIN
+  #sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule   required username='API_KEY' password='API_PASSWD';"
+
+aws:
+  region: us-east-1
+  glue.registry.name: poc-msk-shema-registry
+  glue.avroRecordType: SPECIFIC_RECORD
+  glue.schemaAutoRegistrationEnabled: true
+  glue.schemaNameGenerationClass: "com.ness.flink.config.channel.kafka.msk.AwsGlueSchemaNamingStrategy"
+
+kafka.consumer:
+  enable.auto.commit: "true"
+  auto.commit.interval.ms: 5000
+  fetch.min.bytes: 1
+  max.poll.records: 1000
+  isolation.level: read_committed
+  auto.offset.reset: latest
+  fetch.max.wait.ms: 500
+  group.id: "orderProcessor"
+  #skipBrokenMessages: true
+  #parallelism: 4
+
+kafka.producer:
+  acks: all
+  batch.size: 16384
+  linger.ms: 0
+  #### Exactly once semantic (requires enabled checkpoints!!!)
+  #transactionIdPrefix: "flink-orderProcessor_"
+  #deliveryGuarantee: EXACTLY_ONCE
+  #max.in.flight.requests.per.connection: 5
+  #enable.idempotence: true
+  #transaction.timeout.ms: 60000
+  #parallelism: 4
+
+order.source:
+  topic: orders
+  watermark:
+    type: MONOTONOUS_TIMESTAMPS
+    idlenessMs: 1000
+
+price.source:
+  topic: prices
+  watermark:
+    type: MONOTONOUS_TIMESTAMPS
+    idlenessMs: 1000
+
+position.by.symbol.sink:
+  topic: position-by-symbol
+
+position.by.account.subAccount.symbol.sink:
+  topic: position-by-account
+
+market.value.by.account.subAccount.sink:
+  topic: position-by-account-price
+
+market.value.by.symbol.sink:
+  topic: position-by-symbol-price
+
+# Application settings
+application:
+  windowProviderType: BASIC
+
+# Flink org.apache.flink.streaming.api.environment.StreamExecutionEnvironment configuration
+environment:
+  localDev: false
+  bufferTimeoutMs: 0
+  autoWatermarkInterval: 500
+  #enabledCheckpoints: true
+  #enabledRocksDb: true
+  #checkpointsDataUri: "file:/checkpoints"
+  # see org.apache.flink.streaming.api.environment.CheckpointConfig.configure
+  #execution.checkpointing.interval: 30000
+  #execution.checkpointing.min-pause: 10000
+  #execution.checkpointing.unaligned: true

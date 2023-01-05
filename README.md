@@ -3,7 +3,7 @@ This module contains generic (not project specific) tools related to any Flink b
 
 Project contains sub-modules:
 - [Flink-baseline](flink-baseline/README.md)
-- [Flink-common](flink-baseline/flink-common) 
+- [Flink-common](flink-baseline/flink-common/README.md) 
 - [Flink-snapshot](flink-baseline/flink-snapshot/README.md) 
 - [Flink-jdbc-sink](flink-baseline/flink-jdbc-sink/README.md)
 - [Sample of Flink application](flink-baseline/flink-example/README.md)

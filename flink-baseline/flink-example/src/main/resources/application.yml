@@ -1,0 +1,86 @@
+# Application settings
+# Application settings
+application:
+  windowProviderType: BASIC
+
+watermark:
+  watermarkType: CUSTOM_WITH_IDLE
+  windowSizeMs: 10000
+
+redis:
+    host: localhost
+    port: 6379
+    password: e1adc4f1dd55364963a71e53bc8e7557ed5c26e9fc5f3c69a284adf1ec614860
+
+channel:
+  type: KAFKA_CONFLUENT
+
+kafka:
+  bootstrap.servers: localhost:19093
+  #schema.registry.url: http://localhost:8085
+  #schema.registry.basic.auth.credentials.source: URL
+  #schema.registry.basic.auth.credentials.source: USER_INFO
+  #schema.registry.basic.auth.user.info: user:pwd
+  #security.protocol: SASL_SSL
+  #sasl.mechanism: PLAIN
+  #sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule   required username='API_KEY' password='API_PASSWD';"
+
+kafka.consumer:
+  enable.auto.commit: "true"
+  auto.commit.interval.ms: 5000
+  fetch.min.bytes: 1
+  max.poll.records: 1000
+  isolation.level: read_committed
+  auto.offset.reset: latest
+  fetch.max.wait.ms: 500
+  group.id: "priceSmoothing"
+  #skipBrokenMessages: true
+  #parallelism: 4
+
+kafka.producer:
+  acks: all
+  batch.size: 16384
+  linger.ms: 0
+  #### Exactly once semantic (requires enabled checkpoints!!!)
+  #transactionIdPrefix: "flink-orderProcessor_"
+  #deliveryGuarantee: EXACTLY_ONCE
+  #max.in.flight.requests.per.connection: 5
+  #enable.idempotence: true
+  #transaction.timeout.ms: 60000
+  #parallelism: 4
+
+option.price.source:
+  topic: optionsPricesLive
+  # Should be equals to kafka partitions number
+  maxParallelism: 4
+
+interest.rates.source:
+  topic: ycInputsLive
+  # Should be equals to kafka partitions number
+  maxParallelism: 4
+
+smoothing.request.sink:
+  topic: smoothingInputsLatest
+
+interest.rates.snapshot.sink:
+  topic: interestRatesSnapshot
+
+interest.rates.snapshot.redis.sink:
+  parallelism: 1
+
+reduceByUSDCurrency.operator:
+  parallelism: 1
+
+# Flink org.apache.flink.streaming.api.environment.StreamExecutionEnvironment configuration
+environment:
+  localDev: false
+  bufferTimeoutMs: 0
+  autoWatermarkInterval: 500
+  disableGenericTypes: false
+  #enabledCheckpoints: true
+  #enabledRocksDb: true
+  #checkpointsDataUri: "file:/checkpoints/"
+  # see org.apache.flink.streaming.api.environment.CheckpointConfig.configure
+  #execution.checkpointing.interval: 30000
+  #execution.checkpointing.min-pause: 10000
+  #execution.checkpointing.unaligned: false

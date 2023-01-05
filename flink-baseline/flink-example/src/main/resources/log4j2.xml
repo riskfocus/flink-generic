@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2020-2023 Ness USA, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout
+              pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable"/>
+        </Console>
+
+        <RollingFile name="RollingFile"
+          fileName="./logs/flink-impl.log"
+          filePattern="./logs/$${date:yyyy-MM}/app-%d{-dd-MMMM-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <pattern>%d %p %C{1.} [%t] %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <!-- rollover on startup, daily and when the file reaches 50 MB -->
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- LOG everything at INFO level -->
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <!--
+            <AppenderRef ref="RollingFile"/>
+            -->
+        </Root>
+        <Logger name="org.apache.kafka" level="INFO" additivity="true"/>
+        <Logger name="org.apache.flink" level="INFO" additivity="true"/>
+        <Logger name="com.ness.flink.example" level="INFO" additivity="true"/>
+        <Logger name="com.ness" level="INFO" additivity="true"/>
+    </Loggers>
+
+</Configuration>
