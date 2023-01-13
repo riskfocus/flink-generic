@@ -1,4 +1,4 @@
-# Example of simple application 
+# SmoothingPrices Flink application 
 This module contains example of Flink application (SmoothingPrices).
 
 ## Application Description

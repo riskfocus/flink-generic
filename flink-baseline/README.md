@@ -47,6 +47,10 @@ Provides:
 
 More details [README.md](flink-common/README.md)
 
+## SmoothingPrices module
+Flink PriceSmoothing application built on top on flink-common module  more details 
+[SmoothingPrices](flink-example/README.md)
+
 ## flink-snapshot module
 Provides common snapshot functions (in atomic way):
  - Ability to Sink data into Redis

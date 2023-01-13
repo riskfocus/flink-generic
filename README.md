@@ -6,8 +6,8 @@ Project contains sub-modules:
 - [Flink-common](flink-baseline/flink-common/README.md) 
 - [Flink-snapshot](flink-baseline/flink-snapshot/README.md) 
 - [Flink-jdbc-sink](flink-baseline/flink-jdbc-sink/README.md)
-- [Sample of Flink application](flink-baseline/flink-example/README.md)
-- [Integration test](flink-test-example/src/test/java/com/riskfocus/flink/test/example/SmoothingIT.java)
+- [SmoothingPrices Flink application](flink-baseline/flink-example/README.md)
+- [SmoothingPrices Integration test](flink-test-example/README.md)
 
 ## Dependencies
 Module requires:
