@@ -51,6 +51,7 @@ import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
@@ -237,26 +238,6 @@ public class StreamBuilder {
         /**
          * Sink data from provided DataStream AVRO Specific based
          *
-         * @param outputStreamOperator user defined transformation applied on a DataStream with one predefined output
-         *                             type
-         * @param sinkName             name of sink
-         * @param domainClass          data domain class
-         * @param keyExtractor         key extractor from domain object
-         * @param eventTimeExtractor   timestamp extractor from domain
-         * @param <S>                  AVRO Specific record
-         */
-        public <S extends SpecificRecordBase> void sinkAvroSpecific(SingleOutputStreamOperator<S> outputStreamOperator,
-            String sinkName,
-            Class<S> domainClass,
-            KeyExtractor<S> keyExtractor,
-            @Nullable EventTimeExtractor<S> eventTimeExtractor) {
-            sinkAvroSpecific(new FlinkDataStream<>(outputStreamOperator), sinkName, domainClass, keyExtractor,
-                eventTimeExtractor);
-        }
-
-        /**
-         * Sink data from provided DataStream AVRO Specific based
-         *
          * @param fromStream         source stream
          * @param sinkName           name of sink
          * @param domainClass        data domain class
@@ -264,7 +245,7 @@ public class StreamBuilder {
          * @param eventTimeExtractor timestamp extractor from domain
          * @param <S>                AVRO Specific record
          */
-        public <S extends SpecificRecordBase> void sinkAvroSpecific(FlinkDataStream<S> fromStream,
+        public <S extends SpecificRecordBase> void sinkAvroSpecific(SinkAware<S> fromStream,
             String sinkName,
             Class<S> domainClass,
             KeyExtractor<S> keyExtractor,
@@ -304,26 +285,6 @@ public class StreamBuilder {
         /**
          * Sink data from provided DataStream POJO based
          *
-         * @param outputStreamOperator user defined transformation applied on a DataStream with one predefined output
-         *                             type
-         * @param sinkName             name of sink
-         * @param domainClass          data domain class
-         * @param keyExtractor         key extractor from domain object
-         * @param eventTimeExtractor   timestamp extractor from domain
-         * @param <S>                  POJO record
-         */
-        public <S extends Serializable> void sinkPojo(SingleOutputStreamOperator<S> outputStreamOperator,
-            String sinkName,
-            Class<S> domainClass,
-            KeyExtractor<S> keyExtractor,
-            @Nullable EventTimeExtractor<S> eventTimeExtractor) {
-            sinkPojo(new FlinkDataStream<>(outputStreamOperator), sinkName, domainClass, keyExtractor,
-                eventTimeExtractor);
-        }
-
-        /**
-         * Sink data from provided DataStream POJO based
-         *
          * @param fromStream         source stream
          * @param sinkName           name of sink
          * @param domainClass        data domain class
@@ -331,7 +292,7 @@ public class StreamBuilder {
          * @param eventTimeExtractor timestamp extractor from domain
          * @param <S>                POJO record
          */
-        public <S extends Serializable> void sinkPojo(FlinkDataStream<S> fromStream,
+        public <S extends Serializable> void sinkPojo(SinkAware<S> fromStream,
             String sinkName,
             Class<S> domainClass,
             KeyExtractor<S> keyExtractor,
@@ -366,10 +327,10 @@ public class StreamBuilder {
          * @param defaultSink new sink API
          * @param <S>         record to Sink
          */
-        public <S extends Serializable> void sink(FlinkDataStream<S> fromStream, DefaultSink<S> defaultSink) {
+        public <S extends Serializable> void sink(SinkAware<S> fromStream, DefaultSink<S> defaultSink) {
             String name = defaultSink.getName();
             Sink<S> sink = defaultSink.build();
-            fromStream.dataStream.sinkTo(sink).name(name).uid(name)
+            fromStream.getDataStream().sinkTo(sink).name(name).uid(name)
                 .setParallelism(defaultSink.getParallelism().orElse(env.getParallelism()));
         }
 
@@ -380,9 +341,9 @@ public class StreamBuilder {
          * @param sinkDefinition sink definition
          * @param <S>            record to Sink
          */
-        public <S extends Serializable> void sink(FlinkDataStream<S> fromStream, SinkDefinition<S> sinkDefinition) {
+        public <S extends Serializable> void sink(SinkAware<S> fromStream, SinkDefinition<S> sinkDefinition) {
             String name = sinkDefinition.getName();
-            fromStream.dataStream.addSink(sinkDefinition.buildSink()).name(name).uid(name)
+            fromStream.getDataStream().addSink(sinkDefinition.buildSink()).name(name).uid(name)
                 .setParallelism(sinkDefinition.getParallelism().orElse(env.getParallelism()));
         }
 
@@ -396,14 +357,28 @@ public class StreamBuilder {
     }
 
     /**
+     * Type of Sink
+     * @param <T> event type
+     */
+    @FunctionalInterface
+    public interface SinkAware<T> {
+        DataStream<T> getDataStream();
+    }
+
+    /**
      * Auxiliary data stream wrapper, providing simple process/sink operators configuration.
      *
      * @param <T> data stream event type
      */
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public class FlinkDataStream<T> {
+    public class FlinkDataStream<T> implements SinkAware<T> {
         @Getter
-        protected final SingleOutputStreamOperator<T> dataStream;
+        protected final SingleOutputStreamOperator<T> singleOutputStreamOperator;
+
+        @Override
+        public DataStream<T> getDataStream() {
+            return singleOutputStreamOperator;
+        }
 
         /**
          * Creates a common data stream wrapper, with custom {@link KeyedProcessFunction}
@@ -411,7 +386,6 @@ public class StreamBuilder {
         public <K, U> FlinkDataStream<U> addKeyedProcessor(KeyedProcessorDefinition<K, T, U> def) {
             return new FlinkDataStream<>(configureStream(def));
         }
-
 
         /**
          * Allows to modify Flink data stream directly, by calling usual Flink DataStream API methods. Example:
@@ -429,7 +403,7 @@ public class StreamBuilder {
          */
         public <U> FlinkDataStream<U> addToStream(Function<SingleOutputStreamOperator<T>,
             SingleOutputStreamOperator<U>> steps) {
-            return new FlinkDataStream<>(steps.apply(dataStream));
+            return new FlinkDataStream<>(steps.apply(singleOutputStreamOperator));
         }
 
         /**
@@ -438,7 +412,7 @@ public class StreamBuilder {
          * @return same data stream wrapper, with sink added
          */
         public FlinkDataStream<T> addSink(SinkDefinition<T> def) {
-            dataStream.addSink(def.buildSink())
+            singleOutputStreamOperator.addSink(def.buildSink())
                 .setParallelism(def.getParallelism().orElse(env.getParallelism()))
                 .name(def.getName()).uid(def.getName());
             return this;
@@ -452,7 +426,7 @@ public class StreamBuilder {
         }
 
         protected <K, U> SingleOutputStreamOperator<U> configureStream(KeyedProcessorDefinition<K, T, U> def) {
-            return dataStream.keyBy(def.getKeySelector())
+            return singleOutputStreamOperator.keyBy(def.getKeySelector())
                 .process(def.getProcessFunction())
                 .setParallelism(def.getParallelism().orElse(env.getParallelism()))
                 .name(def.getName())
