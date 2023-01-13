@@ -15,6 +15,8 @@ Module requires:
  - Maven Apache Maven 3.6.2+
 
 ## Build
+- Locally
 ```bash
  $ maven clean install
 ```
+- [Jenkins](https://jenkins.cicd.rfs.riskfocus.com/job/riskfocus/job/flink-generic/) 
