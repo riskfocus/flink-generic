@@ -41,7 +41,16 @@ import java.util.stream.Stream;
 
 
 /**
- * @author Khokhlov Pavel
+ * Factory for properties instantiation. Allows to create individual set of properties by operator's name, which is used
+ * to filter them from default properties file {@code (operators.yml)}. Property values are resolved from:
+ * <ul>
+ *  <li> default values from factory
+ *  <li> operators.yml
+ *  <li> Environment variables, with transforming names form upper underscore to lowercase with dots (MY_PROP -> my.prop)
+ *  <li> Flink {@link ParameterTool}, allowing to pass property prefixed by source name, e.g. {@code -mySource.parallelism 4}
+ * </ul>
+ * <p> Any vendor specific configuration properties must be passed as is, e.g. {@code max.poll.records},
+ * or {@code sourceName.max.poll.records} if ParameterTool argument is used.
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -57,15 +66,41 @@ public class OperatorPropertiesFactory {
     private static final String PLACEHOLDER_PATTERN_STRING = "\\$\\{(.+?)\\}";
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile(PLACEHOLDER_PATTERN_STRING);
 
-
+    /**
+     * Read defaults from properties file, overriding with environment variables, overriding with any values from
+     * ParameterTool. Usually, ParameterTool passing as argument is created from command line args in main method
+     *
+     * @param name   source name, to filter records in configuration file
+     * @param params overriding values, possibly prefixed with name
+     * @param propertiesClass Class which describes required properties
+     */
     public static <T extends RawProperties<T>> T from(String name, ParameterTool params, Class<T> propertiesClass) {
         return from(name, null, params, propertiesClass);
     }
 
+    /**
+     * Read defaults from properties file, overriding with environment variables, overriding with any values from
+     * ParameterTool. Usually, ParameterTool passing as argument is created from command line args in main method
+     *
+     * @param name   source name, to filter records in configuration file
+     * @param sharedName  Shared source name, which will be used in case of original property name wasn't found
+     * @param params overriding values, possibly prefixed with name
+     * @param propertiesClass Class which describes required properties
+     */
     static <T extends RawProperties<T>> T from(String name, String sharedName, ParameterTool params, Class<T> propertiesClass) {
         return from(name, sharedName, params, propertiesClass, DEFAULT_CONFIG_FILE);
     }
 
+    /**
+     * Read defaults from properties file, overriding with environment variables, overriding with any values from
+     * ParameterTool. Usually, ParameterTool passing as argument is created from command line args in main method
+     *
+     * @param name   source name, to filter records in configuration file
+     * @param sharedName  Shared source name, which will be used in case of original property name wasn't found
+     * @param params overriding values, possibly prefixed with name
+     * @param propertiesClass Class which describes required properties
+     * @param configFile path to configuration YML-file
+     */
     static <T extends RawProperties<T>> T from(String name, String sharedName, ParameterTool params, Class<T> propertiesClass,
                                                String configFile) {
         PropertiesMaps propertiesMaps = propertiesMaps(name, sharedName, params, configFile);
