@@ -30,7 +30,7 @@ kafka.consumer:
   fetch.min.bytes: 1
   max.poll.records: 1000
   isolation.level: read_committed
-  auto.offset.reset: latest
+  offsets: EARLIEST
   fetch.max.wait.ms: 500
   group.id: "orderProcessor"
   #skipBrokenMessages: true

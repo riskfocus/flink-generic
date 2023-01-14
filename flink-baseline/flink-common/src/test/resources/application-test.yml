@@ -16,7 +16,7 @@ kafka:
 
 kafka.consumer:
   bootstrap.servers: localhost:9092
-  auto.offset.reset: earliest
+  offsets: LATEST
   schema.registry.url: http://localhost:8085
   schema.registry.basic.auth.credentials.source: USER_INFO
   schema.registry.basic.auth.user.info: 12121:233232
@@ -39,6 +39,8 @@ test.source:
   topic: test-topic
   parallelism: 4
   maxParallelism: 8
+  offsets: TIMESTAMP
+  timestamp: 123
 
 test.sink:
   type: AWS_KINESIS

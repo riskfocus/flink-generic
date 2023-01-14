@@ -33,7 +33,7 @@ class KafkaConsumerPropertiesTest {
         Assertions.assertEquals("user:pwd", confluentRegistryConfigs.get(USER_INFO_CONFIG));
 
         OffsetsInitializer offsetsInitializer = properties.getOffsetsInitializer();
-        Assertions.assertEquals(offsetsInitializer.getAutoOffsetResetStrategy().name(), OffsetResetStrategy.LATEST.name());
+        Assertions.assertEquals(OffsetResetStrategy.EARLIEST, offsetsInitializer.getAutoOffsetResetStrategy());
 
         Assertions.assertNull(properties.getTimestamp());
         Assertions.assertNull(properties.getTopic());
@@ -46,7 +46,6 @@ class KafkaConsumerPropertiesTest {
         Assertions.assertEquals("read_committed", consumerProperties.getProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG));
         Assertions.assertEquals("true", consumerProperties.getProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG));
         Assertions.assertEquals("5000", consumerProperties.getProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG));
-        Assertions.assertEquals("latest", consumerProperties.getProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG));
     }
 
     @Test
@@ -57,9 +56,9 @@ class KafkaConsumerPropertiesTest {
         Assertions.assertEquals("test.source", properties.getName());
         Assertions.assertEquals("test-topic", properties.getTopic());
 
+        Assertions.assertEquals(123, properties.getTimestamp());
         OffsetsInitializer offsetsInitializer = properties.getOffsetsInitializer();
-        Assertions.assertEquals(offsetsInitializer.getAutoOffsetResetStrategy().name(), OffsetResetStrategy.EARLIEST.name());
-
+        Assertions.assertEquals(OffsetResetStrategy.NONE, offsetsInitializer.getAutoOffsetResetStrategy());
 
         Properties consumerProperties = properties.getConsumerProperties();
         Assertions.assertEquals("localhost:9092", consumerProperties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));

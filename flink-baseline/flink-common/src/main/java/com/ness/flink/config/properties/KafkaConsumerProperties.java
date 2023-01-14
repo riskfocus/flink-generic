@@ -55,6 +55,9 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
 
     private Integer maxParallelism;
 
+    private Offsets offsets = Offsets.EARLIEST;
+    private OffsetResetStrategy offsetResetStrategy = OffsetResetStrategy.EARLIEST;
+
     public static KafkaConsumerProperties from(@NonNull String name, @NonNull ParameterTool parameterTool) {
         return from(name, parameterTool, DEFAULT_CONFIG_FILE);
     }
@@ -75,6 +78,10 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
 
         return consumerProperties;
     }
+    
+    public enum Offsets {
+        EARLIEST, LATEST, TIMESTAMP, COMMITTED
+    }
 
     public Properties getConsumerProperties() {
         Properties properties = new Properties();
@@ -83,29 +90,24 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
         return properties;
     }
 
+    /**
+     * Builds the starting / stopping offset for Kafka Consumer
+     * @return an OffsetsInitializer which initializes the offsets.
+     */
     public OffsetsInitializer getOffsetsInitializer() {
-        // Default behaviour is latest
-        OffsetsInitializer offsetsInitializer = OffsetsInitializer.latest();
-        // Ger value from Kafka Consumer Configuration
-        String autoOffsetReset = (String) getConsumerProperties().get(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG);
-        if (autoOffsetReset != null) {
-            try {
-                OffsetResetStrategy offsetResetStrategy = OffsetResetStrategy.valueOf(autoOffsetReset.toUpperCase());
-                if (OffsetResetStrategy.EARLIEST.equals(offsetResetStrategy)) {
-                    offsetsInitializer = OffsetsInitializer.earliest();
-                }
-            } catch (IllegalArgumentException e) {
-                log.warn("Got unexpected value for property: {}={}", ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
-            }
+        switch (offsets) {
+            case LATEST:
+                return OffsetsInitializer.latest();
+            case EARLIEST:
+                return OffsetsInitializer.earliest();
+            case TIMESTAMP:
+                return OffsetsInitializer.timestamp(getTimestamp());
+            case COMMITTED:
+                return OffsetsInitializer.committedOffsets(offsetResetStrategy);
+
+            default:
+                throw new IllegalArgumentException("Unsupported value: " + offsets);
         }
-        // In case of timestamp provided we have to switch strategy
-        if (getTimestamp() != null) {
-            offsetsInitializer = OffsetsInitializer.timestamp(getTimestamp());
-        }
-        if (log.isInfoEnabled()) {
-            log.info("OffsetsInitializer: strategy={}", offsetsInitializer.getAutoOffsetResetStrategy());
-        }
-        return offsetsInitializer;
     }
 
     private Map<String, String> filterNonConsumerProperties() {
