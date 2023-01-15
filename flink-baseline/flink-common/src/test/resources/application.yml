@@ -30,9 +30,9 @@ kafka.consumer:
   fetch.min.bytes: 1
   max.poll.records: 1000
   isolation.level: read_committed
-  offsets: EARLIEST
+  offsets: COMMITTED
   fetch.max.wait.ms: 500
-  group.id: "orderProcessor"
+  group.id: "flinkProcessor"
   #skipBrokenMessages: true
   #parallelism: 4
 

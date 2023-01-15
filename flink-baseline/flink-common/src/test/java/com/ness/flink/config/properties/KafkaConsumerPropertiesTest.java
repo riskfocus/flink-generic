@@ -1,5 +1,6 @@
 package com.ness.flink.config.properties;
 
+import com.ness.flink.config.properties.KafkaConsumerProperties.Offsets;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.kafka.clients.CommonClientConfigs;
@@ -32,6 +33,7 @@ class KafkaConsumerPropertiesTest {
         Assertions.assertEquals("URL", confluentRegistryConfigs.get(BASIC_AUTH_CREDENTIALS_SOURCE));
         Assertions.assertEquals("user:pwd", confluentRegistryConfigs.get(USER_INFO_CONFIG));
 
+        Assertions.assertEquals(Offsets.COMMITTED, properties.getOffsets());
         OffsetsInitializer offsetsInitializer = properties.getOffsetsInitializer();
         Assertions.assertEquals(OffsetResetStrategy.EARLIEST, offsetsInitializer.getAutoOffsetResetStrategy());
 
@@ -40,7 +42,7 @@ class KafkaConsumerPropertiesTest {
 
         Properties consumerProperties = properties.getConsumerProperties();
         Assertions.assertEquals("localhost:29092", consumerProperties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
-        Assertions.assertEquals("orderProcessor", consumerProperties.getProperty(ConsumerConfig.GROUP_ID_CONFIG));
+        Assertions.assertEquals("flinkProcessor", consumerProperties.getProperty(ConsumerConfig.GROUP_ID_CONFIG));
         Assertions.assertEquals("1", consumerProperties.getProperty(ConsumerConfig.FETCH_MIN_BYTES_CONFIG));
         Assertions.assertEquals("500", consumerProperties.getProperty(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG));
         Assertions.assertEquals("read_committed", consumerProperties.getProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG));
@@ -58,6 +60,7 @@ class KafkaConsumerPropertiesTest {
 
         Assertions.assertEquals(123, properties.getTimestamp());
         OffsetsInitializer offsetsInitializer = properties.getOffsetsInitializer();
+        Assertions.assertEquals(Offsets.TIMESTAMP, properties.getOffsets());
         Assertions.assertEquals(OffsetResetStrategy.NONE, offsetsInitializer.getAutoOffsetResetStrategy());
 
         Properties consumerProperties = properties.getConsumerProperties();

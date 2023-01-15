@@ -16,7 +16,8 @@ kafka:
 
 kafka.consumer:
   bootstrap.servers: localhost:9092
-  offsets: LATEST
+  offsets: COMMITTED
+  offsetResetStrategy: EARLIEST
   schema.registry.url: http://localhost:8085
   schema.registry.basic.auth.credentials.source: USER_INFO
   schema.registry.basic.auth.user.info: 12121:233232
