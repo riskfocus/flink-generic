@@ -36,7 +36,7 @@ public class WindowGeneratorWatermarkWithIdle<T> implements WatermarkGeneratorSu
     private static final long serialVersionUID = 5508501490307135058L;
 
     private final BasicGenerator basicGenerator;
-    private long id = 0;
+    private long windowId;
 
     public WindowGeneratorWatermarkWithIdle(long windowSize) {
         basicGenerator = new BasicGenerator(windowSize);
@@ -44,29 +44,39 @@ public class WindowGeneratorWatermarkWithIdle<T> implements WatermarkGeneratorSu
 
     @Override
     public WatermarkGenerator<T> createWatermarkGenerator(Context context) {
-        return new WatermarkGenerator<>() {
-            @Override
-            public void onEvent(T event, long eventTimestamp, WatermarkOutput output) {
-                id = basicGenerator.generateWindowPeriod(eventTimestamp).getId();
-            }
-
-            @Override
-            public void onPeriodicEmit(WatermarkOutput output) {
-                long now = now();
-                long currentId = basicGenerator.generateWindowPeriod(now).getId();
-                if (id > 0 && currentId != id) {
-                    log.debug("Generated Watermark: W{}", currentId);
-                    id = currentId;
-                    output.emitWatermark(new Watermark(now));
-                    output.markActive();
-                } else {
-                    output.markIdle();
-                }
-            }
-
-            private long now() {
-                return System.currentTimeMillis();
-            }
-        };
+        return new WindowBasedWatermarkGenerator<>();
     }
+
+    class WindowBasedWatermarkGenerator<E> implements WatermarkGenerator<E> {
+        WindowBasedWatermarkGenerator() {
+            windowId = basicGenerator.generateWindowPeriod(now()).getId();
+        }
+
+        @Override
+        public void onEvent(E event, long eventTimestamp, WatermarkOutput output) {
+            generate(output, eventTimestamp);
+        }
+
+        @Override
+        public void onPeriodicEmit(WatermarkOutput output) {
+            generate(output, now());
+        }
+
+        private void generate(WatermarkOutput output, long eventTimestamp) {
+            long newWindowId = basicGenerator.generateWindowPeriod(eventTimestamp).getId();
+            if (newWindowId != windowId) {
+                log.debug("Generated Watermark: W{}", newWindowId);
+                windowId = newWindowId;
+                output.emitWatermark(new Watermark(eventTimestamp));
+                output.markActive();
+            } else {
+                output.markIdle();
+            }
+        }
+
+        private long now() {
+            return System.currentTimeMillis();
+        }
+    }
+
 }
