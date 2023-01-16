@@ -75,7 +75,7 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
         consumerProperties.rawValues.putAll(consumerRawValues);
         // Register group.id if it wasn't registered
         consumerProperties.rawValues.putIfAbsent(ConsumerConfig.GROUP_ID_CONFIG, name);
-
+        log.info("Building Kafka Consumer: consumerProperties={}", consumerProperties);
         return consumerProperties;
     }
     
@@ -84,10 +84,10 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
     }
 
     public Properties getConsumerProperties() {
-        Properties properties = new Properties();
-        properties.putAll(filterNonConsumerProperties());
-        log.info("Building Kafka source: properties={}", properties);
-        return properties;
+        Properties consumerProperties = new Properties();
+        consumerProperties.putAll(filterNonConsumerProperties());
+        log.info("Building Kafka ConsumerProperties: properties={}", consumerProperties);
+        return consumerProperties;
     }
 
     /**

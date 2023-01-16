@@ -62,15 +62,15 @@ public class KafkaProducerProperties extends KafkaProperties implements RawPrope
         producerProperties.rawValues.putAll(sharedProperties.getRawValues());
         // Now overwrites with Producer properties
         producerProperties.rawValues.putAll(producerRawValues);
-
+        log.info("Building Kafka Producer: producerProperties={}", producerProperties);
         return producerProperties;
     }
 
     public Properties getProducerProperties() {
-        Properties properties = new Properties();
-        properties.putAll(filterNonProducerProperties());
-        log.info("Building Kafka producer: properties={}", properties);
-        return properties;
+        Properties producerProperties = new Properties();
+        producerProperties.putAll(filterNonProducerProperties());
+        log.info("Building Kafka ProducerProperties: producerProperties={}", producerProperties);
+        return producerProperties;
     }
 
     private Map<String, String> filterNonProducerProperties() {
