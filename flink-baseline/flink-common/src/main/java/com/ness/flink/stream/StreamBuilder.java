@@ -220,9 +220,16 @@ public class StreamBuilder {
         private <S> SingleOutputStreamOperator<S> configureSource(DefaultSource<S> defaultSource) {
             SingleOutputStreamOperator<S> streamSource = defaultSource.build(env);
             String name = defaultSource.getName();
-            streamSource.name(name).uid(name)
-                .setParallelism(defaultSource.getParallelism().orElse(env.getParallelism()));
-            defaultSource.getMaxParallelism().ifPresent(streamSource::setMaxParallelism);
+            streamSource.name(name).uid(name);
+            final int parallelism = defaultSource.getParallelism().orElse(env.getParallelism());
+            defaultSource.getMaxParallelism().ifPresentOrElse(maxParallelism -> {
+                if (parallelism > maxParallelism) {
+                    streamSource.setParallelism(maxParallelism);
+                } else {
+                    streamSource.setParallelism(parallelism);
+                }
+                streamSource.setMaxParallelism(maxParallelism);
+            }, () -> streamSource.setParallelism(parallelism));
             return streamSource;
         }
 
