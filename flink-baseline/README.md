@@ -1,25 +1,58 @@
 # Modules description baseline
 ## flink-baseline
-For usage you need to specify `parent` in your own project `pom.xml` file: 
-```
-<parent>
-    <groupId>com.riskfocus.flink.generic</groupId>
-    <artifactId>flink-baseline</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
-</parent>
+
+Contains Maven BOM dependencies related to Flink
+
+For usage, you need to specify `BOM` in your Flink project `pom.xml` file: 
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.ness.flink.generic</groupId>
+            <artifactId>flink-baseline</artifactId>
+            <version>${flink.generic.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
 ```
 ## flink-common module
-Flink common contain classes for configuration of Flink Application.
+Contains Tools for configurable Flink Application.
+
+For usage, you need to provide `dependency` in your Flink project `pom.xml` file:
+```xml
+<dependencies>
+    <!-- Flink shared library -->
+    <dependency>
+        <groupId>com.ness.flink.generic</groupId>
+        <artifactId>flink-common</artifactId>
+        <version>${flink.generic.version}</version>
+    </dependency>
+</dependencies>    
+```
+
 Provides:
- - Reading parameters from command line/environment variables
- - Kafka consumer/producer functions
- - Redis Sink function
- - Redis configuration (Redis lettuce client: https://lettuce.io) 
- - Provides basic interfaces Source/Sink.
- - Provides `Window` based tools (generator etc)
+ - Reading parameters from [yaml configuration](flink-common/src/test/resources/application.yml) / command line / environment variables
+ - Configurable Kafka Source/Sink functions
+   - Supports POJO / AVRO formats 
+   - Supports Confluent Cloud
+   - Supports AWS Cloud
+ - Configurable Flink Operators
+ - Redis Sink function example
+   - Redis configuration (based on [Redis lettuce client](https://lettuce.io)) 
+ - Provides common interfaces for Source/Sink Flink functions.
+ - Provides `Window` based tools (event time processing)
  - Provides TimestampAssigner `EventTimeAssigner` for event based time characteristic
+
+More details [README.md](flink-common/README.md)
+
+## SmoothingPrices module
+Flink PriceSmoothing application built on top on flink-common module  more details 
+[SmoothingPrices](flink-example/README.md)
+
 ## flink-snapshot module
 Provides common snapshot functions (in atomic way):
  - Ability to Sink data into Redis
  - Ability to use that data from Redis
-For now Module has Beta status. 
+ - For now Module has Beta status. 

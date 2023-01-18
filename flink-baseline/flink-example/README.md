@@ -1,9 +1,9 @@
-# Example of simple application 
+# SmoothingPrices Flink application 
 This module contains example of Flink application (SmoothingPrices).
 
 ## Application Description
 
-https://wiki.riskfocus.com/pages/viewpage.action?pageId=147395358
+https://ness-nde.atlassian.net/wiki/spaces/RSH/pages/3498115669/Example+of+Flink+Application+Price+Smoothing
 
 ## Run example of pipeline
  1. Build jar using maven from the root directory
@@ -26,8 +26,8 @@ https://wiki.riskfocus.com/pages/viewpage.action?pageId=147395358
     Created topic smoothingInputsLatest.
     ```    
  3. Now you can run application locally in IntelliJ IDEA.
-    1. You have to specify as a `Main class:` in Run Configuration `com.riskfocus.flink.example.pipeline.SmoothingPricesJob`.
+    1. You have to specify as a `Main class:` in Run Configuration `com.ness.flink.example.pipeline.SmoothingPricesJob`.
     2. Then check setting: `Include dependencies with "Provided" scope`
-    3. Also you need to specify parameter `-local.dev true` in `Program arguments:` field.
+    3. Specify parameters: `-localDev true -localParallelism 4` in `Program arguments:` field.
 
 

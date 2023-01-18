@@ -1,0 +1,76 @@
+channel:
+  type: KAFKA_CONFLUENT
+
+watermark:
+  watermarkType: MONOTONOUS_TIMESTAMPS
+  idlenessMs: 300
+  windowSizeMs: 5000
+
+kafka:
+  bootstrap.servers: localhost:29092
+  schema.registry.url: http://defaultSchema:8088
+  schema.registry.basic.auth.credentials.source: URL
+  #schema.registry.basic.auth.credentials.source: USER_INFO
+  schema.registry.basic.auth.user.info: user:pwd
+  aws.schemaNameGenerationClass: "com.ness.flink.config.channel.kafka.msk.AwsGlueSchemaNamingStrategy"
+
+kafka.consumer:
+  bootstrap.servers: localhost:9092
+  offsets: COMMITTED
+  offsetResetStrategy: EARLIEST
+  schema.registry.url: http://localhost:8085
+  schema.registry.basic.auth.credentials.source: USER_INFO
+  schema.registry.basic.auth.user.info: 12121:233232
+  security.protocol: SASL_SSL
+  sasl.mechanism: PLAIN
+  sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='USER1' password='PASSWD1';
+
+kafka.producer:
+  bootstrap.servers: localhost:29092
+  acks: all
+  batch.size: 16384
+  linger.ms: 0
+  schema.registry.url: http://localhost:8085
+  schema.registry.basic.auth.credentials.source: URL
+  #schema.registry.basic.auth.credentials.source: USER_INFO
+  schema.registry.basic.auth.user.info: user:pwd
+
+test.source:
+  type: KAFKA_MSK
+  topic: test-topic
+  parallelism: 4
+  maxParallelism: 8
+  offsets: TIMESTAMP
+  timestamp: 123
+
+test.sink:
+  type: AWS_KINESIS
+  topic: test-out
+  parallelism: 8
+  deliveryGuarantee: EXACTLY_ONCE
+  transactionIdPrefix: testSink
+
+custom.watermark.sink:
+  type: AWS_KINESIS
+  topic: test-out
+  parallelism: 8
+  deliveryGuarantee: EXACTLY_ONCE
+  transactionIdPrefix: testSink
+  watermarkType: BOUNDED_OUT_OF_ORDER_NESS
+  idlenessMs: 400
+  windowSizeMs: 8000
+
+customWithIdle.watermark.sink:
+  type: AWS_KINESIS
+  topic: test-out
+  parallelism: 8
+  deliveryGuarantee: EXACTLY_ONCE
+  transactionIdPrefix: testSink
+  watermarkType: CUSTOM_WITH_IDLE
+  idlenessMs: -1
+
+confluent.sink:
+  topic: confluent-topic
+  parallelism: 8
+  deliveryGuarantee: EXACTLY_ONCE
+  transactionIdPrefix: confluentSink
