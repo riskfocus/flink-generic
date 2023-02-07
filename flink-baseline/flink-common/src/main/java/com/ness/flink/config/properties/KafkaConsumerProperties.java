@@ -22,6 +22,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.connector.kafka.source.KafkaSourceOptions;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
@@ -85,7 +86,10 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
 
     public Properties getConsumerProperties() {
         Properties consumerProperties = new Properties();
-        consumerProperties.putAll(filterNonConsumerProperties());
+        Map<String, String> filtered = filterNonConsumerProperties();
+        // We should provide unique prefix (in our case it's Operator name) for building "client.id"
+        filtered.putIfAbsent(KafkaSourceOptions.CLIENT_ID_PREFIX.key(), getName());
+        consumerProperties.putAll(filtered);
         log.info("Building Kafka ConsumerProperties: properties={}", consumerProperties);
         return consumerProperties;
     }

@@ -2,6 +2,7 @@ package com.ness.flink.config.properties;
 
 import com.ness.flink.config.properties.KafkaConsumerProperties.Offsets;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.connector.kafka.source.KafkaSourceOptions;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -48,6 +49,7 @@ class KafkaConsumerPropertiesTest {
         Assertions.assertEquals("read_committed", consumerProperties.getProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG));
         Assertions.assertEquals("true", consumerProperties.getProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG));
         Assertions.assertEquals("5000", consumerProperties.getProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG));
+        Assertions.assertEquals("defaultSource", consumerProperties.getProperty(KafkaSourceOptions.CLIENT_ID_PREFIX.key()));
     }
 
     @Test
@@ -66,6 +68,7 @@ class KafkaConsumerPropertiesTest {
         Properties consumerProperties = properties.getConsumerProperties();
         Assertions.assertEquals("localhost:9092", consumerProperties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
         Assertions.assertEquals("test.source", consumerProperties.getProperty(ConsumerConfig.GROUP_ID_CONFIG));
+        Assertions.assertEquals("test.source", consumerProperties.getProperty(KafkaSourceOptions.CLIENT_ID_PREFIX.key()));
         Assertions.assertEquals("PLAIN", consumerProperties.getProperty(SaslConfigs.SASL_MECHANISM));
         Assertions.assertEquals("SASL_SSL", consumerProperties.getProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG));
 
