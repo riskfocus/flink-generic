@@ -18,7 +18,6 @@ package com.ness.flink.sink.jdbc.core.executor;
 
 import com.ness.flink.sink.jdbc.config.JdbcExecutionOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.io.jdbc.JdbcStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -56,8 +55,8 @@ public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExe
     }
 
     @Override
-    public void addToBatch(T record) {
-        batch.add(valueTransformer.apply(record));
+    public void addToBatch(T message) {
+        batch.add(valueTransformer.apply(message));
     }
 
     @Override

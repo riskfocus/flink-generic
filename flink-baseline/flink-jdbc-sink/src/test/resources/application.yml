@@ -1,0 +1,6 @@
+jdbc.shared:
+  username: "test-user"
+  password: "12345678-a"
+
+test.jdbc.sink:
+  parallelism: 2

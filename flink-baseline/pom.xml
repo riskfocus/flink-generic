@@ -30,9 +30,7 @@
         <module>flink-common</module>
         <module>flink-snapshot</module>
         <module>flink-example</module>
-        <!--
         <module>flink-jdbc-sink</module>
-        -->
     </modules>
 
     <artifactId>flink-baseline</artifactId>
@@ -42,8 +40,6 @@
         <redis.lettuce.version>5.3.7.RELEASE</redis.lettuce.version>
         <embedded.redis.version>0.7.2</embedded.redis.version>
         <log4j.version>2.19.0</log4j.version>
-        <!-- Use stable version when it will become available -->
-        <flink.jdbc.version>1.11-SNAPSHOT</flink.jdbc.version>
         <dropwizard.metrics.version>4.1.10.1</dropwizard.metrics.version>
         <aws-kinesisanalytics-runtime.version>1.2.0</aws-kinesisanalytics-runtime.version>
         <aws.glue.flink.serde.version>1.1.14</aws.glue.flink.serde.version>
@@ -108,12 +104,7 @@
                 <version>${flink.version}</version>
                 <scope>provided</scope>
             </dependency>
-
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-jdbc_2.11</artifactId>
-                <version>${flink.jdbc.version}</version>
-            </dependency>
+            
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-metrics-dropwizard</artifactId>
@@ -136,6 +127,12 @@
                 <groupId>software.amazon.glue</groupId>
                 <artifactId>schema-registry-flink-serde</artifactId>
                 <version>${aws.glue.flink.serde.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -170,6 +167,12 @@
                 <artifactId>flink-test-utils</artifactId>
                 <version>${flink.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- Required for writing unit tests with (TestHarness) -->
@@ -264,11 +267,6 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-statebackend-rocksdb</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-jdbc_2.11</artifactId>
         </dependency>
 
         <dependency>

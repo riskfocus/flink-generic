@@ -17,7 +17,6 @@
 package com.ness.flink.sink.jdbc.core.executor;
 
 import com.ness.flink.sink.jdbc.config.JdbcExecutionOptions;
-import org.apache.flink.api.java.io.jdbc.JdbcStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -33,7 +32,7 @@ public interface JdbcBatchStatementExecutor<T> {
      */
     void open(Connection connection) throws SQLException;
 
-    void addToBatch(T record) throws SQLException;
+    void addToBatch(T message) throws SQLException;
 
     /**
      * Submits a batch of commands to the database for execution.

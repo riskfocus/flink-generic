@@ -47,7 +47,7 @@ public class JdbcExecutionOptions implements Serializable {
     private final int maxRetries = DEFAULT_MAX_RETRY_TIMES;
 
     /**
-     * The property defines how long Jdbc Sink should waits (accumulates batch) before sending the data over JDBC API
+     * The property defines how long Jdbc Sink should wait (accumulates batch) before sending the data over JDBC API
      */
     @Builder.Default
     private final long batchMaxWaitThresholdMs = DEFAULT_MAX_WAIT_THRESHOLD;

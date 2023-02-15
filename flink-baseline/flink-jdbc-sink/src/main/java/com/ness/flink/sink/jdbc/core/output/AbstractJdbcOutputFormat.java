@@ -16,65 +16,48 @@
 
 package com.ness.flink.sink.jdbc.core.output;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.common.io.RichOutputFormat;
-import org.apache.flink.api.java.io.jdbc.JdbcConnectionProvider;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.util.Preconditions;
-
-import java.io.Flushable;
+import com.ness.flink.sink.jdbc.connector.JdbcConnectionProvider;
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.Connection;
-import java.sql.SQLException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.connector.sink2.Sink.InitContext;
+import org.apache.flink.api.connector.sink2.SinkWriter;
+import org.apache.flink.util.Preconditions;
 
 /**
  * @author Khokhlov Pavel
  */
 @Slf4j
-public abstract class AbstractJdbcOutputFormat<T> extends RichOutputFormat<T> implements Flushable {
-
+public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    protected transient Connection connection;
+    protected final String sinkName;
     private final JdbcConnectionProvider connectionProvider;
+    protected transient InitContext context;
 
-    public AbstractJdbcOutputFormat(JdbcConnectionProvider connectionProvider) {
+    AbstractJdbcOutputFormat(String sinkName, JdbcConnectionProvider connectionProvider) {
+        this.sinkName = Preconditions.checkNotNull(sinkName);
         this.connectionProvider = Preconditions.checkNotNull(connectionProvider);
     }
 
-    @Override
-    public void configure(Configuration parameters) {
+    public void open(InitContext context) throws IOException {
+        this.context = context;
+        getConnection();
     }
 
-    @Override
-    public void open(int taskNumber, int numTasks) throws IOException {
-        try {
-            establishConnection();
-        } catch (Exception e) {
-            throw new IOException("unable to open JDBC writer", e);
-        }
-    }
-
-    protected void establishConnection() throws Exception {
+    protected Connection getConnection() throws IOException {
         log.debug("Open connection to database");
-        connection = connectionProvider.getConnection();
+        try {
+            return connectionProvider.getOrEstablishConnection();
+        } catch (Exception e) {
+            throw new IOException("Unable to open connection", e);
+        }
     }
 
     @Override
     public void close() {
-        closeDbConnection();
-    }
-
-    private void closeDbConnection() {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException se) {
-                log.warn("JDBC connection could not be closed: " + se.getMessage());
-            } finally {
-                connection = null;
-            }
-        }
+        connectionProvider.closeConnection();
     }
 
 }
