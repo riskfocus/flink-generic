@@ -33,7 +33,7 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class SmoothingRequest extends IncomingEvent implements KafkaKeyedAware {
-
+    private static final long serialVersionUID = -840147729638820749L;
     private Underlying underlying;
     /**
      * Uses instrumentId as key, to update with new prices. Should contain
