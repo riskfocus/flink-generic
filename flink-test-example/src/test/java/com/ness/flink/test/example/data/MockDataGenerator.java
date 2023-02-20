@@ -32,6 +32,6 @@ public class MockDataGenerator {
 
     public static InterestRate generateRate(String maturity, long timestamp) {
         double rate = (random.nextInt(100) * random.nextDouble());
-        return InterestRate.builder().maturity(maturity).rate(rate).timestamp(timestamp).build();
+        return InterestRate.builder().id(random.nextInt()).maturity(maturity).rate(rate).timestamp(timestamp).build();
     }
 }

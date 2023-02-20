@@ -33,6 +33,8 @@ public class InterestRate extends IncomingEvent implements KafkaKeyedAware {
 
     private static final long serialVersionUID = 8613281459382114246L;
 
+    private int id;
+
     private String maturity;
     private Double rate;
 

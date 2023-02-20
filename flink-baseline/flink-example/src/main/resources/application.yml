@@ -84,3 +84,10 @@ environment:
   #execution.checkpointing.interval: 30000
   #execution.checkpointing.min-pause: 10000
   #execution.checkpointing.unaligned: false
+
+jdbc.shared:
+  username: "root"
+  password: "example"
+
+rates.jdbc.sink:
+  parallelism: 2

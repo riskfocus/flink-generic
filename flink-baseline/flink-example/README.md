@@ -24,8 +24,8 @@ https://ness-nde.atlassian.net/wiki/spaces/RSH/pages/3498115669/Example+of+Flink
     Created topic ycInputsLive.
     Created topic interestRatesSnapshot.
     Created topic smoothingInputsLatest.
-    ```    
- 3. Now you can run application locally in IntelliJ IDEA.
+    ```
+ 5. Now you can run application locally in IntelliJ IDEA.
     1. You have to specify as a `Main class:` in Run Configuration `com.ness.flink.example.pipeline.SmoothingPricesJob`.
     2. Then check setting: `Include dependencies with "Provided" scope`
     3. Specify parameters: `-localDev true -localParallelism 4` in `Program arguments:` field.

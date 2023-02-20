@@ -42,6 +42,16 @@
             <artifactId>flink-example-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.ness.flink.generic</groupId>
+            <artifactId>flink-jdbc-sink</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.32</version>
+        </dependency>
     </dependencies>
 
     <build>
