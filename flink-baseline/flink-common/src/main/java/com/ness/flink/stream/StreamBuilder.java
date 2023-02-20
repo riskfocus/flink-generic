@@ -88,8 +88,8 @@ public class StreamBuilder {
 
     @SneakyThrows
     public void run(String jobName) {
-        if (log.isDebugEnabled()) {
-            log.debug("Execution Plan: {}", env.getExecutionPlan());
+        if (log.isInfoEnabled()) {
+            log.info("Execution Plan: {}", env.getExecutionPlan());
         }
         env.execute(jobName);
     }

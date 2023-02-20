@@ -30,10 +30,11 @@ public interface JdbcConnectionProvider extends Serializable {
      * Check whether possible existing connection is valid or not through {@link
      * Connection#isValid(int)}.
      *
+     * @param connection jdbc connection
      * @return true if existing connection is valid
      * @throws SQLException sql exception throw from {@link Connection#isValid(int)}
      */
-    boolean isConnectionValid() throws SQLException;
+    boolean isConnectionValid(Connection connection) throws SQLException;
 
     /**
      * Get existing connection or establish an new one if there is none.
@@ -42,18 +43,12 @@ public interface JdbcConnectionProvider extends Serializable {
      * @throws SQLException sql exception
      * @throws ClassNotFoundException driver class not found
      */
-    Connection getOrEstablishConnection() throws SQLException, ClassNotFoundException;
-
-    /** Close possible existing connection. */
-    void closeConnection();
+    Connection establishConnection() throws SQLException, ClassNotFoundException;
 
     /**
-     * Close possible existing connection and establish an new one.
-     *
-     * @return newly established connection
-     * @throws SQLException sql exception
-     * @throws ClassNotFoundException driver class not found
+     * Close  connection
+     * @param connection jdbc connection
      */
-    Connection reestablishConnection() throws SQLException, ClassNotFoundException;
+    void closeConnection(Connection connection);
 
 }

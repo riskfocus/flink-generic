@@ -7,10 +7,13 @@ import com.ness.flink.example.pipeline.domain.InterestRate;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MockDataGenerator {
 
     private static final Random random = new Random();
+
+    private static AtomicInteger rateCounter = new AtomicInteger(0);
 
     public static OptionPrice generateRandomPrice(List<String> underliers, int maxInstrumentId, long timestamp) {
         String underlier = underliers.get(random.nextInt(underliers.size()));
@@ -32,6 +35,7 @@ public class MockDataGenerator {
 
     public static InterestRate generateRate(String maturity, long timestamp) {
         double rate = (random.nextInt(100) * random.nextDouble());
-        return InterestRate.builder().id(random.nextInt()).maturity(maturity).rate(rate).timestamp(timestamp).build();
+        return InterestRate.builder().id(rateCounter.getAndIncrement()).maturity(maturity).rate(rate).
+            timestamp(timestamp).build();
     }
 }

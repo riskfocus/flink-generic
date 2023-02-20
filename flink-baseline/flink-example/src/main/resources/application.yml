@@ -88,6 +88,7 @@ environment:
 jdbc.shared:
   username: "root"
   password: "example"
+  url: "jdbc:mysql://localhost:3306/test?useConfigs=maxPerformance&connectTimeout=10&sessionVariables=wait_timeout=3"
 
 rates.jdbc.sink:
   parallelism: 2

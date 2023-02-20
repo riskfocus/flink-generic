@@ -37,7 +37,6 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
     private final JdbcConnectionOptions jdbcConnectionOptions;
 
     private transient Driver loadedDriver;
-    private transient Connection connection;
 
     static {
         // Load DriverManager first to avoid deadlock between DriverManager's
@@ -56,7 +55,7 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
     }
 
     @Override
-    public boolean isConnectionValid() throws SQLException {
+    public boolean isConnectionValid(Connection connection) throws SQLException {
         return connection != null
             && connection.isValid(jdbcConnectionOptions.getConnectionCheckTimeoutSeconds());
     }
@@ -90,19 +89,17 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
     }
 
     @Override
-    public Connection getOrEstablishConnection() throws SQLException, ClassNotFoundException {
-        if (connection != null) {
-            return connection;
-        }
+    public Connection establishConnection() throws SQLException, ClassNotFoundException {
+        Connection connection;
         if (jdbcConnectionOptions.getDriverName() == null) {
-            log.debug("Driver wasn't provided");
+            log.debug("Opening connection. Driver wasn't provided");
             connection = DriverManager.getConnection(
                 jdbcConnectionOptions.getDbURL(),
                 jdbcConnectionOptions.getUsername(),
                 jdbcConnectionOptions.getPassword().orElse(null));
-            setAutoCommit();
+            setAutoCommit(connection);
         } else {
-            log.debug("Driver was provided");
+            log.debug("Opening connection. Driver was provided");
             Driver driver = getLoadedDriver();
             Properties info = new Properties();
             if (jdbcConnectionOptions.getUsername() != null) {
@@ -115,13 +112,12 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
                 // caller expectation.
                 throw new SQLException("No suitable driver found for " + jdbcConnectionOptions.getDbURL(), "08001");
             }
-            setAutoCommit();
+            setAutoCommit(connection);
         }
-
         return connection;
     }
 
-    private void setAutoCommit() throws SQLException {
+    private void setAutoCommit(Connection connection) throws SQLException {
         Optional<Boolean> autoCommit = jdbcConnectionOptions.getAutoCommit();
         if (autoCommit.isPresent()) {
             connection.setAutoCommit(autoCommit.get());
@@ -129,21 +125,13 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
     }
 
     @Override
-    public void closeConnection() {
+    public void closeConnection(Connection connection) {
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
                 log.warn("JDBC connection close failed.", e);
-            } finally {
-                connection = null;
             }
         }
-    }
-
-    @Override
-    public Connection reestablishConnection() throws SQLException, ClassNotFoundException {
-        closeConnection();
-        return getOrEstablishConnection();
     }
 }

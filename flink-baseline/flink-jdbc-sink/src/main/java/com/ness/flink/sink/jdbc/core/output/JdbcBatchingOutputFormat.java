@@ -25,6 +25,7 @@ import com.ness.flink.sink.jdbc.connector.JdbcConnectionProvider;
 import com.ness.flink.sink.jdbc.core.executor.JdbcBatchStatementExecutor;
 import java.io.IOException;
 import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,7 +45,6 @@ import org.apache.flink.util.concurrent.ExecutorThreadFactory;
 @Slf4j
 public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>> extends AbstractJdbcOutputFormat<In> {
     private static final long serialVersionUID = 1373809219726488314L;
-    private static final int RESET_TIME = -1;
 
     public interface RecordExtractor<F, T> extends Function<F, T>, Serializable {
         static <T> JdbcBatchingOutputFormat.RecordExtractor<T, T> identity() {
@@ -55,7 +55,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>> extends Function<InitContext, T>, Serializable {
     }
 
-    private final JdbcExecutionOptions executionOptions;
     private final JdbcBatchingOutputFormat.StatementExecutorFactory<JdbcExec> statementExecutorFactory;
     private final JdbcBatchingOutputFormat.RecordExtractor<In, JdbcIn> jdbcRecordExtractor;
     private final long maxWaitThreshold;
@@ -63,7 +62,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     private transient JdbcExec jdbcStatementExecutor;
     private transient int batchCount = 0;
     private transient boolean closed = false;
-    private transient AtomicLong startBatchTime;
+    private transient AtomicLong lastUpdate;
 
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
@@ -76,8 +75,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             @Nonnull JdbcExecutionOptions executionOptions,
             @Nonnull JdbcBatchingOutputFormat.StatementExecutorFactory<JdbcExec> statementExecutorFactory,
             @Nonnull JdbcBatchingOutputFormat.RecordExtractor<In, JdbcIn> recordExtractor) {
-        super(sinkName, connectionProvider);
-        this.executionOptions = checkNotNull(executionOptions);
+        super(sinkName, executionOptions, connectionProvider);
         this.statementExecutorFactory = checkNotNull(statementExecutorFactory);
         this.jdbcRecordExtractor = checkNotNull(recordExtractor);
         this.maxWaitThreshold = executionOptions.getBatchMaxWaitThresholdMs();
@@ -93,7 +91,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     public void open(InitContext context) throws IOException {
         super.open(context);
         jdbcStatementExecutor = createAndOpenStatementExecutor(statementExecutorFactory);
-        startBatchTime = new AtomicLong(RESET_TIME);
+        lastUpdate = new AtomicLong(now());
         latencyHistogram = MetricsBuilder.histogram(context.metricGroup(), sinkName, "batch-latency");
 
         if (executionOptions.getBatchCheckIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
@@ -114,10 +112,15 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
     }
 
+    @Override
+    void reinit(Connection connection) throws SQLException {
+        jdbcStatementExecutor.reinit(connection);
+    }
+
     private JdbcExec createAndOpenStatementExecutor(JdbcBatchingOutputFormat.StatementExecutorFactory<JdbcExec> statementExecutorFactory) throws IOException {
         JdbcExec exec = statementExecutorFactory.apply(context);
         try {
-            exec.open(getConnection());
+            exec.open(connection);
         } catch (SQLException e) {
             throw new IOException("unable to open JDBC writer", e);
         }
@@ -134,9 +137,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     public final synchronized void write(In record, Context context) throws IOException {
         log.trace("Write record");
         checkFlushException();
-        if (batchCount == 0) {
-            startBatchTime.set(now());
-        }
+        lastUpdate.set(now());
         try {
             addToBatch(jdbcRecordExtractor.apply(record));
             batchCount++;
@@ -146,10 +147,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         } catch (Exception e) {
             throw new IOException("Writing records to JDBC failed.", e);
         }
-    }
-
-    private long now() {
-        return System.currentTimeMillis();
     }
 
     private void addToBatch(JdbcIn extracted) throws SQLException {
@@ -167,46 +164,41 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     private long passedTime() {
-        long now = System.currentTimeMillis();
-        long startBatch = startBatchTime.get();
-        if (RESET_TIME == startBatch) {
-            log.trace("Flush doesn't required because there is no data, batch size is: {}", batchCount);
-            // There is no any data
-            return RESET_TIME;
-        }
-        return now - startBatch;
+        return now() - lastUpdate.get();
     }
 
     @Override
     public synchronized void flush(boolean endOfInput) throws IOException {
         checkFlushException();
-        for (int i = 1; i <= executionOptions.getMaxRetries(); i++) {
+        for (int retryCnt = 1; retryCnt <= executionOptions.getMaxRetries(); retryCnt++) {
             try {
-                attemptFlush();
+                attemptFlush(retryCnt == 1);
                 batchCount = 0;
                 break;
             } catch (SQLException e) {
-                log.error("JDBC executeBatch error, retry times = {}", i, e);
-                if (i >= executionOptions.getMaxRetries()) {
-                    throw new IOException(e);
-                }
-                try {
-                    Thread.sleep(1000 * i);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                    throw new IOException("unable to flush; interrupted while doing another attempt", e);
-                }
+                recover(executionOptions.getMaxRetries(), e);
             }
         }
-        startBatchTime.set(RESET_TIME);
     }
 
-    private void attemptFlush() throws SQLException {
-        Stopwatch watch = Stopwatch.createStarted();
-        jdbcStatementExecutor.executeBatch();
-        long batchLatency = watch.elapsed(TimeUnit.MILLISECONDS);
-        latencyHistogram.update(batchLatency);
-        log.debug("Executed batch: {} size, took time: {} ms", batchCount, batchLatency);
+    private void attemptFlush(boolean checkConnection) throws SQLException {
+        if (batchCount > 0) {
+            Stopwatch watch = Stopwatch.createStarted();
+            if (checkConnection) {
+                // on first retry we have to check connection
+                checkConnection();
+            }
+            jdbcStatementExecutor.executeBatch();
+            updateLastTimeConnectionUsage();
+            long batchLatency = watch.elapsed(TimeUnit.MILLISECONDS);
+            latencyHistogram.update(batchLatency);
+            log.debug("Executed batch: {} size, took time: {} ms", batchCount, batchLatency);
+        }
+    }
+
+    @Override
+    void closeStatement() {
+        jdbcStatementExecutor.closeStatement();
     }
 
     /**
@@ -232,12 +224,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                     throw new RuntimeException("Writing records to JDBC failed.", e);
                 }
             }
-
-            try {
-                jdbcStatementExecutor.close();
-            } catch (SQLException e) {
-                log.warn("Close JDBC writer failed.", e);
-            }
+            jdbcStatementExecutor.close();
         }
         super.close();
     }

@@ -29,8 +29,17 @@ public interface JdbcBatchStatementExecutor<T> {
 
     /**
      * Open the writer by JDBC Connection. It can create Statement from Connection.
+     * @param connection jdbc connection
+     * @throws SQLException if connection couldn't be opened
      */
     void open(Connection connection) throws SQLException;
+
+    /**
+     * Reinit statements in case of connection failure
+     * @param connection jdbc connection
+     * @throws SQLException if connection couldn't be opened
+     */
+    void reinit(Connection connection) throws SQLException;
 
     void addToBatch(T message) throws SQLException;
 
@@ -42,7 +51,12 @@ public interface JdbcBatchStatementExecutor<T> {
     /**
      * Close JDBC related statements and other classes.
      */
-    void close() throws SQLException;
+    void close();
+
+    /**
+     * Only close JDBC related statements (not purge whole batch)
+     */
+    void closeStatement();
 
     static <T, V> JdbcBatchStatementExecutor<T> simple(String sql, JdbcStatementBuilder<V> paramSetter,
                                                        Function<T, V> valueTransformer, JdbcExecutionOptions jdbcExecutionOptions) {

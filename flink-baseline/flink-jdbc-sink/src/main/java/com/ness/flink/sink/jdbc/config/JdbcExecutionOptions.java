@@ -16,9 +16,12 @@
 
 package com.ness.flink.sink.jdbc.config;
 
-import lombok.*;
-
 import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * @author Khokhlov Pavel
@@ -32,7 +35,7 @@ public class JdbcExecutionOptions implements Serializable {
     private static final long serialVersionUID = 6733329665168348494L;
 
     public static final int DEFAULT_THREAD_BATCH_CHECK_INTERVAL_MILLIS = 1_000;
-    public static final int DEFAULT_BATCH_SIZE = 2000;
+    public static final int DEFAULT_BATCH_SIZE = 50;
     public static final int DEFAULT_MAX_RETRY_TIMES = 3;
     public static final long DEFAULT_MAX_WAIT_THRESHOLD = 1_000;
     
@@ -51,5 +54,11 @@ public class JdbcExecutionOptions implements Serializable {
      */
     @Builder.Default
     private final long batchMaxWaitThresholdMs = DEFAULT_MAX_WAIT_THRESHOLD;
+
+    /**
+     * How often check if connection still alive
+     */
+    @Builder.Default
+    private final long connectionCheckMaxIdleMs = 30_000;
 
 }

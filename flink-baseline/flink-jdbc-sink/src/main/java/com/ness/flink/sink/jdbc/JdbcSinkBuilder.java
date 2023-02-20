@@ -84,6 +84,7 @@ public class JdbcSinkBuilder<S> extends DefaultSink<S> {
                 .withBatchSize(jdbcSinkProperties.getBatchSize())
                 .withMaxRetries(jdbcSinkProperties.getMaxRetries())
                 .withBatchMaxWaitThresholdMs(jdbcSinkProperties.getMaxWaitThreshold())
+                .withConnectionCheckMaxIdleMs(jdbcSinkProperties.getConnectionCheckMaxIdleMs())
                 .build();
     }
 

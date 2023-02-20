@@ -87,6 +87,12 @@ public class JdbcSinkProperties implements Serializable {
      */
     private int connectionCheckTimeoutSeconds = 10_000;
 
+    /**
+     * How often check if connection still alive
+     * (see details in DB server documentation, for example for mysql it is wait_timeout parameter)
+     */
+    private long connectionCheckMaxIdleMs = 30_000;
+
 
     public static JdbcSinkProperties from(@NonNull String name, @NonNull ParameterTool params) {
         JdbcSinkProperties properties = from(name, params, OperatorPropertiesFactory.DEFAULT_CONFIG_FILE);
