@@ -26,6 +26,7 @@ import org.apache.flink.configuration.ReadableConfig;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Provides properties for Flink execution environment
@@ -47,7 +48,6 @@ public class FlinkEnvironmentProperties implements RawProperties<FlinkEnvironmen
 
     private boolean localDev;
     private Integer localPortWebUi = 8081;
-    private Integer jmxPort = 8789;
     private Integer localParallelism = Runtime.getRuntime().availableProcessors();
     private Long metricsFetcherUpdateInterval = 10000L;
     private boolean metricsSystemResource;
@@ -76,6 +76,9 @@ public class FlinkEnvironmentProperties implements RawProperties<FlinkEnvironmen
      */
     private String checkpointsDataUri;
 
+    private Integer prometheusReporterPort = 9249;
+    private Integer jmxReporterPort = 8789;
+
     @ToString.Exclude
     private final Map<String, String> rawValues = new LinkedHashMap<>();
 
@@ -93,5 +96,13 @@ public class FlinkEnvironmentProperties implements RawProperties<FlinkEnvironmen
 
     public ReadableConfig getCheckpointConfig() {
         return Configuration.fromMap(rawValues);
+    }
+
+    public Optional<Integer> ofJmxReportPort() {
+        return Optional.ofNullable(jmxReporterPort);
+    }
+
+    public Optional<Integer> ofPrometheusReporterPort() {
+        return Optional.ofNullable(prometheusReporterPort);
     }
 }

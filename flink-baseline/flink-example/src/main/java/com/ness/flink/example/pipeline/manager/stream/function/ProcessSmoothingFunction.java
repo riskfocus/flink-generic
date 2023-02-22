@@ -153,7 +153,7 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
         }
 
         Map<String, OptionPrice> prices = loadPrices();
-        collect(windowId, underlyingKey, currentRates.getRates(), prices, out);
+        collect(windowId, underlyingKey, currentRates.getRates(), prices, out, currentRates.getTimestamp());
     }
 
     private Map<String, OptionPrice> loadPrices() throws Exception {
@@ -166,8 +166,8 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
 
     private void collect(Long windowId, String underlying,
                          Map<String, InterestRate> stringInterestRateMap, Map<String, OptionPrice> prices,
-                         Collector<SmoothingRequest> out) {
-        SmoothingRequest request = createFrom(underlying, prices, stringInterestRateMap);
+                         Collector<SmoothingRequest> out, long timestamp) {
+        SmoothingRequest request = createFrom(underlying, prices, stringInterestRateMap, timestamp);
         log.info("Emit message, key: W{}", windowId);
         out.collect(request);
     }
@@ -210,8 +210,9 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
     }
 
     private SmoothingRequest createFrom(String underlyingKey, Map<String, OptionPrice> prices,
-                                        Map<String, InterestRate> rates) {
+                                        Map<String, InterestRate> rates, long timestamp) {
         SmoothingRequest request = new SmoothingRequest();
+        request.setTimestamp(timestamp);
         Underlying underlying = new Underlying(underlyingKey);
         request.setUnderlying(underlying);
         request.setOptionPrices(prices);

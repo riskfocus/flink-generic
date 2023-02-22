@@ -10,7 +10,7 @@ https://ness-nde.atlassian.net/wiki/spaces/RSH/pages/3498115669/Example+of+Flink
     ```bash
     $ mvn clean package
     ```
- 2. Start the Kafka cluster
+ 2. Start Development cluster
     ```bash
     $ cd docker
     $ docker-compose up -d
@@ -29,5 +29,7 @@ https://ness-nde.atlassian.net/wiki/spaces/RSH/pages/3498115669/Example+of+Flink
     1. You have to specify as a `Main class:` in Run Configuration `com.ness.flink.example.pipeline.SmoothingPricesJob`.
     2. Then check setting: `Include dependencies with "Provided" scope`
     3. Specify parameters: `-localDev true -localParallelism 4` in `Program arguments:` field.
+ 6. You could use [Grafana](http://localhost:3000) to monitor your app
+ 7. You could also explore [Prometheus](http://localhost:9090) metrics  
 
 
