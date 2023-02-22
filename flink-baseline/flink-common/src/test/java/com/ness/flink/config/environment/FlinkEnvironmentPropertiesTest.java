@@ -22,6 +22,10 @@ class FlinkEnvironmentPropertiesTest {
         Assertions.assertFalse(from.isEnabledObjectReuse(), "By default enabledObjectReuse should be false");
         Assertions.assertTrue(from.isLocalDev(), "By default localDev=false but in Test we enabled it");
         Assertions.assertEquals(1234, from.getLocalPortWebUi(), "Default value of localPortWebUi must be overwritten");
+        Assertions.assertEquals(8789, from.getJmxReporterPort(), "Wrong default jmxReportPort");
+        Assertions.assertEquals(9249, from.getPrometheusReporterPort(),
+            "Wrong default prometheusReporterPort");
+
     }
 
     @Test
