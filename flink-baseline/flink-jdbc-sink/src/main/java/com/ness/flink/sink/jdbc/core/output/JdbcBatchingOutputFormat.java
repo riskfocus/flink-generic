@@ -68,6 +68,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     private transient ScheduledFuture<?> scheduledFuture;
     private transient Exception flushException;
     private transient Histogram latencyHistogram;
+    private transient Histogram batchSizeHistogram;
 
     public JdbcBatchingOutputFormat(
             @Nonnull String sinkName,
@@ -93,6 +94,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         jdbcStatementExecutor = createAndOpenStatementExecutor(statementExecutorFactory);
         lastUpdate = new AtomicLong(now());
         latencyHistogram = MetricsBuilder.histogram(context.metricGroup(), sinkName, "batch-latency");
+        batchSizeHistogram = MetricsBuilder.histogram(context.metricGroup(), sinkName, "batch-size");
 
         if (executionOptions.getBatchCheckIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
             // Register one thread in background since we have to emit batch which couldn't be fulled by incoming data
@@ -192,6 +194,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             updateLastTimeConnectionUsage();
             long batchLatency = watch.elapsed(TimeUnit.MILLISECONDS);
             latencyHistogram.update(batchLatency);
+            batchSizeHistogram.update(batchCount);
             log.debug("Executed batch: {} size, took time: {} ms", batchCount, batchLatency);
         }
     }
