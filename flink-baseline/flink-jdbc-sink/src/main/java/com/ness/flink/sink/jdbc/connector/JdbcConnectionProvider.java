@@ -25,30 +25,14 @@ import org.apache.flink.annotation.Internal;
  * @author Khokhlov Pavel
  */
 @Internal
+@FunctionalInterface
 public interface JdbcConnectionProvider extends Serializable {
     /**
-     * Check whether possible existing connection is valid or not through {@link
-     * Connection#isValid(int)}.
+     * Establish connection with database
      *
-     * @param connection jdbc connection
-     * @return true if existing connection is valid
-     * @throws SQLException sql exception throw from {@link Connection#isValid(int)}
-     */
-    boolean isConnectionValid(Connection connection) throws SQLException;
-
-    /**
-     * Get existing connection or establish an new one if there is none.
-     *
-     * @return existing connection or newly established connection
+     * @return established connection
      * @throws SQLException sql exception
      * @throws ClassNotFoundException driver class not found
      */
-    Connection establishConnection() throws SQLException, ClassNotFoundException;
-
-    /**
-     * Close  connection
-     * @param connection jdbc connection
-     */
-    void closeConnection(Connection connection);
-
+    Connection getConnection() throws SQLException, ClassNotFoundException;
 }

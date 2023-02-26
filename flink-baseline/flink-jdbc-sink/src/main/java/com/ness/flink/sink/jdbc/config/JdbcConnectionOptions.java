@@ -37,7 +37,6 @@ public class JdbcConnectionOptions implements Serializable {
     private String username;
     private String password;
     private Boolean autoCommit;
-    private int connectionCheckTimeoutSeconds;
 
     public Optional<String> getPassword() {
         return Optional.ofNullable(password);

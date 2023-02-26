@@ -54,12 +54,6 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
         this.jdbcConnectionOptions = jdbcConnectionOptions;
     }
 
-    @Override
-    public boolean isConnectionValid(Connection connection) throws SQLException {
-        return connection != null
-            && connection.isValid(jdbcConnectionOptions.getConnectionCheckTimeoutSeconds());
-    }
-
     private static Driver loadDriver(String driverName)
         throws SQLException, ClassNotFoundException {
         Preconditions.checkNotNull(driverName);
@@ -89,7 +83,7 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
     }
 
     @Override
-    public Connection establishConnection() throws SQLException, ClassNotFoundException {
+    public Connection getConnection() throws SQLException, ClassNotFoundException {
         Connection connection;
         if (jdbcConnectionOptions.getDriverName() == null) {
             log.debug("Opening connection. Driver wasn't provided");
@@ -124,14 +118,4 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
         }
     }
 
-    @Override
-    public void closeConnection(Connection connection) {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                log.warn("JDBC connection close failed.", e);
-            }
-        }
-    }
 }

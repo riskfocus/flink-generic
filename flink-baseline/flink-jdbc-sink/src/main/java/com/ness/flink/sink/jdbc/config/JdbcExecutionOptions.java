@@ -61,4 +61,6 @@ public class JdbcExecutionOptions implements Serializable {
     @Builder.Default
     private final long connectionCheckMaxIdleMs = 30_000;
 
+    @Builder.Default
+    private final int connectionCheckTimeoutSeconds = 10_000;
 }

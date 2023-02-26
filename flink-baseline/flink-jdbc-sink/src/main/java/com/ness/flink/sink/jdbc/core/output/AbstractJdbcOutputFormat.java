@@ -74,9 +74,8 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
     abstract void closeStatement();
 
     protected Connection getConnection() throws SQLException, IOException {
-        Connection newConnection;
         try {
-            newConnection = connectionProvider.establishConnection();
+            Connection newConnection = connectionProvider.getConnection();
             lastTimeConnectionUsage = new AtomicLong(now());
             return newConnection;
         } catch (ClassNotFoundException e) {
@@ -158,10 +157,14 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
             if (connection.isClosed()) {
                 throw new SQLException("Connection is closed", SQL_STATE_CONNECTION_CLOSED);
             }
-            if (!connectionProvider.isConnectionValid(connection)) {
+            if (!isConnectionValid()) {
                 throw new SQLException("Connection is not valid", SQL_STATE_CONNECTION_IS_NOT_VALID);
             }
         }
+    }
+
+    boolean isConnectionValid() throws SQLException {
+        return connection != null && connection.isValid(executionOptions.getConnectionCheckTimeoutSeconds());
     }
 
     long now() {
@@ -169,10 +172,14 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
     }
 
     void closeConnection() {
-        try {
-            connectionProvider.closeConnection(connection);
-        } finally {
-            connection = null;
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                log.warn("JDBC connection close failed.", e);
+            } finally {
+                connection = null;
+            }
         }
     }
 

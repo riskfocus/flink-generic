@@ -85,6 +85,7 @@ public class JdbcSinkBuilder<S> extends DefaultSink<S> {
                 .withMaxRetries(jdbcSinkProperties.getMaxRetries())
                 .withBatchMaxWaitThresholdMs(jdbcSinkProperties.getMaxWaitThreshold())
                 .withConnectionCheckMaxIdleMs(jdbcSinkProperties.getConnectionCheckMaxIdleMs())
+                .withConnectionCheckTimeoutSeconds(jdbcSinkProperties.getConnectionCheckTimeoutSeconds())
                 .build();
     }
 
@@ -95,7 +96,6 @@ public class JdbcSinkBuilder<S> extends DefaultSink<S> {
                 .withPassword(jdbcSinkProperties.getPassword())
                 .withAutoCommit(false)
                 .withDriverName(jdbcSinkProperties.getDriverClass())
-                .withConnectionCheckTimeoutSeconds(jdbcSinkProperties.getConnectionCheckTimeoutSeconds())
                 .build();
     }
 
