@@ -17,52 +17,105 @@
 package com.ness.flink.sink.jdbc.connector;
 
 import com.ness.flink.sink.jdbc.config.JdbcConnectionOptions;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.io.jdbc.JdbcConnectionProvider;
-
-import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.Optional;
+import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.util.Preconditions;
 
 /**
  * @author Khokhlov Pavel
  */
 @Slf4j
-public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider, Serializable {
-
+public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
     private static final long serialVersionUID = 1L;
 
-    private final JdbcConnectionOptions jdbcOptions;
+    private final JdbcConnectionOptions jdbcConnectionOptions;
 
-    private transient volatile Connection connection;
+    private transient Driver loadedDriver;
 
-    public SimpleJdbcConnectionProvider(JdbcConnectionOptions jdbcOptions) {
-        this.jdbcOptions = jdbcOptions;
+    static {
+        // Load DriverManager first to avoid deadlock between DriverManager's
+        // static initialization block and specific driver class's static
+        // initialization block when two different driver classes are loading
+        // concurrently using Class.forName while DriverManager is uninitialized
+        // before.
+        //
+        // This could happen in JDK 8 but not above as driver loading has been
+        // moved out of DriverManager's static initialization block since JDK 9.
+        DriverManager.getDrivers();
+    }
+
+    public SimpleJdbcConnectionProvider(JdbcConnectionOptions jdbcConnectionOptions) {
+        this.jdbcConnectionOptions = jdbcConnectionOptions;
+    }
+
+    private static Driver loadDriver(String driverName)
+        throws SQLException, ClassNotFoundException {
+        Preconditions.checkNotNull(driverName);
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            Driver driver = drivers.nextElement();
+            if (driver.getClass().getName().equals(driverName)) {
+                return driver;
+            }
+        }
+        // We could reach here for reasons:
+        // * Class loader hell of DriverManager(see JDK-8146872).
+        // * driver is not installed as a service provider.
+        Class<?> clazz = Class.forName(driverName, true, Thread.currentThread().getContextClassLoader());
+        try {
+            return (Driver) clazz.newInstance();
+        } catch (Exception ex) {
+            throw new SQLException("Fail to create driver of class " + driverName, ex);
+        }
+    }
+
+    private Driver getLoadedDriver() throws SQLException, ClassNotFoundException {
+        if (loadedDriver == null) {
+            loadedDriver = loadDriver(jdbcConnectionOptions.getDriverName());
+        }
+        return loadedDriver;
     }
 
     @Override
     public Connection getConnection() throws SQLException, ClassNotFoundException {
-        if (connection == null) {
-            synchronized (this) {
-                if (connection == null) {
-                    Class.forName(jdbcOptions.getDriverName());
-                    if (jdbcOptions.isUseDbURL()) {
-                        log.info("Trying to open connection based on dbURL: {}", jdbcOptions);
-                        connection = DriverManager.getConnection(jdbcOptions.getDbURL());
-                    } else {
-                        log.info("Trying to open connection based on username: {}", jdbcOptions);
-                        connection = DriverManager.getConnection(jdbcOptions.getDbURL(), jdbcOptions.getUsername(), jdbcOptions.getPassword().orElse(null));
-                    }
-                    Optional<Boolean> autoCommit = jdbcOptions.getAutoCommit();
-                    if (autoCommit.isPresent()) {
-                        connection.setAutoCommit(autoCommit.get());
-                    }
-                }
+        Connection connection;
+        if (jdbcConnectionOptions.getDriverName() == null) {
+            log.debug("Opening connection. Driver wasn't provided");
+            connection = DriverManager.getConnection(
+                jdbcConnectionOptions.getDbURL(),
+                jdbcConnectionOptions.getUsername(),
+                jdbcConnectionOptions.getPassword().orElse(null));
+            setAutoCommit(connection);
+        } else {
+            log.debug("Opening connection. Driver was provided");
+            Driver driver = getLoadedDriver();
+            Properties info = new Properties();
+            if (jdbcConnectionOptions.getUsername() != null) {
+                info.setProperty("user", jdbcConnectionOptions.getUsername());
             }
+            jdbcConnectionOptions.getPassword().ifPresent(password -> info.setProperty("password", password));
+            connection = driver.connect(jdbcConnectionOptions.getDbURL(), info);
+            if (connection == null) {
+                // Throw same exception as DriverManager.getConnection when no driver found to match
+                // caller expectation.
+                throw new SQLException("No suitable driver found for " + jdbcConnectionOptions.getDbURL(), "08001");
+            }
+            setAutoCommit(connection);
         }
-        log.debug("Connection: {}", connection);
         return connection;
     }
+
+    private void setAutoCommit(Connection connection) throws SQLException {
+        Optional<Boolean> autoCommit = jdbcConnectionOptions.getAutoCommit();
+        if (autoCommit.isPresent()) {
+            connection.setAutoCommit(autoCommit.get());
+        }
+    }
+
 }

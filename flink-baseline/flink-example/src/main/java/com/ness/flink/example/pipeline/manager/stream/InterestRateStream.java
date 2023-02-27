@@ -23,18 +23,28 @@ import com.ness.flink.example.pipeline.config.sink.InterestRatesSink;
 import com.ness.flink.example.pipeline.domain.InterestRate;
 import com.ness.flink.example.pipeline.domain.intermediate.InterestRates;
 import com.ness.flink.example.pipeline.manager.stream.function.ProcessRatesFunction;
+import com.ness.flink.sink.jdbc.JdbcSinkBuilder;
+import com.ness.flink.sink.jdbc.core.executor.JdbcStatementBuilder;
+import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
 import com.ness.flink.storage.cache.EntityTypeEnum;
 import com.ness.flink.stream.StreamBuilder;
 import com.ness.flink.stream.StreamBuilder.FlinkDataStream;
+import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 
 /**
  * @author Khokhlov Pavel
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class InterestRateStream {
 
     public static void build(@NonNull StreamBuilder streamBuilder, boolean interestRatesKafkaSnapshotEnabled) {
@@ -73,5 +83,45 @@ public class InterestRateStream {
                     .build();
             streamBuilder.stream().sink(interestRatesDataStream, interestRatesSink);
         }
+
+        final String sql = "INSERT INTO rate (id, maturity, rate) values (?, ?, ?)"
+            + " ON DUPLICATE KEY UPDATE maturity = ?, rate = ?";
+
+        JdbcSinkProperties jdbcSinkProperties = JdbcSinkProperties.from("rates.jdbc.sink",
+            streamBuilder.getParameterTool());
+
+        JdbcSinkBuilder<InterestRate> jdbcSinkBuilder = JdbcSinkBuilder
+            .<InterestRate>builder()
+            .sql(sql)
+            .jdbcSinkProperties(jdbcSinkProperties)
+            .jdbcStatementBuilder(new JdbcStatementBuilder<>() {
+                private static final long serialVersionUID = 3760053930726684910L;
+                @Override
+                public void accept(PreparedStatement stmt, InterestRate interestRate) throws SQLException {
+                        int idx = 0;
+                        final long id = interestRate.getId();
+                        log.debug("Prepare statement: {}", id);
+                        final String sourceId = interestRate.getMaturity();
+                        final BigDecimal rate = BigDecimal.valueOf(interestRate.getRate());
+
+                        stmt.setLong(++idx, id);
+                        stmt.setString(++idx, sourceId);
+                        stmt.setBigDecimal(++idx, rate);
+                        // on duplicate
+                        stmt.setString(++idx, sourceId);
+                        stmt.setBigDecimal(++idx, rate);
+                }
+            }).build();
+
+        interestRatesDataStream.addToStream(stream -> stream
+            .flatMap((FlatMapFunction<InterestRates, InterestRate>) (value, out) -> {
+            Map<String, InterestRate> rates = value.getRates();
+            for (var rate : rates.values()) {
+                out.collect(rate);
+            }
+        }).returns(InterestRate.class)
+            .name("flatten.rates").uid("flatten.rates"))
+            .addSink(jdbcSinkBuilder);
+
     }
 }

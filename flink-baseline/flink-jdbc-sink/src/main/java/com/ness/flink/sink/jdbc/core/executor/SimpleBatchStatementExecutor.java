@@ -18,7 +18,6 @@ package com.ness.flink.sink.jdbc.core.executor;
 
 import com.ness.flink.sink.jdbc.config.JdbcExecutionOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.io.jdbc.JdbcStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,7 +37,7 @@ public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExe
     private final Function<T, V> valueTransformer;
     private final transient List<V> batch;
 
-    private transient PreparedStatement st;
+    private transient PreparedStatement preparedStatement;
     private transient Connection connection;
 
     public SimpleBatchStatementExecutor(String sql, JdbcStatementBuilder<V> statementBuilder, Function<T, V> valueTransformer,
@@ -52,25 +51,31 @@ public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExe
     @Override
     public void open(Connection connection) throws SQLException {
         this.connection = connection;
-        this.st = connection.prepareStatement(sql);
+        this.preparedStatement = connection.prepareStatement(sql);
     }
 
     @Override
-    public void addToBatch(T record) {
-        batch.add(valueTransformer.apply(record));
+    public void reinit(Connection connection) throws SQLException {
+        closeStatement();
+        open(connection);
+    }
+
+    @Override
+    public void addToBatch(T message) {
+        batch.add(valueTransformer.apply(message));
     }
 
     @Override
     public void executeBatch() throws SQLException {
         if (!batch.isEmpty()) {
             for (V r : batch) {
-                parameterSetter.accept(st, r);
-                st.addBatch();
+                parameterSetter.accept(preparedStatement, r);
+                preparedStatement.addBatch();
                 log.trace("Added to batch: {}", r);
             }
-            st.executeBatch();
+            preparedStatement.executeBatch();
             if (!connection.getAutoCommit()) {
-                log.trace("Commit batch: {}", batch.size());
+                log.debug("Commit batch: {}", batch.size());
                 connection.commit();
             }
             batch.clear();
@@ -78,11 +83,21 @@ public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExe
     }
 
     @Override
-    public void close() throws SQLException {
-        if (st != null) {
-            st.close();
-            st = null;
+    public void closeStatement() {
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                log.warn("Cannot close statement");
+            } finally {
+                preparedStatement = null;
+            }
         }
+    }
+
+    @Override
+    public void close() {
+        closeStatement();
         if (batch != null) {
             batch.clear();
         }

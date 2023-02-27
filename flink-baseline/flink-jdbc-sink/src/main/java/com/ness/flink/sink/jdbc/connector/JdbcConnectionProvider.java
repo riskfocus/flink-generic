@@ -14,32 +14,25 @@
  * limitations under the License.
  */
 
-package com.ness.flink.example.pipeline.domain;
+package com.ness.flink.sink.jdbc.connector;
 
-import com.ness.flink.domain.KafkaKeyedAware;
-import com.ness.flink.domain.IncomingEvent;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.apache.flink.annotation.Internal;
 
 /**
  * @author Khokhlov Pavel
  */
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-@EqualsAndHashCode(callSuper = false)
-public class InterestRate extends IncomingEvent implements KafkaKeyedAware {
-
-    private static final long serialVersionUID = 8613281459382114246L;
-
-    private int id;
-
-    private String maturity;
-    private Double rate;
-
-    @Override
-    public byte[] kafkaKey() {
-        return maturity.getBytes();
-    }
+@Internal
+@FunctionalInterface
+public interface JdbcConnectionProvider extends Serializable {
+    /**
+     * Establish connection with database
+     *
+     * @return established connection
+     * @throws SQLException sql exception
+     * @throws ClassNotFoundException driver class not found
+     */
+    Connection getConnection() throws SQLException, ClassNotFoundException;
 }

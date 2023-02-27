@@ -88,8 +88,8 @@ public class StreamBuilder {
 
     @SneakyThrows
     public void run(String jobName) {
-        if (log.isDebugEnabled()) {
-            log.debug("Execution Plan: {}", env.getExecutionPlan());
+        if (log.isInfoEnabled()) {
+            log.info("Execution Plan: {}", env.getExecutionPlan());
         }
         env.execute(jobName);
     }
@@ -415,13 +415,26 @@ public class StreamBuilder {
 
         /**
          * Adds custom sink to current data stream wrapper, without changing event type
-         *
+         * @param sinkDefinition based on old SinkFunction
          * @return same data stream wrapper, with sink added
          */
-        public FlinkDataStream<T> addSink(SinkDefinition<T> def) {
-            singleOutputStreamOperator.addSink(def.buildSink())
-                .setParallelism(def.getParallelism().orElse(env.getParallelism()))
-                .name(def.getName()).uid(def.getName());
+        public FlinkDataStream<T> addSink(SinkDefinition<T> sinkDefinition) {
+            singleOutputStreamOperator.addSink(sinkDefinition.buildSink())
+                .setParallelism(sinkDefinition.getParallelism().orElse(env.getParallelism()))
+                .name(sinkDefinition.getName()).uid(sinkDefinition.getName());
+            return this;
+        }
+
+        /**
+         * Adds custom sink to current data stream wrapper, without changing event type
+         * @param defaultSink based on new Flink Sink API
+         * @return same data stream wrapper, with sink added
+         */
+        public FlinkDataStream<T> addSink(DefaultSink<T> defaultSink) {
+            singleOutputStreamOperator
+                .sinkTo(defaultSink.build())
+                .setParallelism(defaultSink.getParallelism().orElse(env.getParallelism()))
+                .name(defaultSink.getName()).uid(defaultSink.getName());
             return this;
         }
 

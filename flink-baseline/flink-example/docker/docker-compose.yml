@@ -102,3 +102,26 @@ services:
       CONNECT_BOOTSTRAP_SERVERS: ignored
       KAFKA_ZOOKEEPER_CONNECT: ignored
       KAFKA_ADVERTISED_LISTENERS: ignored
+
+  mysql:
+    image: mysql:5.7.41
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - ./conf/mysql-dump:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    environment:
+          ADMINER_DEFAULT_SERVER: mysql
+    depends_on:
+      - mysql
+    ports:
+      - 8080:8080
