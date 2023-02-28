@@ -16,7 +16,9 @@
 
 package com.ness.flink.snapshot.context.rest;
 
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.ness.flink.domain.TimeAware;
+import com.ness.flink.json.UncheckedObjectMapper;
 import com.ness.flink.snapshot.context.rest.dto.ContextRequestDTO;
 import com.ness.flink.snapshot.context.rest.dto.ContextResponseDTO;
 import com.ness.flink.util.DateTimeUtils;
@@ -26,9 +28,9 @@ import com.ness.flink.window.WindowAware;
 import com.ness.flink.window.WindowContext;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -45,9 +47,7 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 @Slf4j
 public class RestBased implements ContextService {
-
-    private static final ObjectMapper mapper = new ObjectMapper();
-    private static final ConcurrentMap<Long, Long> contextCache = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, Long> CONTEXT_CACHE = new ConcurrentHashMap<>();
 
     private final WindowAware windowAware;
     private final String url;
@@ -68,12 +68,15 @@ public class RestBased implements ContextService {
     }
 
     private Long createOrGet(long windowId, String dateStr, String type) {
-        return contextCache.computeIfAbsent(windowId, aLong -> {
-            log.debug("Miss cache for: W{}", windowId);
+        return CONTEXT_CACHE.computeIfAbsent(windowId, aLong -> {
+            log.debug("Cache miss for: W{}", windowId);
             try {
                 return create(windowId, dateStr, type);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new UncheckedExecutionException(e);
             }
         });
     }
@@ -83,7 +86,7 @@ public class RestBased implements ContextService {
                 .windowId(windowId)
                 .dateStr(dateStr)
                 .contextName(contextName).build();
-        String requestStr = mapper.writeValueAsString(requestDTO);
+        String requestStr = UncheckedObjectMapper.MAPPER.writeValueAsString(requestDTO);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url + "/create/"))
                 .header("Accept", "application/json")

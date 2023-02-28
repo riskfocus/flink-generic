@@ -36,17 +36,17 @@ public final class AvroSpecificRecordSource<S extends SpecificRecordBase> extend
     private final TimestampAssignerSupplier<S> timestampAssignerFunction;
 
     @Override
-    DeserializationSchema<S> getDeserializationSchema() {
+    protected DeserializationSchema<S> getDeserializationSchema() {
         return valueSchema;
     }
 
     @Override
-    TypeInformation<S> getTypeInformation() {
+    protected TypeInformation<S> getTypeInformation() {
         return new AvroTypeInfo<>(domainClass);
     }
 
     @Override
-    TimestampAssignerSupplier<S> getTimestampAssignerFunction() {
+    protected TimestampAssignerSupplier<S> getTimestampAssignerFunction() {
         return timestampAssignerFunction;
     }
 }

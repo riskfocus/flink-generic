@@ -54,13 +54,14 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("PMD.TooManyMethods")
 public class OperatorPropertiesFactory {
 
     /**
      * Default pipeline configuration file
      */
     public static final String DEFAULT_CONFIG_FILE = "/application.yml";
-    static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory())
+    private static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     private static final String NAME_FIELD = "name";
     private static final String PLACEHOLDER_PATTERN_STRING = "\\$\\{(.+?)\\}";
@@ -75,20 +76,7 @@ public class OperatorPropertiesFactory {
      * @param propertiesClass Class which describes required properties
      */
     public static <T extends RawProperties<T>> T from(String name, ParameterTool params, Class<T> propertiesClass) {
-        return from(name, null, params, propertiesClass);
-    }
-
-    /**
-     * Read defaults from properties file, overriding with environment variables, overriding with any values from
-     * ParameterTool. Usually, ParameterTool passing as argument is created from command line args in main method
-     *
-     * @param name   source name, to filter records in configuration file
-     * @param sharedName  Shared source name, which will be used in case of original property name wasn't found
-     * @param params overriding values, possibly prefixed with name
-     * @param propertiesClass Class which describes required properties
-     */
-    static <T extends RawProperties<T>> T from(String name, String sharedName, ParameterTool params, Class<T> propertiesClass) {
-        return from(name, sharedName, params, propertiesClass, DEFAULT_CONFIG_FILE);
+        return from(name, null, params, propertiesClass, DEFAULT_CONFIG_FILE);
     }
 
     /**
@@ -101,7 +89,7 @@ public class OperatorPropertiesFactory {
      * @param propertiesClass Class which describes required properties
      * @param configFile path to configuration YML-file
      */
-    static <T extends RawProperties<T>> T from(String name, String sharedName, ParameterTool params, Class<T> propertiesClass,
+    public static <T extends RawProperties<T>> T from(String name, String sharedName, ParameterTool params, Class<T> propertiesClass,
                                                String configFile) {
         PropertiesMaps propertiesMaps = propertiesMaps(name, sharedName, params, configFile);
         return MAPPER.convertValue(propertiesMaps.getDefaults(), propertiesClass).withRawValues(Collections.unmodifiableMap(propertiesMaps.getRawValues()));
@@ -138,12 +126,11 @@ public class OperatorPropertiesFactory {
                     defaults.putAll(sharedData);
                 }
             }
-
-            if (!fromFile.containsKey(name)) {
+            Object configuration = fromFile.get(name);
+            if (configuration == null) {
                 log.warn("Config not found in YAML file: name={}", name);
-            } else if (fromFile.get(name) instanceof Map) {
-                defaults.putAll((Map<String, Object>) fromFile.get(name));
-
+            } else if (configuration instanceof Map) {
+                defaults.putAll((Map<String, Object>) configuration);
             }
 
         } catch (IOException e) {
@@ -160,10 +147,10 @@ public class OperatorPropertiesFactory {
                 .map(p -> {
                     // Building ENV based keys
                     p = p.replace(".", "_");
-                    if (!p.endsWith("_")) {
-                        return p + "_";
-                    } else {
+                    if (p.endsWith("_")) {
                         return p;
+                    } else {
+                        return p + "_";
                     }
                 }).collect(Collectors.toSet());
         defaults.putAll(stripPrefixes(getEnvVariablesWithFiltration(camelPrefixes), prefixes));
@@ -196,7 +183,7 @@ public class OperatorPropertiesFactory {
                 .forEach(map::remove);
     }
 
-    static Map<String, Object> evaluatePlaceHolders(Map<String, Object> params) {
+    private static Map<String, Object> evaluatePlaceHolders(Map<String, Object> params) {
         Map<String, Object> replacedMap = applyReplacement(params, params);
         replacedMap.putAll(params.entrySet().stream()
                 .filter(e -> e.getValue() instanceof Map)
@@ -213,16 +200,16 @@ public class OperatorPropertiesFactory {
     }
 
     @SuppressWarnings("PMD.GuardLogStatement")
-    static Map<String, Object> applyReplacement(Map<String, Object> forReplacement, Map<String, Object> params) {
+    private static Map<String, Object> applyReplacement(Map<String, Object> forReplacement, Map<String, Object> params) {
         return forReplacement.entrySet().stream()
                 .filter(e -> e.getValue() instanceof String)
                 .filter(e -> PLACEHOLDER_PATTERN.matcher((String) e.getValue()).find())
                 .map(e -> {
                     StringBuilder result = new StringBuilder();
-                    Matcher m = PLACEHOLDER_PATTERN.matcher((String) e.getValue());
-                    while (m.find()) {
+                    Matcher matcher = PLACEHOLDER_PATTERN.matcher((String) e.getValue());
+                    while (matcher.find()) {
                         String newValue = null;
-                        String placeholder = m.group(1);
+                        String placeholder = matcher.group(1);
                         if (params.containsKey(placeholder)) {
                             newValue = (String) params.get(placeholder);
                         } else if (System.getenv().containsKey(placeholder)) {
@@ -232,17 +219,17 @@ public class OperatorPropertiesFactory {
                             log.error("Missing value: key={}, value={}, placeholder={}", e.getKey(), e.getValue(), placeholder);
                             return null;
                         } else {
-                            m.appendReplacement(result, newValue);
+                            matcher.appendReplacement(result, newValue);
                         }
                     }
-                    m.appendTail(result);
+                    matcher.appendTail(result);
                     return Map.entry(e.getKey(), result.toString());
 
                 })
                 .filter(Objects::nonNull).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    static Map<String, Object> getEnvVariablesWithFiltration(Set<String> prefixes) {
+    private static Map<String, Object> getEnvVariablesWithFiltration(Set<String> prefixes) {
         Map<String, String> result = new LinkedHashMap<>();
         System.getenv().forEach((envKey, value) -> {
             String readyKey = buildEnvKey(prefixes, envKey);
@@ -263,15 +250,15 @@ public class OperatorPropertiesFactory {
         return null;
     }
 
-    static Map<String, Object> convertEnvVariables(Map<String, String> filteredEnv) {
+    private static Map<String, Object> convertEnvVariables(Map<String, String> filteredEnv) {
         return filteredEnv.entrySet().stream().flatMap(e -> {
-            String lowerKey = e.getKey().replace('_', '.').toLowerCase();
+            String lowerKey = e.getKey().replace('_', '.').toLowerCase(Locale.ENGLISH);
             String camelKey = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, e.getKey());
             return Stream.of(lowerKey, camelKey).distinct().map(k -> Map.entry(k, e.getValue()));
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    static Map<String, Object> stripPrefixes(Map<String, ?> params, Map<String, Integer> rankedPrefixes) {
+    private static Map<String, Object> stripPrefixes(Map<String, ?> params, Map<String, Integer> rankedPrefixes) {
         return params.entrySet().stream()
                 .map(e -> rankedPrefixes.entrySet().stream().filter(prefixEntry ->
                                 e.getKey().startsWith(prefixEntry.getKey() + ".")

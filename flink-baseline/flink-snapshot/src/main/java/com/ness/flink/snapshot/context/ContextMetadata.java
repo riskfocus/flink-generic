@@ -31,6 +31,7 @@ public class ContextMetadata implements Serializable {
     /**
      * Context identifier (has to be provided by ContextService)
      */
+    @SuppressWarnings("PMD.ShortVariable")
     private long id;
     /**
      * Date of snapshot in format "yyyyMMdd" (has to be provided by ContextService)

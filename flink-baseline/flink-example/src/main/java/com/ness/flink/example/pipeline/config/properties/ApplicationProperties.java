@@ -16,6 +16,7 @@
 
 package com.ness.flink.example.pipeline.config.properties;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.OperatorPropertiesFactory;
 import com.ness.flink.example.pipeline.config.JobMode;
 import com.ness.flink.storage.cache.EntityTypeEnum;
@@ -48,13 +49,14 @@ public class ApplicationProperties {
 
     private EntityTypeEnum snapshotType = EntityTypeEnum.MEM_CACHE_WITH_INDEX_SUPPORT_ONLY;
     private JobMode jobMode = JobMode.FULL;
-    private boolean interestRatesKafkaSnapshotEnabled = false;
+    private boolean interestRatesKafkaSnapshotEnabled;
     public static ApplicationProperties from(@NonNull ParameterTool parameterTool) {
         ApplicationProperties properties = from(NAME, parameterTool, DEFAULT_CONFIG_FILE);
         log.info("Build parameters: applicationProperties={}", properties);
         return properties;
     }
 
+    @VisibleForTesting
     static ApplicationProperties from(@NonNull String name, @NonNull ParameterTool parameterTool,
         @NonNull String ymlConfigFile) {
         return OperatorPropertiesFactory

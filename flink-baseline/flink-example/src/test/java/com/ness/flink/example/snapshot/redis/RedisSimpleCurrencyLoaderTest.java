@@ -73,7 +73,7 @@ class RedisSimpleCurrencyLoaderTest extends WithEmbeddedRedis {
     @Test
     void shouldLoadSimpleCurrency() throws Exception {
 
-        StreamBuilder streamBuilder = StreamBuilder.form(PARAMETER_TOOL);
+        StreamBuilder streamBuilder = StreamBuilder.from(PARAMETER_TOOL);
         StreamExecutionEnvironment env = streamBuilder.getEnv();
         env.setParallelism(2);
 

@@ -38,6 +38,7 @@ import java.util.Optional;
 @Setter
 @ToString
 @Slf4j
+@SuppressWarnings("PMD.TooManyFields")
 public class FlinkEnvironmentProperties implements RawProperties<FlinkEnvironmentProperties> {
 
     private static final long serialVersionUID = -9200722200837227979L;
@@ -49,7 +50,7 @@ public class FlinkEnvironmentProperties implements RawProperties<FlinkEnvironmen
     private boolean localDev;
     private Integer localPortWebUi = 8081;
     private Integer localParallelism = Runtime.getRuntime().availableProcessors();
-    private Long metricsFetcherUpdateInterval = 10000L;
+    private Long metricsFetcherUpdateInterval = 10_000L;
     private boolean metricsSystemResource;
     private Long bufferTimeoutMs;
     private Long metricsLatencyInterval;

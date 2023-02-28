@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.ness.flink.test.common.kafka;
+package com.ness.flink.test.example.kafka;
 
-import com.ness.flink.test.common.metrics.MetricsService;
-import com.ness.flink.test.common.util.UncheckedObjectMapper;
+import com.ness.flink.json.UncheckedObjectMapper;
+import com.ness.flink.test.example.metrics.MetricsService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -32,16 +32,6 @@ public abstract class KafkaJsonMessageSender {
     private final KafkaProducer producer;
     private final MetricsService metricsService;
 
-    private static final UncheckedObjectMapper mapper = new UncheckedObjectMapper();
-
-    public <K, I, V> void sendMessage(String topic, K key, I value, SendInfoHolder<K, I, V> holder) {
-        sendMessage(topic, null, System.currentTimeMillis(), key, value, holder);
-    }
-
-    public <K, I, V> void sendMessage(String topic, Integer partition, K key, I value, SendInfoHolder<K, I, V> holder) {
-        sendMessage(topic, partition, System.currentTimeMillis(), key, value, holder);
-    }
-
     public <K, I, V> void sendMessage(String topic, long timestamp, K key, I value, SendInfoHolder<K, I, V> holder) {
         sendMessage(topic, null, timestamp, key, value, holder);
     }
@@ -52,7 +42,7 @@ public abstract class KafkaJsonMessageSender {
 
     public <K, I, V> void sendMessage(KafkaProducer<K, byte[]> producer, String topic, Integer partition, long timestamp, K key, I value, SendInfoHolder<K, I, V> holder) {
         ProducerRecord<K, byte[]> record = new ProducerRecord<>(topic,
-                partition, timestamp, key, mapper.writeValueAsBytes(value));
+                partition, timestamp, key, UncheckedObjectMapper.MAPPER.writeValueAsBytes(value));
 
         holder.addExpected();
         producer.send(record, (metadata, exception) -> {

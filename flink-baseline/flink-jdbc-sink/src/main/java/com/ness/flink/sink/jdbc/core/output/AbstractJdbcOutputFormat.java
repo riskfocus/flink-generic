@@ -34,11 +34,12 @@ import org.apache.flink.api.connector.sink2.SinkWriter;
  * @author Khokhlov Pavel
  */
 @Slf4j
+@SuppressWarnings("PMD.TooManyMethods")
 public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    static final String SQL_STATE_CONNECTION_CLOSED = "SQL:connection:closed";
-    static final String SQL_STATE_CONNECTION_IS_NOT_VALID = "SQL:connection:isNotValid";
+    private static final String SQL_STATE_CONNECTION_CLOSED = "SQL:connection:closed";
+    private static final String SQL_STATE_CONNECTION_IS_NOT_VALID = "SQL:connection:isNotValid";
 
     protected final String sinkName;
     private final JdbcConnectionProvider connectionProvider;
@@ -48,7 +49,7 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
 
     protected final JdbcExecutionOptions executionOptions;
 
-    AbstractJdbcOutputFormat(String sinkName, JdbcExecutionOptions executionOptions, JdbcConnectionProvider connectionProvider) {
+    protected AbstractJdbcOutputFormat(String sinkName, JdbcExecutionOptions executionOptions, JdbcConnectionProvider connectionProvider) {
         this.sinkName = checkNotNull(sinkName);
         this.executionOptions = checkNotNull(executionOptions);
         this.connectionProvider = checkNotNull(connectionProvider);
@@ -66,12 +67,12 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
      * @param connection new jdbc connection
      * @throws SQLException
      */
-    abstract void reinit(Connection connection) throws SQLException;
+    protected abstract void reinit(Connection connection) throws SQLException;
 
     /**
      * Release current connection related resources
      */
-    abstract void closeStatement();
+    protected abstract void closeStatement();
 
     protected Connection getConnection() throws SQLException, IOException {
         try {
@@ -83,14 +84,17 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
         }
     }
 
-    void recover(int maxRetries, SQLException e) throws IOException {
-        log.info("Unsuccessful SQL execution. maxRetries={}, error details={}, type={}", maxRetries, e.getMessage(),
-            e.getSQLState());
-        rollback(e);
-        retryConnection(maxRetries, e);
+    protected void recover(int maxRetries, SQLException sqlException) throws IOException {
+        if (log.isInfoEnabled()) {
+            log.info("Unsuccessful SQL execution. maxRetries={}, error details={}, type={}", maxRetries,
+                sqlException.getMessage(),
+                sqlException.getSQLState());
+        }
+        rollback(sqlException);
+        retryConnection(maxRetries, sqlException);
     }
 
-    void retryConnection(int maxRetries, SQLException e) throws IOException {
+    private void retryConnection(int maxRetries, SQLException rootSqlException) throws IOException {
         int retryCnt = 1;
         while (retryCnt <= maxRetries) {
             try {
@@ -100,15 +104,18 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
                 reinit(connection);
                 return;
             } catch (SQLException sqlException) {
-                log.warn("Got issue with connection again, retry={}, error={}", retryCnt, sqlException.getMessage());
+                if (log.isWarnEnabled()) {
+                    log.warn("Got issue with connection again, retry={}, error={}", retryCnt,
+                        sqlException.getMessage());
+                }
                 retryCnt = retryCnt + 1;
                 sleep(retryCnt);
             }
         }
-        throw new IOException("Max retry count exceeded. Unable to establish new connection", e);
+        throw new IOException("Max retry count exceeded. Unable to establish new connection", rootSqlException);
     }
 
-    void sleep(int retryCnt) throws IOException {
+    private void sleep(int retryCnt) throws IOException {
         try {
             Thread.sleep(retryCnt * 1000);
         } catch (InterruptedException e) {
@@ -120,12 +127,8 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
     private void rollback(SQLException cause) {
         if (cause != null) {
             String sqlState = cause.getSQLState();
-            if (sqlState != null) {
-                switch (sqlState) {
-                    case SQL_STATE_CONNECTION_CLOSED:
-                    case SQL_STATE_CONNECTION_IS_NOT_VALID:
-                        return;
-                }
+            if (SQL_STATE_CONNECTION_CLOSED.equals(sqlState) || SQL_STATE_CONNECTION_IS_NOT_VALID.equals(sqlState)) {
+                return;
             }
         }
         if (connection != null) {
@@ -134,16 +137,16 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
                     connection.rollback();
                 }
             } catch(SQLException e) {
-                log.warn("Transaction rollback failed: {}", e.getMessage());
+                log.warn("Transaction rollback failed:", e);
             }
         }
     }
 
-    void updateLastTimeConnectionUsage() {
+    protected void updateLastTimeConnectionUsage() {
         lastTimeConnectionUsage.set(now());
     }
 
-    boolean checkConnectionRequired() {
+    private boolean checkConnectionRequired() {
         long elapsedTime = now() - lastTimeConnectionUsage.get();
         boolean checkRequired = elapsedTime > executionOptions.getConnectionCheckMaxIdleMs();
         if (checkRequired) {
@@ -152,7 +155,7 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
         return checkRequired;
     }
 
-    void checkConnection() throws SQLException {
+    protected void checkConnection() throws SQLException {
         if (checkConnectionRequired()) {
             if (connection.isClosed()) {
                 throw new SQLException("Connection is closed", SQL_STATE_CONNECTION_CLOSED);
@@ -163,22 +166,20 @@ public abstract class AbstractJdbcOutputFormat<T> implements SinkWriter<T>, Seri
         }
     }
 
-    boolean isConnectionValid() throws SQLException {
+    private boolean isConnectionValid() throws SQLException {
         return connection != null && connection.isValid(executionOptions.getConnectionCheckTimeoutSeconds());
     }
 
-    long now() {
+    protected long now() {
         return System.currentTimeMillis();
     }
 
-    void closeConnection() {
+    private void closeConnection() {
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
                 log.warn("JDBC connection close failed.", e);
-            } finally {
-                connection = null;
             }
         }
     }

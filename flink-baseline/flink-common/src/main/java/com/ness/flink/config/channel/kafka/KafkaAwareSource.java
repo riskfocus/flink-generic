@@ -49,12 +49,13 @@ abstract class KafkaAwareSource<S> extends WatermarkAwareSource<S> {
         return Optional.ofNullable(kafkaConsumerProperties.getMaxParallelism());
     }
 
-    abstract DeserializationSchema<S> getDeserializationSchema();
+    protected abstract DeserializationSchema<S> getDeserializationSchema();
 
-    abstract TypeInformation<S> getTypeInformation();
+    protected abstract TypeInformation<S> getTypeInformation();
 
-    abstract TimestampAssignerSupplier<S> getTimestampAssignerFunction();
+    protected abstract TimestampAssignerSupplier<S> getTimestampAssignerFunction();
 
+    @Override
     public final SingleOutputStreamOperator<S> build(StreamExecutionEnvironment streamExecutionEnvironment) {
         KafkaSource<S> source = KafkaSource.<S>builder()
                 .setProperties(kafkaConsumerProperties.getConsumerProperties())

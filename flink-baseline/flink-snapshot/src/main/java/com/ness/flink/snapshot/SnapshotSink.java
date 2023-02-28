@@ -16,24 +16,23 @@
 
 package com.ness.flink.snapshot;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.RedisProperties;
 import com.ness.flink.config.properties.WatermarkProperties;
 import com.ness.flink.domain.TimeAware;
-import com.ness.flink.snapshot.context.properties.ContextProperties;
 import com.ness.flink.snapshot.context.ContextService;
 import com.ness.flink.snapshot.context.ContextServiceProvider;
+import com.ness.flink.snapshot.context.properties.ContextProperties;
 import com.ness.flink.snapshot.redis.RedisSnapshotExecutor;
 import com.ness.flink.storage.cache.EntityTypeEnum;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.codec.ByteArrayCodec;
+import java.io.IOException;
 import lombok.AllArgsConstructor;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.api.connector.sink2.SinkWriter;
 import org.apache.flink.api.java.utils.ParameterTool;
-
-import java.io.IOException;
-import java.util.Objects;
 
 /**
  * @author Khokhlov Pavel
@@ -51,10 +50,11 @@ public class SnapshotSink<T extends TimeAware> implements Sink<T> {
         return new RedisWriter(parameterTool);
     }
 
+    @VisibleForTesting
     class RedisWriter implements SinkWriter<T> {
         private final ContextService contextService;
-        private RedisClient redisClient;
-        private StatefulRedisConnection<byte[], byte[]> connect;
+        private final RedisClient redisClient;
+        private final StatefulRedisConnection<byte[], byte[]> connect;
 
         public RedisWriter(ParameterTool parameterTool) {
             RedisProperties redisProperties = RedisProperties.from(parameterTool);
@@ -62,10 +62,8 @@ public class SnapshotSink<T extends TimeAware> implements Sink<T> {
             WatermarkProperties watermarkProperties = WatermarkProperties.from(parameterTool);
             contextService = ContextServiceProvider.create(properties, watermarkProperties);
             contextService.init();
-            if (Objects.requireNonNull(entityTypeEnum) == EntityTypeEnum.MEM_CACHE_WITH_INDEX_SUPPORT_ONLY) {
-                redisClient = RedisClient.create(redisProperties.build());
-                connect = redisClient.connect(new ByteArrayCodec());
-            }
+            redisClient = RedisClient.create(redisProperties.build());
+            connect = redisClient.connect(new ByteArrayCodec());
         }
 
         @Override

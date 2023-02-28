@@ -1,7 +1,7 @@
 package com.ness.flink.test.example.config;
 
 import com.ness.flink.example.pipeline.domain.SmoothingRequest;
-import com.ness.flink.test.common.metrics.MetricsService;
+import com.ness.flink.test.example.metrics.MetricsService;
 import com.ness.flink.test.example.receiver.ResultProcessor;
 import com.ness.flink.test.example.receiver.ResultService;
 import com.ness.flink.test.example.util.SmoothingDomainUtil;

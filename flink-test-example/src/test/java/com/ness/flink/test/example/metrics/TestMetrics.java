@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ness.flink.test.common.metrics;
+package com.ness.flink.test.example.metrics;
 
 import lombok.Builder;
 import lombok.Getter;

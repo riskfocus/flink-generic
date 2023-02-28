@@ -15,6 +15,7 @@
  */
 package com.ness.flink.config.properties;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -44,6 +45,7 @@ public class OperatorProperties implements Serializable {
         return properties;
     }
 
+    @VisibleForTesting
     static OperatorProperties from(@NonNull String name, @NonNull ParameterTool parameterTool,
                                    @NonNull String ymlConfigFile) {
         return OperatorPropertiesFactory

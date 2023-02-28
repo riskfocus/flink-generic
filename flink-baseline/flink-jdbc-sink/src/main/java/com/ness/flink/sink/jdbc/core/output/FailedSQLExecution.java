@@ -14,32 +14,19 @@
  * limitations under the License.
  */
 
-package com.ness.flink.config.operator;
-
-import java.util.Locale;
-import java.util.Optional;
+package com.ness.flink.sink.jdbc.core.output;
 
 /**
- * Adds Flink operator definition
+ * Unchecked SQL Exception
  *
  * @author Khokhlov Pavel
  */
-public interface OperatorDefinition {
+public class FailedSQLExecution extends RuntimeException {
+    private static final long serialVersionUID = 5022476348745812063L;
 
-    /**
-     * Operator's name & uid
-     * @return operator's name & uid
-     */
-    default String getName() {
-        return getClass().getSimpleName().toLowerCase(Locale.ENGLISH);
+    private static final String ERROR_MESSAGE = "Writing records to JDBC failed";
+
+    public FailedSQLExecution(Throwable cause) {
+        super(ERROR_MESSAGE, cause);
     }
-
-    /**
-     * Operator's level of parallelism
-     * @return operator's parallelism
-     */
-    default Optional<Integer> getParallelism() {
-        return Optional.of(1);
-    }
-
 }

@@ -36,7 +36,6 @@ public class WindowGeneratorWatermarkWithIdle<T> implements WatermarkGeneratorSu
     private static final long serialVersionUID = 5508501490307135058L;
 
     private final BasicGenerator basicGenerator;
-    private long windowId;
 
     public WindowGeneratorWatermarkWithIdle(long windowSize) {
         basicGenerator = new BasicGenerator(windowSize);
@@ -47,8 +46,10 @@ public class WindowGeneratorWatermarkWithIdle<T> implements WatermarkGeneratorSu
         return new WindowBasedWatermarkGenerator<>();
     }
 
-    class WindowBasedWatermarkGenerator<E> implements WatermarkGenerator<E> {
-        WindowBasedWatermarkGenerator() {
+    private class WindowBasedWatermarkGenerator<E> implements WatermarkGenerator<E> {
+        private long windowId;
+
+        private WindowBasedWatermarkGenerator() {
             windowId = basicGenerator.generateWindowPeriod(now()).getId();
         }
 
@@ -64,13 +65,13 @@ public class WindowGeneratorWatermarkWithIdle<T> implements WatermarkGeneratorSu
 
         private void generate(WatermarkOutput output, long eventTimestamp) {
             long newWindowId = basicGenerator.generateWindowPeriod(eventTimestamp).getId();
-            if (newWindowId != windowId) {
+            if (newWindowId == windowId) {
+                output.markIdle();
+            } else {
                 log.debug("Generated Watermark: W{}", newWindowId);
                 windowId = newWindowId;
                 output.emitWatermark(new Watermark(eventTimestamp));
                 output.markActive();
-            } else {
-                output.markIdle();
             }
         }
 

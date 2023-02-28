@@ -74,3 +74,6 @@ confluent.sink:
   parallelism: 8
   deliveryGuarantee: EXACTLY_ONCE
   transactionIdPrefix: confluentSink
+
+test.operator:
+    parallelism: 4

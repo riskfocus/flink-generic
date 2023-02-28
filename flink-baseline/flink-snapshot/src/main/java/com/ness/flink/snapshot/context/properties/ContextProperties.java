@@ -16,6 +16,7 @@
 
 package com.ness.flink.snapshot.context.properties;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.OperatorPropertiesFactory;
 import com.ness.flink.window.generator.GeneratorType;
 import com.ness.flink.window.generator.WindowGeneratorProvider;
@@ -49,6 +50,7 @@ public class ContextProperties {
         return properties;
     }
 
+    @VisibleForTesting
     static ContextProperties from(@NonNull String name, @NonNull ParameterTool parameterTool,
         @NonNull String ymlConfigFile) {
         return OperatorPropertiesFactory

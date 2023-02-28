@@ -29,8 +29,8 @@ import java.io.Serializable;
 public abstract class SnapshotMapper<T> implements Serializable {
     private static final long serialVersionUID = -4643297908380913314L;
 
-    private static final String snapShot = "snapshot";
-    private static final String index = "index";
+    private static final String SNAPSHOT_PREFIX = "snapshot";
+    private static final String INDEX_PREFIX = "index";
 
     protected final String delimiter;
 
@@ -40,7 +40,7 @@ public abstract class SnapshotMapper<T> implements Serializable {
      * @return
      */
     public String buildSnapshotPrefix(ContextMetadata ctx) {
-        return snapShot + delimiter + ctx.getContextName();
+        return SNAPSHOT_PREFIX + delimiter + ctx.getContextName();
     }
 
     /**
@@ -50,7 +50,7 @@ public abstract class SnapshotMapper<T> implements Serializable {
      * @return name of index
      */
     public String buildSnapshotIndexKey(ContextMetadata ctx) {
-        return buildSnapshotPrefix(ctx) + delimiter + index;
+        return buildSnapshotPrefix(ctx) + delimiter + INDEX_PREFIX;
     }
 
     /**

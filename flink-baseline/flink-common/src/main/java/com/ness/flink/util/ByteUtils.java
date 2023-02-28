@@ -35,10 +35,10 @@ public final class ByteUtils {
     private static byte[][] listToArray(List<byte[]> keys) {
         final int keySize = keys != null ? keys.size() : 0;
         byte[][] keysAndArgs = new byte[keySize][];
-        int i = 0;
+        int index = 0;
         if (keys != null) {
             for (byte[] key : keys) {
-                keysAndArgs[i++] = key;
+                keysAndArgs[index++] = key;
             }
         }
         return keysAndArgs;

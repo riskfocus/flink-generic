@@ -24,7 +24,6 @@ import com.ness.flink.sink.jdbc.config.JdbcExecutionOptions;
 import com.ness.flink.sink.jdbc.connector.JdbcConnectionProvider;
 import com.ness.flink.sink.jdbc.core.executor.JdbcBatchStatementExecutor;
 import java.io.IOException;
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
@@ -32,7 +31,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Function;
 import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.connector.sink2.Sink.InitContext;
@@ -40,28 +38,24 @@ import org.apache.flink.metrics.Histogram;
 import org.apache.flink.util.concurrent.ExecutorThreadFactory;
 
 /**
+ * A JDBC outputFormat that supports batching records before writing records to database.
+ *
+ * @param <R> RecordExtractor
+ * @param <T> the type of the input
+ * @param <J> the type of JdbcBatchStatementExecutor
  * @author Khokhlov Pavel
  */
 @Slf4j
-public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>> extends AbstractJdbcOutputFormat<In> {
+@SuppressWarnings("PMD.TooManyMethods")
+public class JdbcBatchingOutputFormat<R, T, J extends JdbcBatchStatementExecutor<T>> extends AbstractJdbcOutputFormat<R> {
     private static final long serialVersionUID = 1373809219726488314L;
 
-    public interface RecordExtractor<F, T> extends Function<F, T>, Serializable {
-        static <T> JdbcBatchingOutputFormat.RecordExtractor<T, T> identity() {
-            return x -> x;
-        }
-    }
-
-    public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>> extends Function<InitContext, T>, Serializable {
-    }
-
-    private final JdbcBatchingOutputFormat.StatementExecutorFactory<JdbcExec> statementExecutorFactory;
-    private final JdbcBatchingOutputFormat.RecordExtractor<In, JdbcIn> jdbcRecordExtractor;
+    private final StatementExecutorFactory<J> statementExecutorFactory;
+    private final RecordExtractor<R, T> jdbcRecordExtractor;
     private final long maxWaitThreshold;
-
-    private transient JdbcExec jdbcStatementExecutor;
-    private transient int batchCount = 0;
-    private transient boolean closed = false;
+    private transient J jdbcStatementExecutor;
+    private transient int batchCount;
+    private transient boolean closed;
     private transient AtomicLong lastUpdate;
 
     private transient ScheduledExecutorService scheduler;
@@ -74,8 +68,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             @Nonnull String sinkName,
             @Nonnull JdbcConnectionProvider connectionProvider,
             @Nonnull JdbcExecutionOptions executionOptions,
-            @Nonnull JdbcBatchingOutputFormat.StatementExecutorFactory<JdbcExec> statementExecutorFactory,
-            @Nonnull JdbcBatchingOutputFormat.RecordExtractor<In, JdbcIn> recordExtractor) {
+            @Nonnull StatementExecutorFactory<J> statementExecutorFactory,
+            @Nonnull RecordExtractor<R, T> recordExtractor) {
         super(sinkName, executionOptions, connectionProvider);
         this.statementExecutorFactory = checkNotNull(statementExecutorFactory);
         this.jdbcRecordExtractor = checkNotNull(recordExtractor);
@@ -89,6 +83,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
      * @param context InitContext
      */
     @Override
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     public void open(InitContext context) throws IOException {
         super.open(context);
         jdbcStatementExecutor = createAndOpenStatementExecutor(statementExecutorFactory);
@@ -100,11 +95,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             // Register one thread in background since we have to emit batch which couldn't be fulled by incoming data
             this.scheduler = Executors.newSingleThreadScheduledExecutor(new ExecutorThreadFactory("jdbc-scheduled-" + context.getSubtaskId()));
             this.scheduledFuture = this.scheduler.scheduleWithFixedDelay(() -> {
-                if (!closed) {
+                if (!closed && flushRequired()) {
                     try {
-                        if (flushRequired()) {
-                            flush(false);
-                        }
+                        flush(false);
                     } catch (Exception e) {
                         log.error("Got exception:", e);
                         flushException = e;
@@ -115,28 +108,28 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     @Override
-    void reinit(Connection connection) throws SQLException {
+    protected void reinit(Connection connection) throws SQLException {
         jdbcStatementExecutor.reinit(connection);
     }
 
-    private JdbcExec createAndOpenStatementExecutor(JdbcBatchingOutputFormat.StatementExecutorFactory<JdbcExec> statementExecutorFactory) throws IOException {
-        JdbcExec exec = statementExecutorFactory.apply(context);
+    private J createAndOpenStatementExecutor(StatementExecutorFactory<J> statementExecutorFactory) throws IOException {
+        J exec = statementExecutorFactory.apply(context);
         try {
             exec.open(connection);
         } catch (SQLException e) {
-            throw new IOException("unable to open JDBC writer", e);
+            throw new IOException("Unable to open JDBC writer", e);
         }
         return exec;
     }
 
     private void checkFlushException() {
         if (flushException != null) {
-            throw new RuntimeException("Writing records to JDBC failed.", flushException);
+            throw new FailedSQLExecution(flushException);
         }
     }
 
     @Override
-    public final synchronized void write(In record, Context context) throws IOException {
+    public final synchronized void write(R record, Context context) {
         log.trace("Write record");
         checkFlushException();
         lastUpdate.set(now());
@@ -146,12 +139,12 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             if (batchCount >= executionOptions.getBatchSize()) {
                 flush(false);
             }
-        } catch (Exception e) {
-            throw new IOException("Writing records to JDBC failed.", e);
+        } catch (SQLException | IOException e) {
+            throw new FailedSQLExecution(e);
         }
     }
 
-    private void addToBatch(JdbcIn extracted) throws SQLException {
+    private void addToBatch(T extracted) throws SQLException {
         jdbcStatementExecutor.addToBatch(extracted);
     }
 
@@ -200,7 +193,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     @Override
-    void closeStatement() {
+    protected void closeStatement() {
         jdbcStatementExecutor.closeStatement();
     }
 
@@ -223,8 +216,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             if (batchCount > 0) {
                 try {
                     flush(true);
-                } catch (Exception e) {
-                    throw new RuntimeException("Writing records to JDBC failed.", e);
+                } catch (IOException e) {
+                    throw new FailedSQLExecution(e);
                 }
             }
             jdbcStatementExecutor.close();

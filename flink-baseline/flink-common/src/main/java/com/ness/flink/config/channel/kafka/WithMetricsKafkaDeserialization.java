@@ -16,7 +16,10 @@
 
 package com.ness.flink.config.channel.kafka;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.aws.MetricsBuilder;
+import com.ness.flink.config.metrics.Metrics;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -25,8 +28,6 @@ import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-
-import java.io.IOException;
 
 /**
  * Provides additional functionality.
@@ -37,12 +38,15 @@ import java.io.IOException;
 @Slf4j
 final class WithMetricsKafkaDeserialization<T> implements KafkaRecordDeserializationSchema<T> {
     private static final long serialVersionUID = 1L;
-    private static final String BROKEN_MESSAGES_METRICS_NAME = "brokenMessages";
 
     private final String operatorName;
     private final KafkaRecordDeserializationSchema<T> kafkaRecordDeserializationSchema;
     private final boolean skipBrokenMessages;
 
+    /**
+     * Number of messages which can't be deserialized
+     */
+    @VisibleForTesting
     transient Counter brokenMessages;
 
     private WithMetricsKafkaDeserialization(String operatorName, DeserializationSchema<T> deserializationSchema, boolean skipBrokenMessages) {
@@ -51,18 +55,18 @@ final class WithMetricsKafkaDeserialization<T> implements KafkaRecordDeserializa
         this.skipBrokenMessages = skipBrokenMessages;
     }
 
+    @VisibleForTesting
     static <T> WithMetricsKafkaDeserialization<T> build(String operatorName,
                                                             DeserializationSchema<T> valueDeserializationSchema,
                                                             boolean skipBrokenMessages) {
         return new WithMetricsKafkaDeserialization<>(operatorName, valueDeserializationSchema, skipBrokenMessages);
     }
 
-
     @Override
     public void open(DeserializationSchema.InitializationContext context) throws Exception {
         kafkaRecordDeserializationSchema.open(context);
         MetricGroup metricGroup = context.getMetricGroup();
-        brokenMessages = MetricsBuilder.counter(metricGroup, operatorName, BROKEN_MESSAGES_METRICS_NAME);
+        brokenMessages = MetricsBuilder.counter(metricGroup, operatorName, Metrics.BROKEN_MESSAGES.getMetricName());
     }
 
     @Override
@@ -74,13 +78,13 @@ final class WithMetricsKafkaDeserialization<T> implements KafkaRecordDeserializa
         }
     }
 
-    void handleDeserializationError(ConsumerRecord<byte[], byte[]> message, IOException e) throws IOException {
-        if (!skipBrokenMessages) {
-            throw e;
-        } else {
+    private void handleDeserializationError(ConsumerRecord<byte[], byte[]> message, IOException ioException) throws IOException {
+        if (skipBrokenMessages) {
             String errorMessage = String.format("Message was skipped due to deserialization issue: operatorName=%s, topic=%s, partition=%d, offset=%d, timestamp=%d", operatorName, message.topic(), message.partition(), message.offset(), message.timestamp());
-            log.warn(errorMessage, e);
+            log.warn(errorMessage, ioException);
             brokenMessages.inc();
+        } else {
+            throw ioException;
         }
     }
 

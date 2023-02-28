@@ -1,6 +1,6 @@
 # Integration Test for SmoothingPrices application
 
-Test application [com.ness.flink.test.example.SmoothingIT](src/test/java/com/ness/flink/test/example/SmoothingIT.java) (implementation based on TestNG) 
+Test application [SmoothingIT](src/test/java/com/ness/flink/test/example/SmoothingIT.java) (implementation based on TestNG) 
 
 - Test send windowed data
   - send `com.ness.flink.example.pipeline.domain.InterestRate`

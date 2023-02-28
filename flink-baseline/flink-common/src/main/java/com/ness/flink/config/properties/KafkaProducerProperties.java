@@ -16,6 +16,7 @@
 
 package com.ness.flink.config.properties;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -51,6 +52,7 @@ public class KafkaProducerProperties extends KafkaProperties implements RawPrope
         return from(name, parameterTool, OperatorPropertiesFactory.DEFAULT_CONFIG_FILE);
     }
 
+    @VisibleForTesting
     static KafkaProducerProperties from(@NonNull String name, @NonNull ParameterTool parameterTool,
                                         @NonNull String ymlConfigFile) {
         SharedKafkaProperties sharedProperties = SharedKafkaProperties.from(name, parameterTool, ymlConfigFile);

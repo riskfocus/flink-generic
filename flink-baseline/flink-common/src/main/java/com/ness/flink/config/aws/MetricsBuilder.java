@@ -69,7 +69,9 @@ public final class MetricsBuilder {
                                                        @NonNull String metricName) {
         MetricGroup parentGroup = register(metricGroup, operatorName);
         return parentGroup
-                .histogram(metricName + HISTOGRAM_POSTFIX, new DropwizardHistogramWrapper(new Histogram(new SlidingTimeWindowArrayReservoir(HISTOGRAM_WINDOW_SIZE, TimeUnit.SECONDS))));
+                .histogram(metricName + HISTOGRAM_POSTFIX,
+                    new DropwizardHistogramWrapper(
+                        new Histogram(new SlidingTimeWindowArrayReservoir(HISTOGRAM_WINDOW_SIZE, TimeUnit.SECONDS))));
     }
 
 

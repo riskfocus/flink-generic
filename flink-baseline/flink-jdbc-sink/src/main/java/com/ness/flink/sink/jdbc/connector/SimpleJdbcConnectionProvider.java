@@ -70,8 +70,8 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
         Class<?> clazz = Class.forName(driverName, true, Thread.currentThread().getContextClassLoader());
         try {
             return (Driver) clazz.newInstance();
-        } catch (Exception ex) {
-            throw new SQLException("Fail to create driver of class " + driverName, ex);
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new SQLException("Fail to create driver of class " + driverName, e);
         }
     }
 

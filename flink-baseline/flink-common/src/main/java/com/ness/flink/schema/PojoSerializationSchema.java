@@ -32,7 +32,7 @@ public class PojoSerializationSchema<T extends Serializable> implements Serializ
     private static final long serialVersionUID = -7630400380854325462L;
 
     @Override
-    public byte[] serialize(T t) {
-        return UncheckedObjectMapper.MAPPER.writeValueAsBytes(t);
+    public byte[] serialize(T element) {
+        return UncheckedObjectMapper.MAPPER.writeValueAsBytes(element);
     }
 }

@@ -27,7 +27,7 @@ import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
  * @author Khokhlov Pavel
  */
 @SuperBuilder
-public class PojoRecordSink<S extends Serializable> extends KafkaValueAwareSink<S> {
+public class PojoRecordSink<S extends Serializable> extends KafkaAwareSink<S> {
     @Override
     protected KafkaRecordSerializationSchema<S> getKafkaRecordSerializationSchema() {
         return KafkaSerializationSchemaBuilder.<S>builder()
