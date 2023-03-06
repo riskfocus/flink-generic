@@ -17,29 +17,15 @@
 package com.ness.flink.sink.jdbc.core.executor;
 
 import com.ness.flink.sink.jdbc.config.JdbcExecutionOptions;
-
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Function;
 
 /**
+ * Provides basic operations with JDBC batching
+ *
  * @author Khokhlov Pavel
  */
-public interface JdbcBatchStatementExecutor<T> {
-
-    /**
-     * Open the writer by JDBC Connection. It can create Statement from Connection.
-     * @param connection jdbc connection
-     * @throws SQLException if connection couldn't be opened
-     */
-    void open(Connection connection) throws SQLException;
-
-    /**
-     * Reinit statements in case of connection failure
-     * @param connection jdbc connection
-     * @throws SQLException if connection couldn't be opened
-     */
-    void reinit(Connection connection) throws SQLException;
+public interface JdbcBatchStatementExecutor<T> extends JdbcStatementExecutor {
 
     void addToBatch(T message) throws SQLException;
 
@@ -47,16 +33,6 @@ public interface JdbcBatchStatementExecutor<T> {
      * Submits a batch of commands to the database for execution.
      */
     void executeBatch() throws SQLException;
-
-    /**
-     * Close JDBC related statements and other classes.
-     */
-    void close();
-
-    /**
-     * Only close JDBC related statements (not purge whole batch)
-     */
-    void closeStatement();
 
     static <T, V> JdbcBatchStatementExecutor<T> simple(String sql, JdbcStatementBuilder<V> paramSetter,
                                                        Function<T, V> valueTransformer, JdbcExecutionOptions jdbcExecutionOptions) {

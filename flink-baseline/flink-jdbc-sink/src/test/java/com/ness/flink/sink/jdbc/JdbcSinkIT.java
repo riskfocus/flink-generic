@@ -76,6 +76,7 @@ class JdbcSinkIT implements Serializable {
             @Override
             public SingleOutputStreamOperator<Price> build(StreamExecutionEnvironment streamExecutionEnvironment) {
                 return streamExecutionEnvironment.addSource(TestSourceFunction.from(
+                    jdbcSinkProperties.getMaxWaitThreshold() + 5000,
                     Price.builder().id(1).value(new BigDecimal("23.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(2).value(new BigDecimal("5.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build(),
@@ -145,14 +146,23 @@ class JdbcSinkIT implements Serializable {
 
     static class TestSourceFunction extends FromElementsFunction<Price> {
         private static final long serialVersionUID = 7060005340557699393L;
+        private final long waitTime;
 
-        private TestSourceFunction(Price... elements) {
+        private TestSourceFunction(long waitTime, Price... elements) {
             super(elements);
+            this.waitTime = waitTime;
         }
 
-        @SneakyThrows
-        public static TestSourceFunction from(Price... elements) {
-            return new TestSourceFunction(elements);
+        public static TestSourceFunction from(long waitTime, Price... elements) {
+            return new TestSourceFunction(waitTime, elements);
+        }
+
+        @Override
+        public void run(SourceContext<Price> ctx) throws Exception {
+            super.run(ctx);
+            if (waitTime > 0) {
+                Thread.sleep(waitTime);
+            }
         }
     }
 

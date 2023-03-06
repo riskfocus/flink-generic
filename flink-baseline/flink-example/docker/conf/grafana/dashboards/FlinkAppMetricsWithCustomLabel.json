@@ -16,7 +16,7 @@
     "editable": true,
     "gnetId": 8966,
     "graphTooltip": 0,
-    "iteration": 1677486772372,
+    "iteration": 1678351750793,
     "links": [],
     "panels": [
         {
@@ -691,6 +691,248 @@
             "dashLength": 10,
             "dashes": false,
             "datasource": "Prometheus",
+            "description": "Time which need to Sink data to DB",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {},
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 0,
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 0,
+                "y": 31
+            },
+            "hiddenSeries": false,
+            "id": 92,
+            "legend": {
+                "avg": true,
+                "current": true,
+                "max": true,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "null",
+            "percentage": false,
+            "pluginVersion": "7.1.3",
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "expr": "max(flink_taskmanager_job_task_operator_kinesisanalytics_batch_latencyHistogram{operator_name=\"interest_rates_jdbc\",quantile=\"0.99\"}) by (operator_name)",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": " {{operator_name}}-max",
+                    "refId": "A"
+                },
+                {
+                    "expr": "min(flink_taskmanager_job_task_operator_kinesisanalytics_batch_latencyHistogram{operator_name=\"interest_rates_jdbc\",quantile=\"0.99\"}) by (operator_name)",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": " {{operator_name}}-min",
+                    "refId": "D"
+                },
+                {
+                    "expr": "avg(flink_taskmanager_job_task_operator_kinesisanalytics_batch_latencyHistogram{operator_name=\"interest_rates_jdbc\",quantile=\"0.99\"}) by (operator_name)",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": " {{operator_name}}-avg",
+                    "refId": "B"
+                }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "JdbcKeyedBatch latency",
+            "tooltip": {
+                "shared": false,
+                "sort": 0,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "$$hashKey": "object:114",
+                    "format": "none",
+                    "label": "Latency in ms",
+                    "logBase": 1,
+                    "max": null,
+                    "min": null,
+                    "show": true
+                },
+                {
+                    "$$hashKey": "object:115",
+                    "format": "none",
+                    "label": "Number of Records",
+                    "logBase": 1,
+                    "max": null,
+                    "min": null,
+                    "show": false
+                }
+            ],
+            "yaxis": {
+                "align": false,
+                "alignLevel": null
+            }
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "Prometheus",
+            "description": "Number of UPSERT commands (messages) in JDBC Statement",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {},
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 0,
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 12,
+                "y": 31
+            },
+            "hiddenSeries": false,
+            "id": 93,
+            "legend": {
+                "avg": true,
+                "current": true,
+                "max": true,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "null",
+            "percentage": false,
+            "pluginVersion": "7.1.3",
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "expr": "max(flink_taskmanager_job_task_operator_kinesisanalytics_batch_sizeHistogram{operator_name=\"interest_rates_jdbc\",quantile=\"0.99\"}) by (operator_name)",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": " {{operator_name}}-max",
+                    "refId": "A"
+                },
+                {
+                    "expr": "min(flink_taskmanager_job_task_operator_kinesisanalytics_batch_sizeHistogram{operator_name=\"interest_rates_jdbc\",quantile=\"0.99\"}) by (operator_name)",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": " {{operator_name}}-min",
+                    "refId": "D"
+                },
+                {
+                    "expr": "avg(flink_taskmanager_job_task_operator_kinesisanalytics_batch_sizeHistogram{operator_name=\"interest_rates_jdbc\",quantile=\"0.99\"}) by (operator_name)",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": " {{operator_name}}-avg",
+                    "refId": "B"
+                }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "JdbcKeyedBatch batch size",
+            "tooltip": {
+                "shared": false,
+                "sort": 0,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "$$hashKey": "object:153",
+                    "format": "none",
+                    "label": "Messages",
+                    "logBase": 1,
+                    "max": null,
+                    "min": null,
+                    "show": true
+                },
+                {
+                    "$$hashKey": "object:154",
+                    "format": "none",
+                    "label": "Number of Records",
+                    "logBase": 1,
+                    "max": null,
+                    "min": null,
+                    "show": false
+                }
+            ],
+            "yaxis": {
+                "align": false,
+                "alignLevel": null
+            }
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "Prometheus",
             "fieldConfig": {
                 "defaults": {
                     "custom": {},
@@ -704,7 +946,7 @@
                 "h": 7,
                 "w": 24,
                 "x": 0,
-                "y": 31
+                "y": 41
             },
             "hiddenSeries": false,
             "id": 48,
@@ -797,7 +1039,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 38
+                "y": 48
             },
             "id": 23,
             "panels": [],
@@ -823,7 +1065,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 0,
-                "y": 39
+                "y": 49
             },
             "hiddenSeries": false,
             "id": 25,
@@ -918,7 +1160,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 12,
-                "y": 39
+                "y": 49
             },
             "hiddenSeries": false,
             "id": 26,
@@ -1001,7 +1243,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 45
+                "y": 55
             },
             "id": 21,
             "panels": [],
@@ -1028,7 +1270,7 @@
                 "h": 9,
                 "w": 14,
                 "x": 0,
-                "y": 46
+                "y": 56
             },
             "hiddenSeries": false,
             "id": 17,
@@ -1136,7 +1378,7 @@
                 "h": 9,
                 "w": 10,
                 "x": 14,
-                "y": 46
+                "y": 56
             },
             "hiddenSeries": false,
             "id": 49,
@@ -1244,7 +1486,7 @@
                 "h": 9,
                 "w": 14,
                 "x": 0,
-                "y": 55
+                "y": 65
             },
             "hiddenSeries": false,
             "id": 51,
@@ -1344,7 +1586,7 @@
                 "h": 9,
                 "w": 10,
                 "x": 14,
-                "y": 55
+                "y": 65
             },
             "hiddenSeries": false,
             "id": 50,
@@ -1452,7 +1694,7 @@
                 "h": 8,
                 "w": 16,
                 "x": 0,
-                "y": 64
+                "y": 74
             },
             "hiddenSeries": false,
             "id": 14,
@@ -1570,7 +1812,7 @@
                 "h": 8,
                 "w": 4,
                 "x": 16,
-                "y": 64
+                "y": 74
             },
             "hideTimeOverride": true,
             "id": 10,
@@ -1663,7 +1905,7 @@
                 "h": 8,
                 "w": 4,
                 "x": 20,
-                "y": 64
+                "y": 74
             },
             "hideTimeOverride": true,
             "id": 9,
@@ -1747,7 +1989,7 @@
                 "h": 9,
                 "w": 16,
                 "x": 0,
-                "y": 72
+                "y": 82
             },
             "hiddenSeries": false,
             "id": 44,
@@ -1850,7 +2092,7 @@
                 "h": 9,
                 "w": 8,
                 "x": 16,
-                "y": 72
+                "y": 82
             },
             "hiddenSeries": false,
             "id": 80,
@@ -1953,7 +2195,7 @@
                 "h": 7,
                 "w": 16,
                 "x": 0,
-                "y": 81
+                "y": 91
             },
             "hiddenSeries": false,
             "id": 18,
@@ -2048,7 +2290,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 88
+                "y": 98
             },
             "id": 82,
             "panels": [],
@@ -2075,7 +2317,7 @@
                 "h": 11,
                 "w": 12,
                 "x": 0,
-                "y": 89
+                "y": 99
             },
             "hiddenSeries": false,
             "id": 19,
@@ -2183,7 +2425,7 @@
                 "h": 11,
                 "w": 12,
                 "x": 12,
-                "y": 89
+                "y": 99
             },
             "hiddenSeries": false,
             "id": 16,
@@ -2274,7 +2516,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 100
+                "y": 110
             },
             "id": 53,
             "panels": [
@@ -2736,7 +2978,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 101
+                "y": 111
             },
             "id": 56,
             "panels": [],
@@ -2763,7 +3005,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 102
+                "y": 112
             },
             "hiddenSeries": false,
             "id": 58,
@@ -2858,7 +3100,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 102
+                "y": 112
             },
             "hiddenSeries": false,
             "id": 59,
@@ -2963,7 +3205,7 @@
                 "h": 9,
                 "w": 6,
                 "x": 0,
-                "y": 110
+                "y": 120
             },
             "id": 60,
             "interval": null,
@@ -3045,7 +3287,7 @@
                 "h": 9,
                 "w": 17,
                 "x": 6,
-                "y": 110
+                "y": 120
             },
             "hiddenSeries": false,
             "id": 61,
@@ -3140,7 +3382,7 @@
                 "h": 11,
                 "w": 23,
                 "x": 0,
-                "y": 119
+                "y": 129
             },
             "hiddenSeries": false,
             "id": 62,

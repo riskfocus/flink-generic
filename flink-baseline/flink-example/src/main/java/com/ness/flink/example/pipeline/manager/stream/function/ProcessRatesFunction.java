@@ -68,6 +68,7 @@ public class ProcessRatesFunction extends KeyedProcessFunction<String, InterestR
             return;
         }
 
+
         if (!Boolean.TRUE.equals(updateRequired.value())) {
             updateRequired.update(true);
             // Register timer

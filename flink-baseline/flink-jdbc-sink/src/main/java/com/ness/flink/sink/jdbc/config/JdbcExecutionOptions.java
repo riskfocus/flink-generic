@@ -38,7 +38,8 @@ public class JdbcExecutionOptions implements Serializable {
     public static final int DEFAULT_BATCH_SIZE = 50;
     public static final int DEFAULT_MAX_RETRY_TIMES = 3;
     public static final long DEFAULT_MAX_WAIT_THRESHOLD = 1_000;
-    
+    public static final long DEFAULT_WAIT_BEFORE_RETRY = 1_000;
+
     /**
      * How often executor should run thread and check batch expiration
      */
@@ -48,6 +49,8 @@ public class JdbcExecutionOptions implements Serializable {
     private final int batchSize = DEFAULT_BATCH_SIZE;
     @Builder.Default
     private final int maxRetries = DEFAULT_MAX_RETRY_TIMES;
+    @Builder.Default
+    private final long waitBeforeRetryMs = DEFAULT_WAIT_BEFORE_RETRY;
 
     /**
      * The property defines how long Jdbc Sink should wait (accumulates batch) before sending the data over JDBC API
@@ -63,4 +66,7 @@ public class JdbcExecutionOptions implements Serializable {
 
     @Builder.Default
     private final int connectionCheckTimeoutSeconds = 10_000;
+
+    @Builder.Default
+    private final boolean ignoreSQLExceptions = false;
 }

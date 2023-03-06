@@ -33,3 +33,10 @@ CREATE TABLE if not exists rate (
     maturity VARCHAR(255) NOT NULL,
     rate DECIMAL(19,4)
 ) ENGINE=INNODB;
+
+CREATE TABLE if not exists interestRate (
+    id       INT PRIMARY KEY,
+    maturity VARCHAR(255) NOT NULL,
+    rate     DECIMAL(19, 4),
+    timestamp BIGINT NOT NULL
+) ENGINE = INNODB;
