@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FlinkJobManager {
 
     public static void runJob(String... args) {
-        StreamBuilder streamBuilder = StreamBuilder.form(args);
+        StreamBuilder streamBuilder = StreamBuilder.from(args);
         ApplicationProperties applicationProperties = ApplicationProperties.from(streamBuilder.getParameterTool());
         JobMode jobMode = applicationProperties.getJobMode();
         final boolean interestRatesKafkaSnapshotEnabled = applicationProperties.isInterestRatesKafkaSnapshotEnabled();

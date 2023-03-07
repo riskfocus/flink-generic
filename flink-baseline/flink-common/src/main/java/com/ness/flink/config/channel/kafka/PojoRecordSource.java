@@ -33,17 +33,17 @@ public class PojoRecordSource<S> extends KafkaAwareSource<S> {
     private final TimestampAssignerSupplier<S> timestampAssignerFunction;
 
     @Override
-    DeserializationSchema<S> getDeserializationSchema() {
+    protected DeserializationSchema<S> getDeserializationSchema() {
         return valueSchema;
     }
 
     @Override
-    TypeInformation<S> getTypeInformation() {
+    protected TypeInformation<S> getTypeInformation() {
         return TypeInformation.of(domainClass);
     }
 
     @Override
-    TimestampAssignerSupplier<S> getTimestampAssignerFunction() {
+    protected TimestampAssignerSupplier<S> getTimestampAssignerFunction() {
         return timestampAssignerFunction;
     }
 }

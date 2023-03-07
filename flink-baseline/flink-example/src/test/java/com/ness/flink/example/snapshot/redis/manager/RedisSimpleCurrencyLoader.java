@@ -25,9 +25,7 @@ import static com.ness.flink.util.ByteUtils.convert;
  */
 @Slf4j
 public class RedisSimpleCurrencyLoader implements SimpleCurrencyLoader {
-
-    private static final RedisSnapshotConverterUtils<SimpleCurrency> converter = new RedisSnapshotConverterUtils<>();
-
+    private static final long serialVersionUID = 7601658122499079119L;
     private transient SnapshotMapper<SimpleCurrency> interestRatesMapper;
     private transient RedisClient redisClient;
     private transient StatefulRedisConnection<byte[], byte[]> connect;
@@ -71,7 +69,7 @@ public class RedisSimpleCurrencyLoader implements SimpleCurrencyLoader {
 
         byte[] data = connect.sync().evalsha(scriptDigest, ScriptOutputType.VALUE, keys, values);
         if (data != null) {
-            return Optional.of(converter.convertTo(SimpleCurrency.class, data));
+            return Optional.of(RedisSnapshotConverterUtils.convertTo(SimpleCurrency.class, data));
         }
         return Optional.empty();
 

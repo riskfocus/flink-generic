@@ -65,15 +65,20 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 @AllArgsConstructor
 @Slf4j
 @Getter
+@SuppressWarnings("PMD.ExcessiveImports")
 public class StreamBuilder {
+
+    private static final String IMPLEMENTATION_REQUIRED = "Implementation required: ";
+    private static final String UNKNOWN_CHANNEL_TYPE = "Unknown provided ChannelType: ";
+
     private final StreamExecutionEnvironment env;
     private final ParameterTool parameterTool;
 
-    public static StreamBuilder form(String... args) {
-        return form(ParameterTool.fromArgs(args));
+    public static StreamBuilder from(String... args) {
+        return from(ParameterTool.fromArgs(args));
     }
 
-    public static StreamBuilder form(ParameterTool parameterTool) {
+    public static StreamBuilder from(ParameterTool parameterTool) {
         StreamExecutionEnvironment env = EnvironmentFactory.from(parameterTool);
         return from(env, parameterTool);
     }
@@ -153,9 +158,9 @@ public class StreamBuilder {
                         .build();
                     break;
                 case AWS_KINESIS:
-                    throw new UnsupportedOperationException("Implementation required: " + type);
+                    throw new UnsupportedOperationException(IMPLEMENTATION_REQUIRED + type);
                 default:
-                    throw new IllegalArgumentException("Unknown provided ChannelType: " + type);
+                    throw new IllegalArgumentException(UNKNOWN_CHANNEL_TYPE + type);
             }
             return new FlinkDataStream<>(configureSource(stream));
         }
@@ -192,9 +197,9 @@ public class StreamBuilder {
                         .build();
                     break;
                 case AWS_KINESIS:
-                    throw new UnsupportedOperationException("Implementation required: " + type);
+                    throw new UnsupportedOperationException(IMPLEMENTATION_REQUIRED + type);
                 default:
-                    throw new IllegalArgumentException("Unknown provided ChannelType: " + type);
+                    throw new IllegalArgumentException(UNKNOWN_CHANNEL_TYPE + type);
             }
             return new FlinkDataStream<>(configureSource(stream));
         }

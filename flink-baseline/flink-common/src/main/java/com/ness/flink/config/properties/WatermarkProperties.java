@@ -16,6 +16,7 @@
 
 package com.ness.flink.config.properties;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.window.generator.WindowGeneratorProvider;
 import lombok.Getter;
 import lombok.NonNull;
@@ -39,7 +40,7 @@ public class WatermarkProperties {
     private static final String SHARED_PROPERTY_NAME = "watermark";
 
     private Long idlenessMs;
-    private Long maxOutOfOrderNess;
+    private Long maxOutOfOrderliness;
     private long windowSizeMs;
     private WatermarkType watermarkType = NO_WATERMARK;
 
@@ -53,6 +54,7 @@ public class WatermarkProperties {
         return from(name, parameterTool, OperatorPropertiesFactory.DEFAULT_CONFIG_FILE);
     }
 
+    @VisibleForTesting
     static WatermarkProperties from(@NonNull String name, @NonNull ParameterTool parameterTool,
                                     @NonNull String ymlConfigFile) {
         WatermarkProperties watermarkProperties = OperatorPropertiesFactory
@@ -62,9 +64,9 @@ public class WatermarkProperties {
         return watermarkProperties;
     }
 
-    public Duration maxOutOfOrderNess() {
-        if (maxOutOfOrderNess != null) {
-            return Duration.ofMillis(maxOutOfOrderNess);
+    public Duration buildMaxOutOfOrderliness() {
+        if (maxOutOfOrderliness != null) {
+            return Duration.ofMillis(maxOutOfOrderliness);
         }
         return null;
     }

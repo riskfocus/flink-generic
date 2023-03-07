@@ -66,6 +66,7 @@ public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExe
     }
 
     @Override
+    @SuppressWarnings("PMD.GuardLogStatement")
     public void executeBatch() throws SQLException {
         if (!batch.isEmpty()) {
             for (V r : batch) {
@@ -89,8 +90,6 @@ public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExe
                 preparedStatement.close();
             } catch (SQLException e) {
                 log.warn("Cannot close statement");
-            } finally {
-                preparedStatement = null;
             }
         }
     }

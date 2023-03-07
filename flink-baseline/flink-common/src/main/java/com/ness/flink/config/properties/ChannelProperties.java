@@ -16,6 +16,7 @@
 
 package com.ness.flink.config.properties;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -46,6 +47,7 @@ public class ChannelProperties {
         return properties;
     }
 
+    @VisibleForTesting
     static ChannelProperties from(@NonNull String name, @NonNull ParameterTool parameterTool,
                                   @NonNull String ymlConfigFile) {
         return OperatorPropertiesFactory

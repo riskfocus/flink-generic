@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ness.flink.test.common.util;
+package com.ness.flink.test.example.util;
 
 
 import lombok.extern.slf4j.Slf4j;

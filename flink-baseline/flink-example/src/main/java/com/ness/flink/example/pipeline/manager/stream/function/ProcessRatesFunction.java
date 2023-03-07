@@ -84,8 +84,10 @@ public class ProcessRatesFunction extends KeyedProcessFunction<String, InterestR
     @Override
     public void onTimer(long timestamp, OnTimerContext ctx, Collector<InterestRates> out) throws Exception {
         super.onTimer(timestamp, ctx, out);
-        log.info("Fired at: {}, ctx.timestamp: {}, watermark: {}, processingTime: {}", timestamp, ctx.timestamp(),
+        if (log.isInfoEnabled()) {
+            log.info("Fired at: {}, ctx.timestamp: {}, watermark: {}, processingTime: {}", timestamp, ctx.timestamp(),
                 ctx.timerService().currentWatermark(), ctx.timerService().currentProcessingTime());
+        }
         updateRequired.update(false);
 
         collect(out, timestamp);

@@ -47,7 +47,7 @@ public abstract class WatermarkAwareSource<S> extends DefaultSource<S> {
                 watermarkStrategy = WatermarkStrategy.forMonotonousTimestamps();
                 break;
             case BOUNDED_OUT_OF_ORDER_NESS:
-                watermarkStrategy = WatermarkStrategy.forBoundedOutOfOrderness(watermarkProperties.maxOutOfOrderNess());
+                watermarkStrategy = WatermarkStrategy.forBoundedOutOfOrderness(watermarkProperties.buildMaxOutOfOrderliness());
                 break;
             case CUSTOM_WITH_IDLE:
                 watermarkStrategy = WatermarkStrategy

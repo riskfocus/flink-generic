@@ -38,7 +38,7 @@ import java.util.Map;
 public class InterestRates extends IncomingEvent implements KafkaKeyedAware {
     private static final long serialVersionUID = -2395400450763583099L;
 
-    public static final InterestRates EMPTY = new InterestRates();
+    public static final InterestRates EMPTY_RATES = new InterestRates();
 
     // Now just hardcoded
     private String currency = "USD";

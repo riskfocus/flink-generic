@@ -20,6 +20,7 @@ import com.ness.flink.config.aws.MetricsBuilder;
 import com.ness.flink.config.channel.EventTimeExtractor;
 import com.ness.flink.config.channel.KeyExtractor;
 import java.io.Serializable;
+import com.ness.flink.config.metrics.Metrics;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -37,8 +38,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public class KafkaSerializationSchemaBuilder<S extends Serializable> implements Serializable {
 
     private static final long serialVersionUID = -9098469328017941187L;
-
-    static final String LATENCY_METRIC_NAME = "e2eLatency";
 
     @NonNull
     protected final Class<S> domainClass;
@@ -62,13 +61,13 @@ public class KafkaSerializationSchemaBuilder<S extends Serializable> implements 
 
             @Override
             @SuppressWarnings("PMD.NullAssignment")
-            public ProducerRecord<byte[], byte[]> serialize(S v, KafkaSinkContext context, Long timestamp) {
+            public ProducerRecord<byte[], byte[]> serialize(S value, KafkaSinkContext context, Long timestamp) {
                 Long eventTime = timestamp;
                 if (eventTimeExtractor != null) {
-                    eventTime = eventTimeExtractor.getTimestamp(v);
+                    eventTime = eventTimeExtractor.getTimestamp(value);
                 }
-                byte[] serializedValue = serializationSchema.serialize(v);
-                byte[] serializedKey = keyExtractor.getKey(v);
+                byte[] serializedValue = serializationSchema.serialize(value);
+                byte[] serializedKey = keyExtractor.getKey(value);
                 if (eventTime != null) {
                     e2eTimestamp = System.currentTimeMillis() - eventTime;
                     histogram.update(e2eTimestamp);
@@ -80,8 +79,9 @@ public class KafkaSerializationSchemaBuilder<S extends Serializable> implements 
             public void open(SerializationSchema.InitializationContext context, KafkaSinkContext sinkContext) throws Exception {
                 KafkaRecordSerializationSchema.super.open(context, sinkContext);
                 MetricGroup metricGroup = context.getMetricGroup();
-                MetricsBuilder.gauge(metricGroup, metricServiceName, LATENCY_METRIC_NAME, () -> e2eTimestamp);
-                histogram = MetricsBuilder.histogram(metricGroup, metricServiceName, LATENCY_METRIC_NAME);
+                String e2eLatency = Metrics.END_TO_END_LATENCY.getMetricName();
+                MetricsBuilder.gauge(metricGroup, metricServiceName, e2eLatency, () -> e2eTimestamp);
+                histogram = MetricsBuilder.histogram(metricGroup, metricServiceName, e2eLatency);
             }
         };
     }

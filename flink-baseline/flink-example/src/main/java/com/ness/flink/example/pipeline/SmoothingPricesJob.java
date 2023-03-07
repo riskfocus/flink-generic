@@ -17,12 +17,13 @@
 package com.ness.flink.example.pipeline;
 
 import com.ness.flink.example.pipeline.manager.FlinkJobManager;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Khokhlov Pavel
  */
-@Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SmoothingPricesJob {
     public static void main(String[] args) {
         FlinkJobManager.runJob(args);

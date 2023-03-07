@@ -16,6 +16,8 @@
 
 package com.ness.flink.config.channel.kafka;
 
+import com.ness.flink.config.channel.EventTimeExtractor;
+import com.ness.flink.config.channel.KeyExtractor;
 import com.ness.flink.config.operator.DefaultSink;
 import com.ness.flink.config.properties.KafkaProducerProperties;
 import lombok.experimental.SuperBuilder;
@@ -24,6 +26,7 @@ import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.sink.KafkaSinkBuilder;
 
+import java.io.Serializable;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -32,8 +35,11 @@ import java.util.Properties;
  * @author Khokhlov Pavel
  */
 @SuperBuilder
-public abstract class KafkaAwareSink<S> extends DefaultSink<S> {
+public abstract class KafkaAwareSink<S extends Serializable> extends DefaultSink<S> {
     protected final KafkaProducerProperties kafkaProducerProperties;
+    protected final Class<S> domainClass;
+    protected final KeyExtractor<S> keyExtractor;
+    protected final EventTimeExtractor<S> eventTimeExtractor;
 
     protected Properties producerProps() {
         return kafkaProducerProperties.getProducerProperties();
@@ -58,7 +64,6 @@ public abstract class KafkaAwareSink<S> extends DefaultSink<S> {
                 .setRecordSerializer(getKafkaRecordSerializationSchema());
         kafkaProducerProperties.buildTransactionIdPrefix(getName()).ifPresent(builder::setTransactionalIdPrefix);
         return builder.build();
-
     }
 
 }

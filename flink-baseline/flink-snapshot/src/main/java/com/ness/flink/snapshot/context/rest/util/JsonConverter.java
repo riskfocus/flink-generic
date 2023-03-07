@@ -16,21 +16,20 @@
 
 package com.ness.flink.snapshot.context.rest.util;
 
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.ness.flink.json.UncheckedObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.http.HttpResponse;
 import java.util.function.Supplier;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Khokhlov Pavel
  */
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JsonConverter {
-    private static final ObjectMapper mapper = new ObjectMapper();
 
     public static <T> HttpResponse.BodySubscriber<Supplier<T>> asJSON(Class<T> targetType) {
         HttpResponse.BodySubscriber<InputStream> upstream = HttpResponse.BodySubscribers.ofInputStream();
@@ -42,7 +41,7 @@ public final class JsonConverter {
     private static <T> Supplier<T> toSupplierOfType(InputStream inputStream, Class<T> targetType) {
         return () -> {
             try (InputStream stream = inputStream) {
-                return mapper.readValue(stream, targetType);
+                return UncheckedObjectMapper.MAPPER.readValue(stream, targetType);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

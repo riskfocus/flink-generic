@@ -56,7 +56,7 @@ public class InterestRateStream {
 
         KeyedProcessorDefinition<String, InterestRate, InterestRates> ratesKeyedProcessorDefinition =
             new KeyedProcessorDefinition<>(OperatorProperties.from("reduceByUSDCurrency.operator",
-                streamBuilder.getParameterTool()), v -> InterestRates.EMPTY.getCurrency(),
+                streamBuilder.getParameterTool()), v -> InterestRates.EMPTY_RATES.getCurrency(),
             new ProcessRatesFunction());
 
         FlinkDataStream<InterestRates> interestRatesDataStream = interestRateFlinkDataStream.addKeyedProcessor(
@@ -66,7 +66,7 @@ public class InterestRateStream {
 
     }
 
-    static void buildSinks(StreamBuilder streamBuilder,
+    private static void buildSinks(StreamBuilder streamBuilder,
         boolean interestRatesKafkaSnapshotEnabled, FlinkDataStream<InterestRates> interestRatesDataStream) {
 
         if (interestRatesKafkaSnapshotEnabled) {
@@ -99,12 +99,12 @@ public class InterestRateStream {
                 @Override
                 public void accept(PreparedStatement stmt, InterestRate interestRate) throws SQLException {
                         int idx = 0;
-                        final long id = interestRate.getId();
-                        log.debug("Prepare statement: {}", id);
+                        final long interestRateId = interestRate.getId();
+                        log.debug("Prepare statement: {}", interestRateId);
                         final String sourceId = interestRate.getMaturity();
                         final BigDecimal rate = BigDecimal.valueOf(interestRate.getRate());
 
-                        stmt.setLong(++idx, id);
+                        stmt.setLong(++idx, interestRateId);
                         stmt.setString(++idx, sourceId);
                         stmt.setBigDecimal(++idx, rate);
                         // on duplicate

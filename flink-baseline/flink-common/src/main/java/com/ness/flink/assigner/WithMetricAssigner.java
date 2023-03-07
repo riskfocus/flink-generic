@@ -17,6 +17,7 @@
 package com.ness.flink.assigner;
 
 import com.ness.flink.config.aws.MetricsBuilder;
+import com.ness.flink.config.metrics.Metrics;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.TimestampAssigner;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
@@ -32,8 +33,6 @@ public class WithMetricAssigner<T> implements TimestampAssignerSupplier<T> {
 
     private static final long serialVersionUID = -1029090157987143719L;
 
-    private static final String LATENCY_METRICS_NAME = "consumedByFlinkLatency";
-
     private final String operatorName;
     private final SerializableTimestampAssigner<T> timestampAssigner;
 
@@ -47,8 +46,9 @@ public class WithMetricAssigner<T> implements TimestampAssignerSupplier<T> {
     @Override
     public TimestampAssigner<T> createTimestampAssigner(Context context) {
         MetricGroup metricGroup = context.getMetricGroup();
-        MetricsBuilder.gauge(metricGroup, operatorName, LATENCY_METRICS_NAME, () -> latency);
-        DropwizardHistogramWrapper histogram = MetricsBuilder.histogram(metricGroup, operatorName, LATENCY_METRICS_NAME);
+        String flinkGotMessageMetric = Metrics.FLINK_GOT_MESSAGE_LATENCY.getMetricName();
+        MetricsBuilder.gauge(metricGroup, operatorName, flinkGotMessageMetric, () -> latency);
+        DropwizardHistogramWrapper histogram = MetricsBuilder.histogram(metricGroup, operatorName, flinkGotMessageMetric);
         return (element, recordTimestamp) -> {
             long now = System.currentTimeMillis();
             long timestamp = timestampAssigner.extractTimestamp(element, recordTimestamp);

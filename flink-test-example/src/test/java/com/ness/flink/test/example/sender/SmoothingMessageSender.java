@@ -1,11 +1,11 @@
 package com.ness.flink.test.example.sender;
 
 import com.ness.flink.example.pipeline.domain.OptionPrice;
-import com.ness.flink.test.common.metrics.MetricsService;
+import com.ness.flink.test.example.metrics.MetricsService;
 import com.ness.flink.example.pipeline.domain.InterestRate;
-import com.ness.flink.test.common.util.Throttle;
-import com.ness.flink.test.common.kafka.KafkaJsonMessageSender;
-import com.ness.flink.test.common.kafka.SendInfoHolder;
+import com.ness.flink.test.example.util.Throttle;
+import com.ness.flink.test.example.kafka.KafkaJsonMessageSender;
+import com.ness.flink.test.example.kafka.SendInfoHolder;
 import com.ness.flink.test.example.SmoothingIT;
 import com.ness.flink.test.example.config.TestProperties;
 import com.ness.flink.test.example.data.MockDataGenerator;

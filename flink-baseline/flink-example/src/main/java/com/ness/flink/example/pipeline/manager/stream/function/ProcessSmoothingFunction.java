@@ -27,14 +27,17 @@ import com.ness.flink.example.pipeline.domain.intermediate.InterestRates;
 import com.ness.flink.example.pipeline.snapshot.InterestRatesLoader;
 import com.ness.flink.example.pipeline.snapshot.SnapshotSourceFactory;
 import com.ness.flink.snapshot.context.ContextMetadata;
-import com.ness.flink.snapshot.context.properties.ContextProperties;
 import com.ness.flink.snapshot.context.ContextService;
 import com.ness.flink.snapshot.context.ContextServiceProvider;
+import com.ness.flink.snapshot.context.properties.ContextProperties;
 import com.ness.flink.snapshot.redis.SnapshotData;
 import com.ness.flink.util.EventUtils;
 import com.ness.flink.window.WindowAware;
 import com.ness.flink.window.WindowContext;
 import com.ness.flink.window.generator.WindowGeneratorProvider;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
@@ -45,15 +48,12 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 
 /**
  * @author Khokhlov Pavel
  */
 @Slf4j
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.TooManyMethods"})
 public class ProcessSmoothingFunction extends KeyedProcessFunction<String, OptionPrice, SmoothingRequest> {
 
     private static final long serialVersionUID = -4848961500498134626L;
@@ -120,22 +120,32 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
         final String underlying = ctx.getCurrentKey();
         final WindowContext context = windowAware.generateWindowPeriod(timestamp);
         long nextFireTime = timestamp + context.duration();
-        log.debug("WindowPeriod: {}, fired timer: {}, nextFireTime: {}, currentWatermark{}", context, timestamp, nextFireTime, ctx.timerService().currentWatermark());
+        if (log.isDebugEnabled()) {
+            log.debug("WindowPeriod: {}, fired timer: {}, nextFireTime: {}, currentWatermark{}", context, timestamp,
+                nextFireTime, ctx.timerService().currentWatermark());
+        }
         final long windowId = context.getId();
         // Was prices updated for that specific Underlying?
         boolean updatePrices = pricesUpdateRequiredState.value();
 
-        InterestRates loadedRates = InterestRates.EMPTY;
+        InterestRates loadedRates = InterestRates.EMPTY_RATES;
         ContextMetadata ctxMetadata = contextService.generate(() -> timestamp, InterestRates.class.getSimpleName());
         Optional<SnapshotData<InterestRates>> ratesHolder = loader.loadInterestRates(ctxMetadata);
         if (ratesHolder.isPresent()) {
             loadedRates = ratesHolder.get().getElement();
-            log.debug("InterestRates has been loaded from redis, provided contextId: {}, InterestRates belongs to contextId: {}", windowId, ratesHolder.get().getContextId());
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "InterestRates has been loaded from redis, provided contextId: {}, InterestRates belongs to contextId: {}",
+                    windowId, ratesHolder.get().getContextId());
+            }
         }
         boolean updateRates = updateRates(loadedRates.getRates());
 
         if (updatePrices || updateRates) {
-            log.debug("{} Fired. Underlying: {}, updatePrices: {}, updateRates: {}", windowId, ctx.getCurrentKey(), updatePrices, updateRates);
+            if (log.isDebugEnabled()) {
+                log.debug("{} Fired. Underlying: {}, updatePrices: {}, updateRates: {}", windowId, ctx.getCurrentKey(),
+                    updatePrices, updateRates);
+            }
             produce(underlying, windowId, loadedRates, out);
         }
 
@@ -193,7 +203,10 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
         OptionPrice fromStorage = pricesState.get(instrumentId);
 
         if (EventUtils.updateRequired(fromStorage, currentPrice)) {
-            log.debug("Updated price for instrumentId: {}, Underlyer Id : {}, thread = {}, keys so far = {}", instrumentId, currentPrice.getUnderlying().getName(), Thread.currentThread().getId(), pricesState.keys());
+            if (log.isDebugEnabled()) {
+                log.debug("Updated price for instrumentId={}, underlyerName={}, keys so far={}",
+                    instrumentId, currentPrice.getUnderlying().getName(), pricesState.keys());
+            }
             // In case of OptionPrice wasn't found or data outdated, we need to update storage with latest value
             pricesState.put(instrumentId, currentPrice);
             updateRequired = true;

@@ -20,6 +20,7 @@ import com.ness.flink.config.operator.DefaultSink;
 import com.ness.flink.sink.jdbc.config.JdbcConnectionOptions;
 import com.ness.flink.sink.jdbc.config.JdbcExecutionOptions;
 import com.ness.flink.sink.jdbc.core.executor.JdbcStatementBuilder;
+import com.ness.flink.sink.jdbc.core.output.RecordExtractor;
 import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
 import java.util.Optional;
 import java.util.function.Function;
@@ -56,15 +57,15 @@ public class JdbcSinkBuilder<S> extends DefaultSink<S> {
     }
 
     protected Sink<S> sink(
-            String sql,
-            JdbcStatementBuilder<S> statementBuilder,
-            JdbcExecutionOptions executionOptions,
-            JdbcConnectionOptions connectionOptions) {
+        String sql,
+        JdbcStatementBuilder<S> statementBuilder,
+        JdbcExecutionOptions executionOptions,
+        JdbcConnectionOptions connectionOptions) {
         return new JdbcSink<>(new JdbcBatchingOutputFormat<>(getName(),
-                new SimpleJdbcConnectionProvider(connectionOptions),
-                executionOptions,
-                context -> JdbcBatchStatementExecutor.simple(sql, statementBuilder, Function.identity(), executionOptions),
-                JdbcBatchingOutputFormat.RecordExtractor.identity()
+            new SimpleJdbcConnectionProvider(connectionOptions),
+            executionOptions,
+            context -> JdbcBatchStatementExecutor.simple(sql, statementBuilder, Function.identity(), executionOptions),
+            RecordExtractor.identity()
         ));
     }
 
@@ -80,23 +81,23 @@ public class JdbcSinkBuilder<S> extends DefaultSink<S> {
 
     protected JdbcExecutionOptions buildJdbcExecutionOptions() {
         return JdbcExecutionOptions.builder()
-                .withBatchCheckIntervalMs(jdbcSinkProperties.getBatchIntervalMs())
-                .withBatchSize(jdbcSinkProperties.getBatchSize())
-                .withMaxRetries(jdbcSinkProperties.getMaxRetries())
-                .withBatchMaxWaitThresholdMs(jdbcSinkProperties.getMaxWaitThreshold())
-                .withConnectionCheckMaxIdleMs(jdbcSinkProperties.getConnectionCheckMaxIdleMs())
-                .withConnectionCheckTimeoutSeconds(jdbcSinkProperties.getConnectionCheckTimeoutSeconds())
-                .build();
+            .withBatchCheckIntervalMs(jdbcSinkProperties.getBatchIntervalMs())
+            .withBatchSize(jdbcSinkProperties.getBatchSize())
+            .withMaxRetries(jdbcSinkProperties.getMaxRetries())
+            .withBatchMaxWaitThresholdMs(jdbcSinkProperties.getMaxWaitThreshold())
+            .withConnectionCheckMaxIdleMs(jdbcSinkProperties.getConnectionCheckMaxIdleMs())
+            .withConnectionCheckTimeoutSeconds(jdbcSinkProperties.getConnectionCheckTimeoutSeconds())
+            .build();
     }
 
     protected JdbcConnectionOptions buildJdbcConnectionOptions() {
         return JdbcConnectionOptions.builder()
-                .withDbURL(jdbcSinkProperties.getUrl())
-                .withUsername(jdbcSinkProperties.getUsername())
-                .withPassword(jdbcSinkProperties.getPassword())
-                .withAutoCommit(false)
-                .withDriverName(jdbcSinkProperties.getDriverClass())
-                .build();
+            .withDbURL(jdbcSinkProperties.getUrl())
+            .withUsername(jdbcSinkProperties.getUsername())
+            .withPassword(jdbcSinkProperties.getPassword())
+            .withAutoCommit(false)
+            .withDriverName(jdbcSinkProperties.getDriverClass())
+            .build();
     }
 
 }

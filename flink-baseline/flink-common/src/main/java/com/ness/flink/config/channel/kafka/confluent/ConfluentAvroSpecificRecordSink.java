@@ -17,8 +17,8 @@
 package com.ness.flink.config.channel.kafka.confluent;
 
 
+import com.ness.flink.config.channel.kafka.KafkaAwareSink;
 import com.ness.flink.config.channel.kafka.KafkaSerializationSchemaBuilder;
-import com.ness.flink.config.channel.kafka.KafkaValueAwareSink;
 import lombok.experimental.SuperBuilder;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
@@ -31,7 +31,7 @@ import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroSer
  * @author Khokhlov Pavel
  */
 @SuperBuilder
-public final class ConfluentAvroSpecificRecordSink<S extends SpecificRecordBase> extends KafkaValueAwareSink<S> {
+public final class ConfluentAvroSpecificRecordSink<S extends SpecificRecordBase> extends KafkaAwareSink<S> {
 
     @Override
     protected KafkaRecordSerializationSchema<S> getKafkaRecordSerializationSchema() {

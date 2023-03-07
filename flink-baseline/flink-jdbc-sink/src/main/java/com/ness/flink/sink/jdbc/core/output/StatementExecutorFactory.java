@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package com.ness.flink.config.channel.kafka;
+package com.ness.flink.sink.jdbc.core.output;
 
-import com.ness.flink.config.channel.EventTimeExtractor;
-import com.ness.flink.config.channel.KeyExtractor;
+import com.ness.flink.sink.jdbc.core.executor.JdbcBatchStatementExecutor;
+import org.apache.flink.api.connector.sink2.Sink.InitContext;
 import java.io.Serializable;
-import lombok.experimental.SuperBuilder;
+import java.util.function.Function;
 
 /**
- * @author Khokhlov Pavel
+ * A factory for creating {@link JdbcBatchStatementExecutor} instance.
+ *
+ * @param <T> The type of instance.
  */
-@SuperBuilder
-public abstract class KafkaValueAwareSink<S extends Serializable> extends KafkaAwareSink<S> {
-    protected final Class<S> domainClass;
-    protected final KeyExtractor<S> keyExtractor;
-    protected final EventTimeExtractor<S> eventTimeExtractor;
+public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>> extends Function<InitContext, T>,
+    Serializable {
 
 }

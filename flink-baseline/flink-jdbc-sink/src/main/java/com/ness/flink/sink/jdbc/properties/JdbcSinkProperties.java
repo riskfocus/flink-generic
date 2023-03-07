@@ -17,6 +17,7 @@
 package com.ness.flink.sink.jdbc.properties;
 
 import java.io.Serializable;
+import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.OperatorPropertiesFactory;
 import com.ness.flink.sink.jdbc.config.Dialect;
 import com.ness.flink.sink.jdbc.config.JdbcExecutionOptions;
@@ -100,6 +101,7 @@ public class JdbcSinkProperties implements Serializable {
         return properties;
     }
 
+    @VisibleForTesting
     static JdbcSinkProperties from(@NonNull String name, @NonNull ParameterTool parameterTool,
                                    @NonNull String ymlConfigFile) {
         return OperatorPropertiesFactory.genericProperties(name, SHARED_PROPERTY_NAME, parameterTool,

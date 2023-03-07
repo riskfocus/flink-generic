@@ -14,32 +14,19 @@
  * limitations under the License.
  */
 
-package com.ness.flink.config.operator;
+package com.ness.flink.sink.jdbc.core.output;
 
-import java.util.Locale;
-import java.util.Optional;
+import java.io.Serializable;
+import java.util.function.Function;
 
 /**
- * Adds Flink operator definition
+ * An interface to extract a value from given argument.
  *
- * @author Khokhlov Pavel
+ * @param <F> The type of given argument
+ * @param <T> The type of the return value
  */
-public interface OperatorDefinition {
-
-    /**
-     * Operator's name & uid
-     * @return operator's name & uid
-     */
-    default String getName() {
-        return getClass().getSimpleName().toLowerCase(Locale.ENGLISH);
+public interface RecordExtractor<F, T> extends Function<F, T>, Serializable {
+    static <T> RecordExtractor<T, T> identity() {
+        return x -> x;
     }
-
-    /**
-     * Operator's level of parallelism
-     * @return operator's parallelism
-     */
-    default Optional<Integer> getParallelism() {
-        return Optional.of(1);
-    }
-
 }

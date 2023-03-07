@@ -16,6 +16,7 @@
 
 package com.ness.flink.config.properties;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -48,7 +49,7 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
     private static final long serialVersionUID = 8374164378532623386L;
 
     private static final String CONFLUENT_SCHEMA_REGISTRY_KEY = "schema.registry.url";
-    static final String SHARED_PROPERTY_NAME = "kafka.consumer";
+    private static final String SHARED_PROPERTY_NAME = "kafka.consumer";
 
     private Long timestamp;
 
@@ -63,6 +64,7 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
         return from(name, parameterTool, DEFAULT_CONFIG_FILE);
     }
 
+    @VisibleForTesting
     static KafkaConsumerProperties from(@NonNull String name, @NonNull ParameterTool parameterTool,
                                         @NonNull String ymlConfigFile) {
         SharedKafkaProperties sharedProperties = SharedKafkaProperties.from(name, parameterTool, ymlConfigFile);

@@ -14,32 +14,25 @@
  * limitations under the License.
  */
 
-package com.ness.flink.config.operator;
+package com.ness.flink.config.metrics;
 
-import java.util.Locale;
-import java.util.Optional;
+import lombok.Getter;
 
 /**
- * Adds Flink operator definition
- *
- * @author Khokhlov Pavel
+ * Shared custom Flink Metrics
  */
-public interface OperatorDefinition {
+@Getter
+public enum Metrics {
+    END_TO_END_LATENCY("e2eLatency"),
+    BROKEN_MESSAGES("brokenMessages"),
+    FLINK_GOT_MESSAGE_LATENCY("consumedByFlinkLatency");
 
     /**
-     * Operator's name & uid
-     * @return operator's name & uid
+     * Name of metrics which will be exposed
      */
-    default String getName() {
-        return getClass().getSimpleName().toLowerCase(Locale.ENGLISH);
-    }
+    private final String metricName;
 
-    /**
-     * Operator's level of parallelism
-     * @return operator's parallelism
-     */
-    default Optional<Integer> getParallelism() {
-        return Optional.of(1);
+    Metrics(String metricName) {
+        this.metricName = metricName;
     }
-
 }

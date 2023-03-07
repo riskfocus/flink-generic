@@ -16,6 +16,7 @@
 
 package com.ness.flink.config.properties;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -42,6 +43,7 @@ public class SharedKafkaProperties implements RawProperties<SharedKafkaPropertie
     @ToString.Exclude
     private Map<String, String> rawValues = new LinkedHashMap<>();
 
+    @VisibleForTesting
     static SharedKafkaProperties from(@NonNull String name, @NonNull ParameterTool parameterTool,
                                       @NonNull String ymlConfigFile) {
         return OperatorPropertiesFactory.from(name, SHARED_PROPERTY_NAME, parameterTool,

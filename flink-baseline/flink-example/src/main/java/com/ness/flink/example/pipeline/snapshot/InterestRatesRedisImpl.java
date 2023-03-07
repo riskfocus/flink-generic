@@ -48,7 +48,7 @@ public class InterestRatesRedisImpl implements InterestRatesLoader {
 
     private static final long serialVersionUID = 3101876746410677069L;
 
-    private static final RedisSnapshotConverterUtils<InterestRates> converter = new RedisSnapshotConverterUtils<>();
+    //private static final RedisSnapshotConverterUtils<InterestRates> CONVERTER = new RedisSnapshotConverterUtils<>();
 
     private transient SnapshotMapper<InterestRates> interestRatesMapper;
     private transient RedisClient redisClient;
@@ -71,16 +71,16 @@ public class InterestRatesRedisImpl implements InterestRatesLoader {
 
     @Override
     public Optional<SnapshotData<InterestRates>> loadInterestRates(ContextMetadata context) throws IOException {
-        byte[] getKey = interestRatesMapper.buildKey(InterestRates.EMPTY, context).getBytes();
+        byte[] getKey = interestRatesMapper.buildKey(InterestRates.EMPTY_RATES, context).getBytes();
         byte[] indexKey = interestRatesMapper.buildSnapshotIndexKey(context).getBytes();
         byte[] snapshotPrefix = interestRatesMapper.buildSnapshotPrefix(context).getBytes();
 
         byte[][] keys = convert(getKey, indexKey, snapshotPrefix);
-        byte[][] values = convert(InterestRates.EMPTY.getCurrency().getBytes(), String.valueOf(context.getId()).getBytes(), context.getDate().getBytes());
+        byte[][] values = convert(InterestRates.EMPTY_RATES.getCurrency().getBytes(), String.valueOf(context.getId()).getBytes(), context.getDate().getBytes());
 
         byte[] data = connect.sync().evalsha(scriptDigest, ScriptOutputType.VALUE, keys, values);
         if (data != null) {
-            return Optional.of(converter.convertTo(InterestRates.class, data));
+            return Optional.of(RedisSnapshotConverterUtils.convertTo(InterestRates.class, data));
         }
         return Optional.empty();
     }
