@@ -190,7 +190,8 @@
                             <licenseFamilyCategory>Ness OS</licenseFamilyCategory>
                             <licenseFamilyName>Ness open source</licenseFamilyName>
                             <notes/>
-                            <fullText>Copyright 2020-2023 Ness USA, Inc.
+                            <fullText>Copyright 2021-2023 Ness Digital Engineering
+
                                 Licensed under the Apache License, Version 2.0 (the "License");
                                 you may not use this file except in compliance with the License.
                                 You may obtain a copy of the License at
@@ -215,19 +216,15 @@
                         <!-- additional files like .gitignore etc.-->
                         <exclude>**/.*/**</exclude>
                         <exclude>**/*.prefs</exclude>
-                        <exclude>**/*.yml</exclude>
                         <exclude>**/*.json</exclude>
                         <exclude>**/*.log</exclude>
                         <exclude>**/*.iml</exclude>
                         <exclude>**/LICENCE</exclude>
-                        <exclude>mvnw</exclude>
-                        <exclude>mvnw.cmd</exclude>
                         <exclude>**/VERSION</exclude>
                         <exclude>**/*.md</exclude>
                         <exclude>**/dependency-reduced-pom.xml</exclude>
                         <!-- compiled classes and tests-->
                         <exclude>**/target/**</exclude>
-                        <exclude>**/src/test/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
