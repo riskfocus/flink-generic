@@ -223,8 +223,8 @@
                         <exclude>**/VERSION</exclude>
                         <exclude>**/*.md</exclude>
                         <exclude>**/dependency-reduced-pom.xml</exclude>
-                        <exclude>**/mvnw</exclude>
-                        <exclude>**/mvnw.cmd</exclude>
+                        <exclude>mvnw</exclude>
+                        <exclude>mvnw.cmd</exclude>
                         <!-- compiled classes and tests-->
                         <exclude>**/target/**</exclude>
                     </excludes>
