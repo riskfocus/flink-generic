@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2020-2023 Ness USA, Inc.
+  ~ Copyright 2021-2023 Ness Digital Engineering
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -8,8 +8,8 @@
   ~
   ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
-  ~ Unless required by applicable law or agreed to in writing,
-  ~ software distributed under the License is distributed on an "AS IS" BASIS,
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
@@ -23,7 +23,7 @@
 
     <groupId>com.ness.flink.generic</groupId>
     <artifactId>flink-generic</artifactId>
-    <version>2.0.4-SNAPSHOT</version>
+    <version>2.0.5-SNAPSHOT</version>
 
     <modules>
         <module>flink-domain</module>
@@ -190,7 +190,8 @@
                             <licenseFamilyCategory>Ness OS</licenseFamilyCategory>
                             <licenseFamilyName>Ness open source</licenseFamilyName>
                             <notes/>
-                            <fullText>Copyright 2020-2023 Ness USA, Inc.
+                            <fullText>Copyright 2021-2023 Ness Digital Engineering
+
                                 Licensed under the Apache License, Version 2.0 (the "License");
                                 you may not use this file except in compliance with the License.
                                 You may obtain a copy of the License at
@@ -215,19 +216,17 @@
                         <!-- additional files like .gitignore etc.-->
                         <exclude>**/.*/**</exclude>
                         <exclude>**/*.prefs</exclude>
-                        <exclude>**/*.yml</exclude>
                         <exclude>**/*.json</exclude>
                         <exclude>**/*.log</exclude>
                         <exclude>**/*.iml</exclude>
                         <exclude>**/LICENCE</exclude>
-                        <exclude>mvnw</exclude>
-                        <exclude>mvnw.cmd</exclude>
                         <exclude>**/VERSION</exclude>
                         <exclude>**/*.md</exclude>
                         <exclude>**/dependency-reduced-pom.xml</exclude>
+                        <exclude>mvnw</exclude>
+                        <exclude>mvnw.cmd</exclude>
                         <!-- compiled classes and tests-->
                         <exclude>**/target/**</exclude>
-                        <exclude>**/src/test/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
