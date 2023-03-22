@@ -122,6 +122,7 @@ public class EnvironmentFactory {
             checkpointConfig.configure(properties.getCheckpointConfig());
             checkpointConfig.setCheckpointStorage(properties.getCheckpointsDataUri());
         }
+        properties.ofRuntimeExecutionMode().ifPresent(env::setRuntimeMode);
 
         return env;
     }
