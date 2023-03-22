@@ -20,8 +20,10 @@ import com.ness.flink.config.properties.OperatorProperties;
 import java.io.Serializable;
 import java.util.Optional;
 import lombok.Getter;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import javax.annotation.Nullable;
 
 /**
  * Wraps several entities, required for Flink keyed processor: {@link KeySelector}, {@link KeyedProcessFunction}, and
@@ -38,12 +40,19 @@ public class KeyedProcessorDefinition<K, T, U> implements OperatorDefinition, Se
     private final OperatorProperties operatorProperties;
     private final KeySelector<T, K> keySelector;
     private final KeyedProcessFunction<K, T, U> processFunction;
+    private Class<U> returnClass;
 
     public KeyedProcessorDefinition(OperatorProperties operatorProperties, KeySelector<T, K> keySelector,
         KeyedProcessFunction<K, T, U> processFunction) {
         this.operatorProperties = operatorProperties;
         this.keySelector = keySelector;
         this.processFunction = processFunction;
+    }
+
+    public KeyedProcessorDefinition(OperatorProperties operatorProperties, KeySelector<T, K> keySelector,
+        KeyedProcessFunction<K, T, U> processFunction, @Nullable Class<U> returnClass) {
+        this(operatorProperties, keySelector, processFunction);
+        this.returnClass = returnClass;
     }
 
     @Override
@@ -56,5 +65,12 @@ public class KeyedProcessorDefinition<K, T, U> implements OperatorDefinition, Se
         return Optional.ofNullable(operatorProperties.getParallelism());
     }
 
+    public Optional<TypeInformation<U>> getReturnTypeInformation() {
+        if (returnClass == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(TypeInformation.of(returnClass));
+        }
+    }
 }
 

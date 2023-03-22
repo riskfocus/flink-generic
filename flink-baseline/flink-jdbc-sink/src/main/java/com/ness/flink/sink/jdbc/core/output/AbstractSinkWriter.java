@@ -14,28 +14,33 @@
  * limitations under the License.
  */
 
-package com.ness.flink.sink.jdbc;
+package com.ness.flink.sink.jdbc.core.output;
 
-import com.ness.flink.sink.jdbc.core.output.AbstractJdbcOutputFormat;
-import java.io.IOException;
-import lombok.AllArgsConstructor;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import java.io.Serializable;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.connector.sink2.Sink;
+import org.apache.flink.api.connector.sink2.Sink.InitContext;
 import org.apache.flink.api.connector.sink2.SinkWriter;
 
 /**
  * @author Khokhlov Pavel
  */
 @Slf4j
-@AllArgsConstructor
-class JdbcSink<T> implements Sink<T> {
-    private static final long serialVersionUID = 362373966141992666L;
-    private final AbstractJdbcOutputFormat<T> outputFormat;
+public abstract class AbstractSinkWriter<T> implements SinkWriter<T>, Serializable {
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    public SinkWriter<T> createWriter(InitContext context) throws IOException {
-        outputFormat.open(context);
-        return outputFormat;
+    protected final String sinkName;
+    protected transient InitContext context;
+
+    protected AbstractSinkWriter(String sinkName) {
+        this.sinkName = checkNotNull(sinkName);
+    }
+
+    @SneakyThrows
+    public void open(InitContext context) {
+        this.context = context;
     }
 
 }

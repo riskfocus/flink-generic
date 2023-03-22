@@ -33,31 +33,30 @@ import java.util.function.Function;
 public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExecutor<T> {
 
     private final String sql;
-    private final JdbcStatementBuilder<V> parameterSetter;
+    private final JdbcStatementBuilder<V> jdbcStatementBuilder;
     private final Function<T, V> valueTransformer;
-    private final transient List<V> batch;
-
-    private transient PreparedStatement preparedStatement;
-    private transient Connection connection;
+    private final List<V> batch;
+    private PreparedStatement preparedStatement;
+    private Connection connection;
 
     public SimpleBatchStatementExecutor(String sql, JdbcStatementBuilder<V> statementBuilder, Function<T, V> valueTransformer,
                                         JdbcExecutionOptions jdbcExecutionOptions) {
         this.sql = sql;
-        this.parameterSetter = statementBuilder;
+        this.jdbcStatementBuilder = statementBuilder;
         this.valueTransformer = valueTransformer;
         this.batch = new ArrayList<>(jdbcExecutionOptions.getBatchSize());
     }
 
     @Override
-    public void open(Connection connection) throws SQLException {
+    public void init(Connection connection) throws SQLException {
         this.connection = connection;
         this.preparedStatement = connection.prepareStatement(sql);
     }
 
     @Override
-    public void reinit(Connection connection) throws SQLException {
+    public void reInit(Connection connection) throws SQLException {
         closeStatement();
-        open(connection);
+        init(connection);
     }
 
     @Override
@@ -70,7 +69,7 @@ public class SimpleBatchStatementExecutor<T, V> implements JdbcBatchStatementExe
     public void executeBatch() throws SQLException {
         if (!batch.isEmpty()) {
             for (V r : batch) {
-                parameterSetter.accept(preparedStatement, r);
+                jdbcStatementBuilder.accept(preparedStatement, r);
                 preparedStatement.addBatch();
                 log.trace("Added to batch: {}", r);
             }

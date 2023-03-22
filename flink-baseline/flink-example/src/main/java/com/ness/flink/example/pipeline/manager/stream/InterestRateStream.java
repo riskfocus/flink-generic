@@ -23,6 +23,7 @@ import com.ness.flink.example.pipeline.config.sink.InterestRatesSink;
 import com.ness.flink.example.pipeline.domain.InterestRate;
 import com.ness.flink.example.pipeline.domain.intermediate.InterestRates;
 import com.ness.flink.example.pipeline.manager.stream.function.ProcessRatesFunction;
+import com.ness.flink.sink.jdbc.JdbcKeyedProcessorBuilder;
 import com.ness.flink.sink.jdbc.JdbcSinkBuilder;
 import com.ness.flink.sink.jdbc.core.executor.JdbcStatementBuilder;
 import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
@@ -49,10 +50,52 @@ public class InterestRateStream {
 
     public static void build(@NonNull StreamBuilder streamBuilder, boolean interestRatesKafkaSnapshotEnabled) {
 
+        JdbcSinkProperties jdbcSinkProperties = JdbcSinkProperties.from("interest.rates.jdbc",
+            streamBuilder.getParameterTool());
+
         FlinkDataStream<InterestRate> interestRateFlinkDataStream = streamBuilder.stream()
             .sourcePojo("interest.rates.source",
                 InterestRate.class,
                 (SerializableTimestampAssigner<InterestRate>) (event, recordTimestamp) -> event.getTimestamp());
+
+        String sql = "INSERT INTO interestRate (id, maturity, rate, timestamp) values (?, ?, ?, ?)"
+            + " ON DUPLICATE KEY UPDATE maturity = ?, rate = ?, timestamp = ?";
+
+        JdbcStatementBuilder<InterestRate> jdbcStatementBuilder = new JdbcStatementBuilder<>() {
+            private static final long serialVersionUID = 3760053930726684910L;
+            @Override
+            public void accept(PreparedStatement stmt, InterestRate interestRate) throws SQLException {
+                final int interestRateId = interestRate.getId();
+                final String maturity = interestRate.getMaturity();
+                final long timestamp = interestRate.getTimestamp();
+                final double rate = interestRate.getRate();
+
+                int idx = 0;
+
+                stmt.setInt(++idx, interestRateId);
+                stmt.setString(++idx, maturity);
+                stmt.setDouble(++idx, rate);
+                stmt.setLong(++idx, timestamp);
+                // on duplicate
+                stmt.setString(++idx, maturity);
+                stmt.setDouble(++idx, rate);
+                stmt.setLong(++idx, timestamp);
+            }
+        };
+
+        var keyedProcessorDefinition = JdbcKeyedProcessorBuilder.<String, InterestRate, InterestRate>builder()
+            .jdbcSinkProperties(jdbcSinkProperties)
+            .sql(sql)
+            .jdbcStatementBuilder(jdbcStatementBuilder)
+            .keySelector(InterestRate::getMaturity)
+            .stateClass(InterestRate.class)
+            .returnClass(InterestRate.class)
+            .transformerFunction(price -> price)
+            .build()
+            .buildKeyedProcessor(streamBuilder.getParameterTool());
+
+
+        interestRateFlinkDataStream = interestRateFlinkDataStream.addKeyedProcessor(keyedProcessorDefinition);
 
         KeyedProcessorDefinition<String, InterestRate, InterestRates> ratesKeyedProcessorDefinition =
             new KeyedProcessorDefinition<>(OperatorProperties.from("reduceByUSDCurrency.operator",
@@ -100,7 +143,6 @@ public class InterestRateStream {
                 public void accept(PreparedStatement stmt, InterestRate interestRate) throws SQLException {
                         int idx = 0;
                         final long interestRateId = interestRate.getId();
-                        log.debug("Prepare statement: {}", interestRateId);
                         final String sourceId = interestRate.getMaturity();
                         final BigDecimal rate = BigDecimal.valueOf(interestRate.getRate());
 

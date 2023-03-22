@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package com.ness.flink.sink.jdbc.config;
+package com.ness.flink.sink.jdbc.config.metrics;
+
+import lombok.Getter;
 
 /**
- * SQL Dialects
+ * JDBC Sink related metrics
  *
  * @author Khokhlov Pavel
  */
-public enum Dialect {
-    MYSQL, POSTGRES, REDSHIFT
+@Getter
+public enum Metrics {
+    JDBC_BATCH_LATENCY("batch-latency"),
+    JDBC_BATCH_SIZE("batch-size");
+
+    private final String metricName;
+
+    Metrics(String metricName) {
+        this.metricName = metricName;
+    }
+
 }

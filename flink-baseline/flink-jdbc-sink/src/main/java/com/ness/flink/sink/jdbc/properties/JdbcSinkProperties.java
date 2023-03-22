@@ -19,7 +19,6 @@ package com.ness.flink.sink.jdbc.properties;
 import java.io.Serializable;
 import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.OperatorPropertiesFactory;
-import com.ness.flink.sink.jdbc.config.Dialect;
 import com.ness.flink.sink.jdbc.config.JdbcExecutionOptions;
 import lombok.Getter;
 import lombok.NonNull;
@@ -56,8 +55,6 @@ public class JdbcSinkProperties implements Serializable {
 
     private String driverClass = "com.mysql.cj.jdbc.Driver";
 
-    private Dialect dialect = Dialect.MYSQL;
-
     private String username = "root";
     
     private String password;
@@ -81,6 +78,17 @@ public class JdbcSinkProperties implements Serializable {
      * Maximum retries in case of error could be solved via retries
      */
     private int maxRetries = JdbcExecutionOptions.DEFAULT_MAX_RETRY_TIMES;
+
+    /**
+     * Ignore non-retryable SQL exceptions.
+     * WARNING. Possible data loss on Database
+     */
+    private boolean ignoreSQLExceptions;
+
+    /**
+     * How long wait before retry batch execution
+     */
+    private long waitBeforeRetryMs = JdbcExecutionOptions.DEFAULT_WAIT_BEFORE_RETRY;
 
     /**
      * The time in seconds to wait for the database operation used to validate the connection to complete.

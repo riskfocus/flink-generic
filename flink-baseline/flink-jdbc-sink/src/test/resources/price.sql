@@ -30,5 +30,7 @@ CREATE TABLE price (
     id INT PRIMARY KEY,
     timestamp BIGINT NOT NULL,
     sourceIp VARCHAR(255) NOT NULL,
+    currencyNum INT,
+    currencyCode VARCHAR(255),
     price DECIMAL(19,4)
 )  ENGINE=INNODB;

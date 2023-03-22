@@ -7,6 +7,10 @@ Original [Flink JDBC connector](https://github.com/apache/flink-connector-jdbc) 
 
 - [Sink parameters configuration](src/main/java/com/ness/flink/sink/jdbc/properties/JdbcSinkProperties.java)
 
-## JDBC Sink Usage 
+There are two options how you could Sink your data to Database 
 
-[Example of usage](src/test/java/com/ness/flink/sink/jdbc/JdbcSinkIT.java)
+1. By using JDBC Sink Usage
+   ([Example of usage](src/test/java/com/ness/flink/sink/jdbc/JdbcSinkIT.java))
+
+2. By using JDBC KeyedProcessor Usage
+   ([Example of usage](src/test/java/com/ness/flink/sink/jdbc/KeyedJdbcProcessFunctionIT.java))

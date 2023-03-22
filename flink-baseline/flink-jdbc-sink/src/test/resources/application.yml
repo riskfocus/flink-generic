@@ -15,6 +15,15 @@
 jdbc.shared:
   username: "test-user"
   password: "12345678-a"
+  maxRetries: 10
+  batchSize: 100
+  maxWaitThreshold: 10000
 
 test.jdbc.sink:
   parallelism: 2
+  waitBeforeRetryMs: 5000
+
+non.safe.jdbc.sink:
+  parallelism: 1
+  batchSize: 1
+  ignoreSQLExceptions: true

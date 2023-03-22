@@ -106,3 +106,6 @@ jdbc.shared:
 
 rates.jdbc.sink:
   parallelism: 2
+
+interest.rates.jdbc:
+  parallelism: 2

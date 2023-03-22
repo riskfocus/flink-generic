@@ -29,6 +29,7 @@ import com.ness.flink.config.environment.EnvironmentFactory;
 import com.ness.flink.config.operator.DefaultSink;
 import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.config.operator.KeyedProcessorDefinition;
+import com.ness.flink.config.operator.OperatorDefinition;
 import com.ness.flink.config.operator.SinkDefinition;
 import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.ChannelProperties;
@@ -46,15 +47,18 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
+import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import org.apache.flink.streaming.api.functions.sink.DiscardingSink;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
 /**
@@ -92,11 +96,21 @@ public class StreamBuilder {
     }
 
     @SneakyThrows
-    public void run(String jobName) {
+    public JobExecutionResult run(String jobName) {
+        printExecutionPlan();
+        return env.execute(jobName);
+    }
+
+    @SneakyThrows
+    public JobClient runAsync(String jobName) {
+        printExecutionPlan();
+        return env.executeAsync(jobName);
+    }
+
+    private void printExecutionPlan() {
         if (log.isInfoEnabled()) {
             log.info("Execution Plan: {}", env.getExecutionPlan());
         }
-        env.execute(jobName);
     }
 
     /**
@@ -431,7 +445,21 @@ public class StreamBuilder {
         }
 
         /**
+         * Adds discarding sink {@link org.apache.flink.streaming.api.functions.sink.DiscardingSink}
+         *
+         * @param sinkDefinition operator Definition
+         * @return same data stream wrapper, with sink added
+         */
+        public FlinkDataStream<T> addDiscardingSink(OperatorDefinition sinkDefinition) {
+            singleOutputStreamOperator.addSink(new DiscardingSink<>())
+                .setParallelism(sinkDefinition.getParallelism().orElse(env.getParallelism()))
+                .name(sinkDefinition.getName()).uid(sinkDefinition.getName());
+            return this;
+        }
+
+        /**
          * Adds custom sink to current data stream wrapper, without changing event type
+         *
          * @param defaultSink based on new Flink Sink API
          * @return same data stream wrapper, with sink added
          */
@@ -451,11 +479,13 @@ public class StreamBuilder {
         }
 
         protected <K, U> SingleOutputStreamOperator<U> configureStream(KeyedProcessorDefinition<K, T, U> def) {
-            return singleOutputStreamOperator.keyBy(def.getKeySelector())
+            SingleOutputStreamOperator<U> operator = singleOutputStreamOperator.keyBy(def.getKeySelector())
                 .process(def.getProcessFunction())
                 .setParallelism(def.getParallelism().orElse(env.getParallelism()))
                 .name(def.getName())
                 .uid(def.getName());
+            def.getReturnTypeInformation().ifPresent(operator::returns);
+            return operator;
         }
     }
 }
