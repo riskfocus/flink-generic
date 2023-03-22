@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
@@ -80,6 +81,11 @@ public class FlinkEnvironmentProperties implements RawProperties<FlinkEnvironmen
     private Integer prometheusReporterPort = 9249;
     private Integer jmxReporterPort = 8789;
 
+    /**
+     * Runtime execution mode of DataStream
+     */
+    private RuntimeExecutionMode runtimeExecutionMode;
+
     @ToString.Exclude
     private final Map<String, String> rawValues = new LinkedHashMap<>();
 
@@ -105,5 +111,9 @@ public class FlinkEnvironmentProperties implements RawProperties<FlinkEnvironmen
 
     public Optional<Integer> ofPrometheusReporterPort() {
         return Optional.ofNullable(prometheusReporterPort);
+    }
+
+    public Optional<RuntimeExecutionMode> ofRuntimeExecutionMode() {
+        return Optional.ofNullable(runtimeExecutionMode);
     }
 }

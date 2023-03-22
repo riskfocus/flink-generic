@@ -16,10 +16,13 @@
 
 package com.ness.flink.config.properties;
 
+import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.SetEnvironmentVariable;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Khokhlov Pavel
@@ -41,8 +44,21 @@ class FlinkEnvironmentPropertiesTest {
         Assertions.assertEquals(Runtime.getRuntime().availableProcessors(), properties.getLocalParallelism());
         Assertions.assertEquals(9249, properties.getPrometheusReporterPort());
         Assertions.assertEquals(0, properties.getBufferTimeoutMs(), "See overwritten values in application.yml");
-        Assertions.assertEquals(500, properties.getAutoWatermarkInterval(), "See overwritten values in application.yml");
+        Assertions.assertEquals(500, properties.getAutoWatermarkInterval(),
+            "See overwritten values in application.yml");
         Assertions.assertEquals(10_000, properties.getMetricsFetcherUpdateInterval());
         Assertions.assertNull(properties.getCheckpointsDataUri());
+        Assertions.assertNull(properties.getRuntimeExecutionMode());
+        Assertions.assertNotNull(properties.ofRuntimeExecutionMode());
+        Assertions.assertEquals(Optional.empty(), properties.ofRuntimeExecutionMode());
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "ENVIRONMENT_RUNTIME_EXECUTION_MODE", value = "BATCH")
+    void shouldOverwriteRuntimeExecutionModeFromEnv() {
+        var properties = FlinkEnvironmentProperties.from(ParameterTool.fromMap(Map.of()));
+        Assertions.assertNotNull(properties.getRuntimeExecutionMode());
+        Assertions.assertEquals(RuntimeExecutionMode.BATCH, properties.getRuntimeExecutionMode());
+        Assertions.assertEquals(Optional.of(RuntimeExecutionMode.BATCH), properties.ofRuntimeExecutionMode());
     }
 }
