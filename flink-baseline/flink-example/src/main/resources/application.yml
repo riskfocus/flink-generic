@@ -103,6 +103,7 @@ jdbc.shared:
   username: "root"
   password: "example"
   url: "jdbc:mysql://localhost:3306/test?useConfigs=maxPerformance&connectTimeout=10&sessionVariables=wait_timeout=3"
+  connectionCheckMaxIdleMs: 500
 
 rates.jdbc.sink:
   parallelism: 2
