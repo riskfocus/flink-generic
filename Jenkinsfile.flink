@@ -24,7 +24,7 @@ pipeline {
         AWS_ACCESS_KEY_ID       = credentials('aws-access-key')
         AWS_SECRET_ACCESS_KEY   = credentials('aws-secret-key')
         AWS_SESSION_TOKEN       = credentials('aws-token')
-        CODEARTIFACT_URL        = "abc"
+        CODEARTIFACT_URL        = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.us-east-1.amazonaws.com/maven/${group_prefix}-repo/"
         SETTINGS_FILE_PATH = "/var/jenkins_home/workspace/super-seed/settings.xml"
     }
     
