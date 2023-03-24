@@ -75,17 +75,14 @@ pipeline {
             steps {
                 sh 'pwd'
                 dir('/var/jenkins_home/workspace/super-seed'){
-                sh 'mvn -X clean | grep settings'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
                 sh 'pwd'
                 }
                 sh 'pwd'
-                sh "echo CODEARTIFACT_URL= jq '.repositoryEndpoint' aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven"  
-                sh "echo '***url: ' ${CODEARTIFACT_URL}"
-                sh "echo '***value: ' ${SETTINGS_FILE_PATH}"
-                        
-                sh 'pwd'
-                sh "mv ${SETTINGS_FILE_PATH} /var/jenkins_home/.m2/"
+                sh "aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven >> codeartifact_json.txt"
+                sh "export CODEARTIFACT_URL=$( jq '.repositoryEndpoint' codeartifact_json.txt)"
+                sh "rm codeartifact_json.txt"
+                sh 'export'
                 sh "mvn clean deploy"                
             }
         }
