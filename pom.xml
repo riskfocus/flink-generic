@@ -61,7 +61,13 @@
             <url>https://packages.confluent.io/maven/</url>
         </repository>
     </repositories>
-
+    <distributionManagement>
+        <repository>
+            <id>rfac-codeartifact-repo</id>
+            <name>rfac-codeartifact-repo</name>
+            <url>${codeartifact_url}</url>
+        </repository>
+    </distributionManagement>
     <dependencyManagement>
         <dependencies>
             <dependency>
