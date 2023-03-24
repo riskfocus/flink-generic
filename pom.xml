@@ -46,7 +46,7 @@
         <guava.version>31.1-jre</guava.version>
         <spring.boot.version>2.5.14</spring.boot.version>
         <test.containers.version>1.17.6</test.containers.version>
-        <codeartifact.url></codeartifact.url>
+        <codeartifact.url>${codeartifact_url}</codeartifact.url>
     </properties>
 
     <repositories>
