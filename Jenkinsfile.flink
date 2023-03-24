@@ -53,6 +53,7 @@ pipeline {
                 }
                 sh 'pwd'
                 sh 'export'
+                sh 'echo "code-artifact-url :" ${CODEARTIFACT_URL}'
                 sh 'mvn clean install -Dcodeartifact_url=${CODEARTIFACT_URL}'            
             }
         }
