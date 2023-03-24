@@ -74,8 +74,7 @@ pipeline {
             }
             steps {
                 sh 'pwd'
-                sh 'cd ..'
-                dir('/var/jenkins_home'){
+                dir('/var/jenkins_home/workspace/super-seed'){
                 sh 'pwd'
                 }
                 sh 'pwd'
