@@ -63,8 +63,8 @@
     </repositories>
     <distributionManagement>
         <repository>
-            <id>rfac-codeartifact-repo</id>
-            <name>rfac-codeartifact-repo</name>
+            <id>rfac-dev-domain-rfac-dev-repo</id>
+            <name>rfac-dev-domain-rfac-dev-repo</name>
             <url>${codeartifact_url}</url>
         </repository>
     </distributionManagement>
