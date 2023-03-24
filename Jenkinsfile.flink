@@ -44,19 +44,11 @@ pipeline {
             }
             steps {
                 sh 'pwd'
-                sh "aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven >> codeartifact_json.txt"
-                sh '''CODEARTIFACT_URL=$(jq '.repositoryEndpoint' codeartifact_json.txt)'''
-                sh 'echo "code-artifact-url :" ${CODEARTIFACT_URL}'
-                sh "rm codeartifact_json.txt"
-                sh 'echo "code-artifact-url :" ${CODEARTIFACT_URL}'
                 dir('/var/jenkins_home/workspace/super-seed'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
                 }
-                sh 'pwd'
-                sh 'export'
-                sh 'echo "code-artifact-url :" ${CODEARTIFACT_URL}'
                 sh 'mvn clean install -Dcodeartifact_url=${CODEARTIFACT_URL}'            
             }
         }
@@ -78,10 +70,6 @@ pipeline {
             }
             steps {
                 sh 'pwd'
-                // sh "aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven >> codeartifact_json.txt"
-                // sh '''export CODEARTIFACT=$(jq '.repositoryEndpoint' codeartifact_json.txt)'''
-                // sh "rm codeartifact_json.txt"
-                // sh 'export'
                 sh 'mvn clean deploy -Dcodeartifact_url=${CODEARTIFACT_URL}'            
             }
         }
