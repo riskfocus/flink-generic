@@ -45,7 +45,9 @@ pipeline {
                 sh 'pwd'
                 sh "aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven >> codeartifact_json.txt"
                 sh '''export CODEARTIFACT_URL=$(jq '.repositoryEndpoint' codeartifact_json.txt)'''
+                sh 'echo "code-artifact-url :" ${CODEARTIFACT_URL}'
                 sh "rm codeartifact_json.txt"
+                sh 'echo "code-artifact-url :" ${CODEARTIFACT_URL}'
                 dir('/var/jenkins_home/workspace/super-seed'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
