@@ -16,7 +16,6 @@
 
 package com.ness.flink.snapshot;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.RedisProperties;
 import com.ness.flink.config.properties.WatermarkProperties;
 import com.ness.flink.domain.TimeAware;
@@ -50,8 +49,7 @@ public class SnapshotSink<T extends TimeAware> implements Sink<T> {
         return new RedisWriter(parameterTool);
     }
 
-    @VisibleForTesting
-    class RedisWriter implements SinkWriter<T> {
+    /* default */ class RedisWriter implements SinkWriter<T> {
         private final ContextService contextService;
         private final RedisClient redisClient;
         private final StatefulRedisConnection<byte[], byte[]> connect;
