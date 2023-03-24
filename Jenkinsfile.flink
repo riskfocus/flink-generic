@@ -25,7 +25,6 @@ pipeline {
         AWS_SECRET_ACCESS_KEY   = credentials('aws-secret-key')
         AWS_SESSION_TOKEN       = credentials('aws-token')
         SETTINGS_FILE_PATH = "/var/jenkins_home/workspace/super-seed/settings.xml"
-        CODEARTIFACT_URL  = ""
     }
     
     tools {
@@ -51,10 +50,10 @@ pipeline {
                 }
                 sh 'pwd'
                 sh "aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven >> codeartifact_json.txt"
-                sh '''export codeartifact_url=$(jq '.repositoryEndpoint' codeartifact_json.txt)'''
+                sh '''export CODEARTIFACT_URL=$(jq '.repositoryEndpoint' codeartifact_json.txt)'''
                 sh "rm codeartifact_json.txt"
                 sh 'export'
-                sh 'mvn clean install -Dcodeartifact.url=${codeartifact_url}'            
+                sh 'mvn clean install -Dcodeartifact.url=${CODEARTIFACT_URL}'            
             }
         }
 
@@ -76,11 +75,11 @@ pipeline {
             }
             steps {
                 sh 'pwd'
-                sh "aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven >> codeartifact_json.txt"
-                sh '''export codeartifact_url=$(jq '.repositoryEndpoint' codeartifact_json.txt)'''
-                sh "rm codeartifact_json.txt"
-                sh 'export'
-                sh 'mvn clean deploy -Dcodeartifact.url=${codeartifact_url}'            
+                // sh "aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven >> codeartifact_json.txt"
+                // sh '''export CODEARTIFACT=$(jq '.repositoryEndpoint' codeartifact_json.txt)'''
+                // sh "rm codeartifact_json.txt"
+                // sh 'export'
+                sh 'mvn clean deploy -Dcodeartifact.url=${CODEARTIFACT_URL}'            
             }
         }
     }
