@@ -80,7 +80,7 @@ pipeline {
                 }
                 sh 'pwd'
                 sh "aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven >> codeartifact_json.txt"
-                sh "export CODEARTIFACT_URL=$("jq '.repositoryEndpoint' codeartifact_json.txt")"
+                sh "export CODEARTIFACT_URL=$\(jq '.repositoryEndpoint' codeartifact_json.txt)"
                 sh "rm codeartifact_json.txt"
                 sh 'export'
                 sh "mvn clean deploy"                
