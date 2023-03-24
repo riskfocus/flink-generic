@@ -69,6 +69,8 @@ pipeline {
             environment {
                 PREVIEW_VERSION = "2.0.4-SNAPSHOT"
                 PREVIEW_NAMESPACE = "$APP_NAME-$BRANCH_NAME".toLowerCase()
+                SETTINGS_FILE_PATH = "/var/jenkins_home/workspace/super-seed/settings.xml"
+                CODEARTIFACT_URL  = ""
             }
             steps {
                 sh 'pwd'
