@@ -36,11 +36,13 @@ pipeline {
             environment {
                 PREVIEW_VERSION = "2.0.4-SNAPSHOT"
                 PREVIEW_NAMESPACE = "$APP_NAME-$BRANCH_NAME".toLowerCase()
+                SETTINGS_FILE_PATH = "/var/jenkins_home/workspace/super-seed/settings.xml"
             }
             steps {
                 sh 'pwd'
+
                 sh 'mvn -X clean | grep "settings"'              
-                sh 'mv settings.xml /var/jenkins_home/.m2/'
+                sh 'mv ${SETTINGS_FILE_PATH} /var/jenkins_home/.m2/'
                 sh 'pwd'
                 sh "mvn clean install"
                 
