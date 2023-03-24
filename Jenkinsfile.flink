@@ -75,6 +75,7 @@ pipeline {
             steps {
                 sh 'pwd'
                 dir('/var/jenkins_home/workspace/super-seed'){
+                sh 'mv settins.xml /var/jenkins_home/.m2/'
                 sh 'pwd'
                 }
                 sh 'pwd'
