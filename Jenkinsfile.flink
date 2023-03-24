@@ -74,9 +74,9 @@ pipeline {
             }
             steps {
                 sh 'pwd'
-                sh 'export codeartifact_url = https://${group_prefix}-domain-${domain_owner}.d.codeartifact.us-east-1.amazonaws.com/maven/${group_prefix}-repo/'
+                sh 'export codeartifact_url = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.us-east-1.amazonaws.com/maven/${group_prefix}-repo/"'
                 //sh "echo CODEARTIFACT_URL= jq '.repositoryEndpoint' aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven"  
-                //sh 'echo codeartifact_url=$codeartifact_url'
+                sh 'echo codeartifact_url=$codeartifact_url'
                 //sh "echo '***value: ' ${SETTINGS_FILE_PATH}" 
                 dir('var/jenkins_home/workspace/super-seed') {     
                 sh "mv settings.xml /var/jenkins_home/.m2/"
