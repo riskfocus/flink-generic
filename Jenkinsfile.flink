@@ -81,7 +81,7 @@ pipeline {
                 sh '''export codeartifact_url=$(jq '.repositoryEndpoint' codeartifact_json.txt)'''
                 sh "rm codeartifact_json.txt"
                 sh 'export'
-                sh "mvn clean deploy -Dcodeartifact_url=$codeartifact_url"                
+                sh 'mvn clean deploy -Dcodeartifact_url=$codeartifact_url'                
             }
         }
     }
