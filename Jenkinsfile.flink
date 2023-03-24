@@ -46,8 +46,9 @@ pipeline {
             steps {
                 sh 'pwd'
                 sh "echo jq '.repositoryEndpoint' aws codeartifact get-repository-endpoint --domain ${group_prefix}-domain --repository ${group_prefix}-repo --format maven" 
-                sh 'mvn -X clean | grep "settings"'              
-                sh 'mv ${SETTINGS_FILE_PATH} /var/jenkins_home/.m2/'
+                sh 'mvn -X clean | grep "settings"'     
+                sh "echo ${SETTINGS_FILE_PATH}"        
+                sh "mv ${SETTINGS_FILE_PATH} /var/jenkins_home/.m2/"
                 sh 'pwd'
                 sh "mvn clean install"
                 
