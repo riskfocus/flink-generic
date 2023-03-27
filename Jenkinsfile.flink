@@ -16,7 +16,7 @@ pipeline {
     environment {
         ORG = 'RiskFocus'
         APP_NAME = 'flink-generic'
-        BRANCH_NAME = 'jenkins-build'
+        BRANCH_NAME = ''
         SONAR_OPTS = ' '
         CODEARTIFACT_AUTH_TOKEN = credentials('codeartifact-auth-token')
         group_prefix            = credentials('group-prefix')
