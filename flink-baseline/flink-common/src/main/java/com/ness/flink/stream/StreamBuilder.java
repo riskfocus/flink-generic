@@ -83,8 +83,7 @@ public class StreamBuilder {
     }
 
     public static StreamBuilder from(ParameterTool parameterTool) {
-        StreamExecutionEnvironment env = EnvironmentFactory.from(parameterTool);
-        return from(env, parameterTool);
+        return from(EnvironmentFactory.from(parameterTool), parameterTool);
     }
 
     public static StreamBuilder from(StreamExecutionEnvironment env, ParameterTool parameterTool) {

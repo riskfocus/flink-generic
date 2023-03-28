@@ -79,7 +79,7 @@ class KafkaConsumerPropertiesTest {
         Assertions.assertEquals(123, properties.getTimestamp());
         OffsetsInitializer offsetsInitializer = properties.getOffsetsInitializer();
         Assertions.assertEquals(Offsets.TIMESTAMP, properties.getOffsets());
-        Assertions.assertEquals(OffsetResetStrategy.NONE, offsetsInitializer.getAutoOffsetResetStrategy());
+        Assertions.assertEquals(OffsetResetStrategy.LATEST, offsetsInitializer.getAutoOffsetResetStrategy());
 
         Properties consumerProperties = properties.getConsumerProperties();
         Assertions.assertEquals("localhost:9092", consumerProperties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
