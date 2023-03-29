@@ -1,0 +1,85 @@
+// Copyright 2021-2023 Ness Digital Engineering
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+pipeline {
+    agent any 
+    environment {
+        ORG = 'RiskFocus'
+        APP_NAME = 'flink-generic'
+        BRANCH_NAME = ''
+        SONAR_OPTS = ' '
+        CODEARTIFACT_AUTH_TOKEN = credentials('codeartifact-auth-token')
+        group_prefix            = credentials('group-prefix')
+        domain_owner            = credentials('domain-owner')
+        AWS_ACCESS_KEY_ID       = credentials('aws-access-key')
+        AWS_SECRET_ACCESS_KEY   = credentials('aws-secret-key')
+        AWS_SESSION_TOKEN       = credentials('aws-token')
+        aws_region              = credentials('aws-region')
+        CODEARTIFACT_URL        = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.${aws_region}.amazonaws.com/maven/${group_prefix}-repo/"
+    }
+    
+    tools {
+        maven "maven-3.9.0"
+    }
+
+    stages {
+
+        stage('CI Build') {
+            when {
+                changeRequest()
+            }
+            
+            steps {
+                sh 'pwd'
+                dir('/var/jenkins_home/workspace/super-seed'){
+                sh 'ls'
+                sh 'mvn -X clean | grep "settings"'
+                sh 'mv settings.xml /var/jenkins_home/.m2/'
+                }
+                sh 'mvn clean install -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
+            }
+        }
+
+        stage('Build and push snapshot') {
+            when {
+                not {
+                    anyOf {
+                        branch 'master'
+                        branch pattern: "release-.*", comparator: "REGEXP"
+                        changeRequest()
+                    }
+                }
+            } 
+            
+            steps {
+                sh 'pwd'
+                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
+            }
+        }
+
+        stage('Build and push release') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch pattern: "release-.*", comparator: "REGEXP"
+                    changeRequest()
+                }
+            } 
+            
+            steps {
+                sh 'pwd'
+                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
+            }
+        }
+    }
+}
