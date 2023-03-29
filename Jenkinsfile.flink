@@ -50,7 +50,7 @@ pipeline {
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
                 }
-                sh 'mvn clean install -Dcodeartifact_url=${CODEARTIFACT_URL}'            
+                sh 'mvn clean install -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
             }
         }
 
@@ -71,7 +71,7 @@ pipeline {
             }
             steps {
                 sh 'pwd'
-                sh 'mvn clean deploy -Dcodeartifact_url=${CODEARTIFACT_URL}'            
+                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
             }
         }
     }
