@@ -63,6 +63,11 @@ pipeline {
             
             steps {
                 sh 'pwd'
+                dir('/var/jenkins_home/workspace/super-seed'){
+                sh 'ls'
+                sh 'mvn -X clean | grep "settings"'
+                sh 'mv settings.xml /var/jenkins_home/.m2/'
+                }
                 sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
             }
         }
@@ -78,6 +83,11 @@ pipeline {
             
             steps {
                 sh 'pwd'
+                dir('/var/jenkins_home/workspace/super-seed'){
+                sh 'ls'
+                sh 'mvn -X clean | grep "settings"'
+                sh 'mv settings.xml /var/jenkins_home/.m2/'
+                }
                 sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
             }
         }
