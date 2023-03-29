@@ -26,7 +26,6 @@ pipeline {
         AWS_SESSION_TOKEN       = credentials('aws-token')
         aws_region              = credentials('aws-region')
         CODEARTIFACT_URL        = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.${aws_region}.amazonaws.com/maven/${group_prefix}-repo/"
-        SETTINGS_FILE_PATH = "/var/jenkins_home/workspace/super-seed/settings.xml"
     }
     
     tools {
@@ -36,13 +35,10 @@ pipeline {
     stages {
 
         stage('CI Build') {
-            // when {
-            //     changeRequest()
-            // }
-            environment {
-                PREVIEW_VERSION = "2.0.7-SNAPSHOT"
-                PREVIEW_NAMESPACE = "$APP_NAME-$BRANCH_NAME".toLowerCase()
+            when {
+                changeRequest()
             }
+            
             steps {
                 sh 'pwd'
                 dir('/var/jenkins_home/workspace/super-seed'){
@@ -64,11 +60,22 @@ pipeline {
                     }
                 }
             } 
-            environment {
-                PREVIEW_VERSION = "2.0.4-SNAPSHOT"
-                PREVIEW_NAMESPACE = "$APP_NAME-$BRANCH_NAME".toLowerCase()
-                SETTINGS_FILE_PATH = "/var/jenkins_home/workspace/super-seed/settings.xml"
+            
+            steps {
+                sh 'pwd'
+                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
             }
+        }
+
+        stage('Build and push release') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch pattern: "release-.*", comparator: "REGEXP"
+                    changeRequest()
+                }
+            } 
+            
             steps {
                 sh 'pwd'
                 sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
