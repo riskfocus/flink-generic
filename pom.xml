@@ -46,7 +46,6 @@
         <guava.version>31.1-jre</guava.version>
         <spring.boot.version>2.5.14</spring.boot.version>
         <test.containers.version>1.17.6</test.containers.version>
-        <codeartifact.url>${codeartifact_url}</codeartifact.url>
     </properties>
 
     <repositories>
@@ -62,13 +61,6 @@
             <url>https://packages.confluent.io/maven/</url>
         </repository>
     </repositories>
-    <distributionManagement>
-        <repository>
-            <id>rfac-codeartifact-repo</id>
-            <name>rfac-codeartifact-repo</name>
-            <url>${codeartifact.url}</url>
-        </repository>
-    </distributionManagement>
     <dependencyManagement>
         <dependencies>
             <dependency>
