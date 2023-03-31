@@ -25,10 +25,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.DescribeClusterOptions;
 import org.apache.kafka.common.Node;
 
 @Slf4j
 public class HealthCheckFunction extends ProcessFunction<KafkaConfigs, String>{
+    private static final long serialVersionUID = 1L;
     @Override
     public void processElement(KafkaConfigs value, ProcessFunction<KafkaConfigs, String>.Context ctx, Collector<String> out) throws Exception {
         String result;
@@ -39,7 +41,9 @@ public class HealthCheckFunction extends ProcessFunction<KafkaConfigs, String>{
         props.put("request.timeout.ms", value.getRequestTimeoutMs());
         props.put("connections.max.idle.ms", value.getConnectionMaxIdleMs());
 
-        log.info("Broker : {} {}", bootStrapServers, props.get("bootstrap.servers"));
+        if (log.isInfoEnabled()) {
+            log.info("Broker : {} {}", bootStrapServers, props.get("bootstrap.servers"));
+        }
 
         try (AdminClient adminClient = AdminClient.create(props)) {
             if (verifyBrokerConnection(out, bootStrapServers, adminClient))  {
@@ -49,13 +53,17 @@ public class HealthCheckFunction extends ProcessFunction<KafkaConfigs, String>{
                 if (topicExists) {
                     result = "Kafka Topic: Exists - " + value.getTopic();
 
-                    log.info(result);
+                    if (log.isInfoEnabled()) {
+                        log.info(result);
+                    }
                     out.collect(result);
                 }
                 else {
                     result = "Kafka Topic: Not Found: - " + value.getTopic();
 
-                    log.error(result);
+                    if (log.isInfoEnabled()) {
+                        log.error(result);
+                    }
                     out.collect(result);
                 }
             }
@@ -72,14 +80,17 @@ public class HealthCheckFunction extends ProcessFunction<KafkaConfigs, String>{
             if (connectionSuccessful) {
                 result = "Kafka Broker Connection: Successful - " + bootStrapServers;
 
-                log.info(result);
+                if (log.isInfoEnabled()) {
+                    log.info(result);
+                }
                 out.collect(result);
             }
         } catch (ExecutionException | InterruptedException ex) {
             result = "Kafka Broker Connection: Failed - " + bootStrapServers;
 
-            log.error(result);
-
+            if (log.isInfoEnabled()) {
+                log.error(result);
+            }
             out.collect(result);
         }
         return connectionSuccessful;
@@ -87,11 +98,14 @@ public class HealthCheckFunction extends ProcessFunction<KafkaConfigs, String>{
 
     public boolean verifyConnection(AdminClient adminClient) throws ExecutionException, InterruptedException {
         Collection<Node> nodes;
-        nodes = adminClient.describeCluster()
+        /*
+        control how long to try to connect to broker in ms here. default is 5000 ms or 5 seconds.
+         */
+        nodes = adminClient.describeCluster(new DescribeClusterOptions().timeoutMs(5000))
             .nodes()
             .get();
 
-        return nodes != null && nodes.size() > 0;
+        return nodes != null && !nodes.isEmpty();
     }
 
 }

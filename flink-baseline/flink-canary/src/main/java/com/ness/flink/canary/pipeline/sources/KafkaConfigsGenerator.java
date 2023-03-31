@@ -21,8 +21,9 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 public class KafkaConfigsGenerator implements SourceFunction<KafkaConfigs> {
-    private volatile boolean running = true;
-    private ParameterTool params;
+    private static final long serialVersionUID = 1L;
+//    private volatile boolean running = true;
+    private final ParameterTool params;
 
     /** Create a bounded KafkaConfigsGenerator with the specified params */
     public KafkaConfigsGenerator(ParameterTool params) {
@@ -30,7 +31,7 @@ public class KafkaConfigsGenerator implements SourceFunction<KafkaConfigs> {
     }
 
     @Override
-    public void run(SourceContext<KafkaConfigs> ctx) throws Exception {
+    public void run(SourceContext<KafkaConfigs> ctx) {
 
         // Generate only one data for now
         KafkaConfigs kafkaConfigs = KafkaConfigs.builder()
@@ -45,7 +46,5 @@ public class KafkaConfigsGenerator implements SourceFunction<KafkaConfigs> {
     }
 
     @Override
-    public void cancel() {
-        running = false;
-    }
+    public void cancel() { }
 }

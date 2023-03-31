@@ -25,5 +25,5 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FlinkCanaryJob {
-    public static void main(String[] args) throws Exception {FlinkJobManager.runJob(args);}
+    public static void main(String[] args) {FlinkJobManager.runJob(args);}
 }
