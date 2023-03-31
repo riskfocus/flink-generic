@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-package com.ness.flink.canary.pipeline;
+package com.ness.flink.canary.pipeline.domain;
 
-import com.ness.flink.canary.pipeline.manager.FlinkJobManager;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
-/**
- * @author Khokhlov Pavel
- */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FlinkCanaryJob {
-    public static void main(String[] args) throws Exception {FlinkJobManager.runJob(args);}
+import java.io.Serializable;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+@Builder
+@Getter
+@Setter
+@EqualsAndHashCode
+public class KafkaConfigs implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String bootStrapServers;
+
+    private String topic;
+
+    private String requestTimeoutMs;
+
+    private String connectionMaxIdleMs;
+
 }

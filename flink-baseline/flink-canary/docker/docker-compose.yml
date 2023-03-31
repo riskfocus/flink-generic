@@ -76,8 +76,7 @@ services:
                        /etc/confluent/docker/configure && \
                        cub kafka-ready -b kafka:9093 1 60 && \
                        sleep 5 && \
-                       kafka-topics --bootstrap-server kafka:9093 --topic stringSourceTopic --create --replication-factor 1 --partitions 1 && \
-                       kafka-topics --bootstrap-server kafka:9093 --topic stringSinkTopic --create --replication-factor 1 --partitions 1 '"
+                       kafka-topics --bootstrap-server kafka:9093 --topic test-topic --create --replication-factor 1 --partitions 1 '"
     environment:
       CONNECT_BOOTSTRAP_SERVERS: ignored
       KAFKA_ZOOKEEPER_CONNECT: ignored
