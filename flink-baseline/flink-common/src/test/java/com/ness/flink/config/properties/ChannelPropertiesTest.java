@@ -32,32 +32,32 @@ class ChannelPropertiesTest {
     @Test
     void shouldGetDefaultValues() {
         ChannelProperties properties = ChannelProperties.from("defaultSource", ParameterTool.fromMap(Map.of()));
-        Assertions.assertEquals(ChannelProperties.ChannelType.KAFKA_CONFLUENT, properties.getType());
+        Assertions.assertEquals(ChannelType.KAFKA_CONFLUENT, properties.getType());
     }
 
     @Test
     void shouldGetDefaultValuesForOrderSource() {
         ChannelProperties properties = ChannelProperties.from("order.source", ParameterTool.fromMap(Map.of()));
-        Assertions.assertEquals(ChannelProperties.ChannelType.KAFKA_CONFLUENT, properties.getType());
+        Assertions.assertEquals(ChannelType.KAFKA_CONFLUENT, properties.getType());
     }
 
     @Test
     void shouldGetKafkaMskType() {
         ChannelProperties properties = ChannelProperties.from("test.source", ParameterTool.fromMap(Map.of()), TEST_CONFIG);
-        Assertions.assertEquals(ChannelProperties.ChannelType.KAFKA_MSK, properties.getType());
+        Assertions.assertEquals(ChannelType.KAFKA_MSK, properties.getType());
     }
 
     @Test
     void shouldGetKafkaConfluentType() {
         // Default Configuration is KAFKA_CONFLUENT
         ChannelProperties properties = ChannelProperties.from("confluent.sink", ParameterTool.fromMap(Map.of()), TEST_CONFIG);
-        Assertions.assertEquals(ChannelProperties.ChannelType.KAFKA_CONFLUENT, properties.getType());
+        Assertions.assertEquals(ChannelType.KAFKA_CONFLUENT, properties.getType());
     }
 
     @Test
     void shouldGetKafkaAwsKinesisType() {
         ChannelProperties properties = ChannelProperties.from("test.sink", ParameterTool.fromMap(Map.of()), TEST_CONFIG);
-        Assertions.assertEquals(ChannelProperties.ChannelType.AWS_KINESIS, properties.getType());
+        Assertions.assertEquals(ChannelType.AWS_KINESIS, properties.getType());
     }
 
 }

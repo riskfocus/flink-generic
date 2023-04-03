@@ -23,7 +23,7 @@ import com.ness.flink.example.pipeline.domain.OptionPrice;
 import com.ness.flink.example.pipeline.domain.SmoothingRequest;
 import com.ness.flink.example.pipeline.manager.stream.function.ProcessSmoothingFunction;
 import com.ness.flink.stream.StreamBuilder;
-import com.ness.flink.stream.StreamBuilder.FlinkDataStream;
+import com.ness.flink.stream.FlinkDataStream;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

@@ -54,11 +54,4 @@ public class ChannelProperties {
                 .genericProperties(name, CONFIG_NAME, parameterTool, ChannelProperties.class, ymlConfigFile);
     }
 
-    /**
-     * Different set of Channels (could be Kafka/Kinesis etc)
-     * @author Khokhlov Pavel
-     */
-    public enum ChannelType {
-        KAFKA_CONFLUENT, KAFKA_MSK, AWS_KINESIS
-    }
 }
