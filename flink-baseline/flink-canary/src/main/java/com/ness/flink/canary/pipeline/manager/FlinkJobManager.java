@@ -57,7 +57,7 @@ public class FlinkJobManager {
 
         streamBuilder.stream().source(configsSource)
             .addToStream(stream -> stream.process(new HealthCheckFunction()).uid("health-check-function"))
-            .addSink(() -> new PrintSinkFunction<>());
+            .addSink(PrintSinkFunction::new);
 
         streamBuilder.run("flink-canary");
     }

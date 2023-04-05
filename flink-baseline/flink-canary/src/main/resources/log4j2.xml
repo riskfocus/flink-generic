@@ -47,7 +47,6 @@
         </Root>
         <Logger name="org.apache.kafka" level="INFO" additivity="true"/>
         <Logger name="org.apache.flink" level="INFO" additivity="true"/>
-        <Logger name="com.ness.flink.example" level="INFO" additivity="true"/>
         <Logger name="com.ness" level="INFO" additivity="true"/>
     </Loggers>
 

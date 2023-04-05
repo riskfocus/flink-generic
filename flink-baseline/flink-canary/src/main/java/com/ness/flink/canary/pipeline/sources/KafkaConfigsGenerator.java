@@ -22,7 +22,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 public class KafkaConfigsGenerator implements SourceFunction<KafkaConfigs> {
     private static final long serialVersionUID = 1L;
-//    private volatile boolean running = true;
+
     private final ParameterTool params;
 
     /** Create a bounded KafkaConfigsGenerator with the specified params */
