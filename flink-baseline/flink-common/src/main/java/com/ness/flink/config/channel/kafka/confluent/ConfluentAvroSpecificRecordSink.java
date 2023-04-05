@@ -48,6 +48,6 @@ public final class ConfluentAvroSpecificRecordSink<S extends SpecificRecordBase>
     private RegistryAvroSerializationSchema<S> buildSerializationSchema() {
         return ConfluentRegistryAvroSerializationSchema.forSpecific(domainClass, getTopic() + "-value",
                 kafkaProducerProperties.getConfluentSchemaRegistry(),
-                kafkaProducerProperties.getConfluentRegistryConfigs());
+                kafkaProducerProperties.getConfluentRegistryConfigs(awsProperties));
     }
 }

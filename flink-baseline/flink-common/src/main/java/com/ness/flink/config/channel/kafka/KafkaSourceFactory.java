@@ -18,6 +18,7 @@ package com.ness.flink.config.channel.kafka;
 
 import com.ness.flink.config.channel.SourceFactory;
 import com.ness.flink.config.operator.DefaultSource;
+import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.KafkaConsumerProperties;
 import com.ness.flink.config.properties.WatermarkProperties;
 import com.ness.flink.schema.PojoDeserializationSchema;
@@ -37,6 +38,7 @@ public abstract class KafkaSourceFactory implements SourceFactory {
             .watermarkProperties(watermarkProperties)
             .timestampAssignerFunction(timestampAssignerFunction)
             .valueSchema(new PojoDeserializationSchema<>(domainClass))
+            .awsProperties(buildAwsProperties(parameterTool))
             .kafkaConsumerProperties(buildKafkaConsumerProperties(sourceName, parameterTool))
             .build();
 
@@ -44,5 +46,9 @@ public abstract class KafkaSourceFactory implements SourceFactory {
 
     protected static KafkaConsumerProperties buildKafkaConsumerProperties(String sourceName, ParameterTool parameterTool) {
         return KafkaConsumerProperties.from(sourceName, parameterTool);
+    }
+
+    protected static AwsProperties buildAwsProperties(ParameterTool parameterTool) {
+        return AwsProperties.from(parameterTool);
     }
 }

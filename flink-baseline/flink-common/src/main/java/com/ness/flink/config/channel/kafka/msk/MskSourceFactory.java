@@ -40,6 +40,7 @@ public class MskSourceFactory extends KafkaSourceFactory {
             .name(sourceName)
             .watermarkProperties(watermarkProperties)
             .timestampAssignerFunction(timestampAssignerFunction)
+            .awsProperties(buildAwsProperties(parameterTool))
             .valueSchema(GlueSchemaRegistryAvroDeserializationSchema.forSpecific(domainClass,
                 awsProperties.getAwsGlueSchemaConfig(kafkaConsumerProperties.getTopic())))
             .kafkaConsumerProperties(kafkaConsumerProperties)

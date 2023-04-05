@@ -20,7 +20,6 @@ import com.ness.flink.config.channel.EventTimeExtractor;
 import com.ness.flink.config.channel.KeyExtractor;
 import com.ness.flink.config.channel.kafka.KafkaSinkFactory;
 import com.ness.flink.config.operator.DefaultSink;
-import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.KafkaProducerProperties;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -31,13 +30,12 @@ public class MskSinkFactory extends KafkaSinkFactory {
     @Override
     public <S extends SpecificRecordBase> DefaultSink<S> sinkAvroSpecific(String sinkName, Class<S> domainClass,
         ParameterTool parameterTool, KeyExtractor<S> keyExtractor, @Nullable EventTimeExtractor<S> eventTimeExtractor) {
-        var awsProperties = AwsProperties.from(parameterTool);
         return MskAvroSpecificRecordSink.<S>builder()
             .domainClass(domainClass)
             .name(sinkName)
             .keyExtractor(keyExtractor)
             .eventTimeExtractor(eventTimeExtractor)
-            .awsProperties(awsProperties)
+            .awsProperties(buildAwsProperties(parameterTool))
             .kafkaProducerProperties(KafkaProducerProperties.from(sinkName, parameterTool))
             .build();
     }

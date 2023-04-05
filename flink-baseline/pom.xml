@@ -43,6 +43,7 @@
         <dropwizard.metrics.version>4.1.10.1</dropwizard.metrics.version>
         <aws-kinesisanalytics-runtime.version>1.2.0</aws-kinesisanalytics-runtime.version>
         <aws.glue.flink.serde.version>1.1.14</aws.glue.flink.serde.version>
+        <aws.secret.manager.version>1.0.2</aws.secret.manager.version>
     </properties>
 
     <dependencyManagement>
@@ -133,6 +134,12 @@
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.amazonaws.secretsmanager</groupId>
+                <artifactId>aws-secretsmanager-caching-java</artifactId>
+                <version>${aws.secret.manager.version}</version>
             </dependency>
 
             <dependency>
@@ -275,6 +282,11 @@
         <dependency>
             <groupId>software.amazon.glue</groupId>
             <artifactId>schema-registry-flink-serde</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.amazonaws.secretsmanager</groupId>
+            <artifactId>aws-secretsmanager-caching-java</artifactId>
         </dependency>
 
         <dependency>

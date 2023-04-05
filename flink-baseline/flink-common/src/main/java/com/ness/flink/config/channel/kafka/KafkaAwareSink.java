@@ -19,6 +19,7 @@ package com.ness.flink.config.channel.kafka;
 import com.ness.flink.config.channel.EventTimeExtractor;
 import com.ness.flink.config.channel.KeyExtractor;
 import com.ness.flink.config.operator.DefaultSink;
+import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.KafkaProducerProperties;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.api.connector.sink2.Sink;
@@ -37,12 +38,13 @@ import java.util.Properties;
 @SuperBuilder
 public abstract class KafkaAwareSink<S extends Serializable> extends DefaultSink<S> {
     protected final KafkaProducerProperties kafkaProducerProperties;
+    protected final AwsProperties awsProperties;
     protected final Class<S> domainClass;
     protected final KeyExtractor<S> keyExtractor;
     protected final EventTimeExtractor<S> eventTimeExtractor;
 
     protected Properties producerProps() {
-        return kafkaProducerProperties.getProducerProperties();
+        return kafkaProducerProperties.getProducerProperties(awsProperties);
     }
 
     protected String getTopic() {
