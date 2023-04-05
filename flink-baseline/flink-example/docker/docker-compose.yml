@@ -97,6 +97,7 @@ services:
                        sleep 5 && \
                        kafka-topics --bootstrap-server kafka:9093 --topic optionsPricesLive --create --replication-factor 1 --partitions 4 && \
                        kafka-topics --bootstrap-server kafka:9093 --topic ycInputsLive --create --replication-factor 1 --partitions 4 && \
+                       kafka-topics --bootstrap-server kafka:9093 --topic configuration --create --replication-factor 1 --partitions 4 && \
                        kafka-topics --bootstrap-server kafka:9093 --topic interestRatesSnapshot --create --replication-factor 1 --partitions 1 && \
                        kafka-topics --bootstrap-server kafka:9093 --topic smoothingInputsLatest --create --replication-factor 1 --partitions 4 '"
     environment:

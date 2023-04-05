@@ -28,6 +28,7 @@ import com.ness.flink.config.channel.kafka.msk.MskAvroSpecificRecordSink;
 import com.ness.flink.config.environment.EnvironmentFactory;
 import com.ness.flink.config.operator.DefaultSink;
 import com.ness.flink.config.operator.DefaultSource;
+import com.ness.flink.config.operator.KeyedBroadcastProcessorDefinition;
 import com.ness.flink.config.operator.KeyedProcessorDefinition;
 import com.ness.flink.config.operator.OperatorDefinition;
 import com.ness.flink.config.operator.SinkDefinition;
@@ -50,10 +51,12 @@ import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
+import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
+import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -407,10 +410,28 @@ public class StreamBuilder {
         }
 
         /**
+         * Provides broadcastState descriptors to pipeline
+         *
+         * @param broadcastStateDescriptors broadcastState descriptors
+         * @return BroadcastStream data
+         */
+        public BroadcastStream<T> broadcast(final MapStateDescriptor<?, ?>... broadcastStateDescriptors) {
+            return getDataStream().broadcast(broadcastStateDescriptors);
+        }
+
+        /**
          * Creates a common data stream wrapper, with custom {@link KeyedProcessFunction}
          */
         public <K, U> FlinkDataStream<U> addKeyedProcessor(KeyedProcessorDefinition<K, T, U> def) {
             return new FlinkDataStream<>(configureStream(def));
+        }
+
+        /**
+         * Creates a data stream wrapper, with custom {@link KeyedBroadcastProcessorDefinition}
+         */
+        public <K, A, U> FlinkDataStream<U> addKeyedBroadcastProcessor(KeyedBroadcastProcessorDefinition<K, T, A, U> def,
+            FlinkDataStream<A> broadcastDataStream) {
+            return new FlinkDataStream<>(configureStream(def, broadcastDataStream));
         }
 
         /**
@@ -480,6 +501,19 @@ public class StreamBuilder {
 
         protected <K, U> SingleOutputStreamOperator<U> configureStream(KeyedProcessorDefinition<K, T, U> def) {
             SingleOutputStreamOperator<U> operator = singleOutputStreamOperator.keyBy(def.getKeySelector())
+                .process(def.getProcessFunction())
+                .setParallelism(def.getParallelism().orElse(env.getParallelism()))
+                .name(def.getName())
+                .uid(def.getName());
+            def.getReturnTypeInformation().ifPresent(operator::returns);
+            return operator;
+        }
+
+        protected <K, A, U> SingleOutputStreamOperator<U> configureStream(KeyedBroadcastProcessorDefinition<K, T, A, U> def,
+            FlinkDataStream<A> broadcastStream) {
+            SingleOutputStreamOperator<U> operator = singleOutputStreamOperator
+                .keyBy(def.getKeySelector())
+                .connect(def.broadcast(broadcastStream))
                 .process(def.getProcessFunction())
                 .setParallelism(def.getParallelism().orElse(env.getParallelism()))
                 .name(def.getName())

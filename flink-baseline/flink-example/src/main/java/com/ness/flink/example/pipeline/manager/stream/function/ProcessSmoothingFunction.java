@@ -16,10 +16,13 @@
 
 package com.ness.flink.example.pipeline.manager.stream.function;
 
+import static com.ness.flink.example.pipeline.manager.stream.OptionPriceStream.CONFIGURATION_DESCRIPTOR;
+
 import com.ness.flink.config.properties.WatermarkProperties;
 import com.ness.flink.domain.Event;
 import com.ness.flink.example.pipeline.config.properties.ApplicationProperties;
 import com.ness.flink.example.pipeline.domain.InterestRate;
+import com.ness.flink.example.pipeline.domain.JobConfig;
 import com.ness.flink.example.pipeline.domain.OptionPrice;
 import com.ness.flink.example.pipeline.domain.SmoothingRequest;
 import com.ness.flink.example.pipeline.domain.Underlying;
@@ -32,6 +35,7 @@ import com.ness.flink.snapshot.context.ContextServiceProvider;
 import com.ness.flink.snapshot.context.properties.ContextProperties;
 import com.ness.flink.snapshot.redis.SnapshotData;
 import com.ness.flink.util.EventUtils;
+import com.ness.flink.util.SupplierThrowsException;
 import com.ness.flink.window.WindowAware;
 import com.ness.flink.window.WindowContext;
 import com.ness.flink.window.generator.WindowGeneratorProvider;
@@ -45,7 +49,7 @@ import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
 import org.apache.flink.util.Collector;
 
 
@@ -54,10 +58,11 @@ import org.apache.flink.util.Collector;
  */
 @Slf4j
 @SuppressWarnings({"PMD.ExcessiveImports", "PMD.TooManyMethods"})
-public class ProcessSmoothingFunction extends KeyedProcessFunction<String, OptionPrice, SmoothingRequest> {
+public class ProcessSmoothingFunction extends KeyedBroadcastProcessFunction<String, OptionPrice, JobConfig, SmoothingRequest> {
 
     private static final long serialVersionUID = -4848961500498134626L;
 
+    private static final String CONFIG_KEY = "configKey";
     private transient MapState<String, OptionPrice> pricesState;
     private transient MapState<String, InterestRate> ratesState;
     private transient ValueState<Boolean> pricesUpdateRequiredState;
@@ -65,6 +70,8 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
     private transient WindowAware windowAware;
     private transient ContextService contextService;
     private transient InterestRatesLoader loader;
+
+    private transient boolean debugLogging;
 
     @Override
     public void open(Configuration parameters) throws Exception {
@@ -84,6 +91,7 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
         
         WatermarkProperties watermarkProperties = WatermarkProperties.from(parameterTool);
         ApplicationProperties applicationProperties = ApplicationProperties.from(parameterTool);
+        debugLogging = applicationProperties.isEnabledExtendedLogging();
 
         windowAware = WindowGeneratorProvider.create(watermarkProperties);
         contextService = ContextServiceProvider.create(ContextProperties.from(parameterTool), watermarkProperties);
@@ -96,16 +104,40 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
     }
 
     @Override
-    public void processElement(OptionPrice value, Context ctx, Collector<SmoothingRequest> out) throws Exception {
+    public void processBroadcastElement(JobConfig value,
+        KeyedBroadcastProcessFunction<String, OptionPrice, JobConfig, SmoothingRequest>.Context ctx,
+        Collector<SmoothingRequest> out) throws Exception {
+        log.info("Got updated configuration: {}", value);
+        ctx.getBroadcastState(CONFIGURATION_DESCRIPTOR).put(CONFIG_KEY, value);
+    }
+
+    private boolean extendedLoggingEnabled(SupplierThrowsException<JobConfig> supplier) throws Exception {
+        boolean enabled = debugLogging;
+        JobConfig jobConfig = supplier.get();
+        if (jobConfig != null) {
+            // we got state, should use it
+            enabled = jobConfig.isExtendedLogging();
+        }
+        return enabled;
+    }
+
+    @Override
+    public void processElement(OptionPrice value,
+        KeyedBroadcastProcessFunction<String, OptionPrice, JobConfig, SmoothingRequest>.ReadOnlyContext ctx,
+        Collector<SmoothingRequest> out) throws Exception {
         long start = System.currentTimeMillis();
         long timestamp = value.getTimestamp();
         String underlying = value.getUnderlying().getName();
-        log.debug("{} processing, timestamp: {}", underlying, timestamp);
+
+        if (extendedLoggingEnabled(() -> ctx.getBroadcastState(CONFIGURATION_DESCRIPTOR).get(CONFIG_KEY))) {
+            log.info("{} processing, timestamp: {}", underlying, timestamp);
+        }
         boolean pricesUpdateRequired = updateOptionPrice(value);
 
-    if (!Boolean.TRUE.equals(pricesUpdateRequiredState.value())) {
+        if (!Boolean.TRUE.equals(pricesUpdateRequiredState.value())) {
             pricesUpdateRequiredState.update(true);
-            log.debug("{} pricesUpdateRequired: {} , duration: {} ms", underlying, pricesUpdateRequired, System.currentTimeMillis() - start);
+            log.debug("{} pricesUpdateRequired: {} , duration: {} ms", underlying, pricesUpdateRequired,
+                System.currentTimeMillis() - start);
             // Register timer
             WindowContext context = windowAware.generateWindowPeriod(timestamp);
             final long fireTime = context.endOfWindow();
@@ -116,6 +148,8 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
     @Override
     public void onTimer(final long timestamp, OnTimerContext ctx, Collector<SmoothingRequest> out) throws Exception {
         super.onTimer(timestamp, ctx, out);
+
+        boolean enabledLogging = extendedLoggingEnabled(() -> ctx.getBroadcastState(CONFIGURATION_DESCRIPTOR).get(CONFIG_KEY));
 
         final String underlying = ctx.getCurrentKey();
         final WindowContext context = windowAware.generateWindowPeriod(timestamp);
@@ -146,7 +180,7 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
                 log.debug("{} Fired. Underlying: {}, updatePrices: {}, updateRates: {}", windowId, ctx.getCurrentKey(),
                     updatePrices, updateRates);
             }
-            produce(underlying, windowId, loadedRates, out);
+            produce(underlying, windowId, loadedRates, out, enabledLogging);
         }
 
         // For this Underlying we've finished processing data
@@ -155,7 +189,8 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
         ctx.timerService().registerEventTimeTimer(nextFireTime);
     }
 
-    private void produce(String underlyingKey, Long windowId, InterestRates currentRates, Collector<SmoothingRequest> out) throws Exception {
+    private void produce(String underlyingKey, Long windowId, InterestRates currentRates, Collector<SmoothingRequest> out,
+        boolean enabledLogging) throws Exception {
         log.debug("Emitting for Underlying: {}", underlyingKey);
         if (currentRates.empty()) {
             log.debug("{} Underlying: {} rates are empty. Nothing to do", windowId, underlyingKey);
@@ -163,7 +198,7 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
         }
 
         Map<String, OptionPrice> prices = loadPrices();
-        collect(windowId, underlyingKey, currentRates.getRates(), prices, out, currentRates.getTimestamp());
+        collect(windowId, underlyingKey, currentRates.getRates(), prices, out, currentRates.getTimestamp(), enabledLogging);
     }
 
     private Map<String, OptionPrice> loadPrices() throws Exception {
@@ -176,9 +211,11 @@ public class ProcessSmoothingFunction extends KeyedProcessFunction<String, Optio
 
     private void collect(Long windowId, String underlying,
                          Map<String, InterestRate> stringInterestRateMap, Map<String, OptionPrice> prices,
-                         Collector<SmoothingRequest> out, long timestamp) {
+                         Collector<SmoothingRequest> out, long timestamp, boolean enabledLogging) {
         SmoothingRequest request = createFrom(underlying, prices, stringInterestRateMap, timestamp);
-        log.info("Emit message, key: W{}", windowId);
+        if (enabledLogging) {
+            log.info("Emit message, key: W{}", windowId);
+        }
         out.collect(request);
     }
 
