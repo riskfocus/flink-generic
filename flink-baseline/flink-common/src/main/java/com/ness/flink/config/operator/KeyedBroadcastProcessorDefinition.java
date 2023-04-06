@@ -17,7 +17,7 @@
 package com.ness.flink.config.operator;
 
 import com.ness.flink.config.properties.OperatorProperties;
-import com.ness.flink.stream.StreamBuilder.FlinkDataStream;
+import com.ness.flink.stream.FlinkDataStream;
 import lombok.Getter;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.functions.KeySelector;
