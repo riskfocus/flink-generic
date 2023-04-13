@@ -11,17 +11,25 @@ $ mvn clean install
 ```
 
 ## Start Local Kafka Cluster
+Bring up a kafka cluster with default port 'localhost:19093' and create a topic in the cluster called 'test-topic'.
  ```bash
 $ cd docker
 $ docker-compose up -d
  ```
 
 ## Input Data
-
-Modify run configuration of FlinkCanaryJob. Pass the following Kafka Config details in the program arguments.
+Go to the configuration file titled application.yml, which is located in the src/main/resources/ folder. <br>
+Here, you can update the target broker and topic that you want flink-canary to test.
 #### Kafka Config Sample Values
-`--bootstrap.servers localhost:19093`
-`--topic test-topic`
+```yaml
+# Canary target broker host should be configured here
+kafka:
+  bootstrap.servers: your-target-broker (i.e. localhost:19093)
+
+# Canary target topic name should be configured here
+canary.test.source:
+  topic: your-target-topic-name (i.e. test-topic)
+```
 
 
 ## Expected Output

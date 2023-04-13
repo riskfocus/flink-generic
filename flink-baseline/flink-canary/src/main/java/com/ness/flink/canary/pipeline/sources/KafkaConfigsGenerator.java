@@ -17,11 +17,9 @@
 package com.ness.flink.canary.pipeline.sources;
 
 import com.ness.flink.canary.pipeline.domain.KafkaConfigs;
-import com.ness.flink.config.properties.KafkaConsumerProperties;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 @Slf4j
 public class KafkaConfigsGenerator implements SourceFunction<KafkaConfigs> {
