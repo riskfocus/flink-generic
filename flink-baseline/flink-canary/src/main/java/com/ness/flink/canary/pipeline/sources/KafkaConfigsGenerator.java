@@ -17,29 +17,39 @@
 package com.ness.flink.canary.pipeline.sources;
 
 import com.ness.flink.canary.pipeline.domain.KafkaConfigs;
+import com.ness.flink.config.properties.KafkaConsumerProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import java.util.Properties;
 
+@Slf4j
 public class KafkaConfigsGenerator implements SourceFunction<KafkaConfigs> {
     private static final long serialVersionUID = 1L;
+    private final Properties properties;
+    private final String targetTopic;
 
-    private final ParameterTool params;
 
     /** Create a bounded KafkaConfigsGenerator with the specified params */
-    public KafkaConfigsGenerator(ParameterTool params) {
-        this.params = params;
+    public KafkaConfigsGenerator(Properties properties, String targetTopic) {
+        this.properties = properties;
+        this.targetTopic = targetTopic;
     }
 
     @Override
     public void run(SourceContext<KafkaConfigs> ctx) {
 
+        log.info("Target Topic: {}", targetTopic);
+
         // Generate only one data for now
         KafkaConfigs kafkaConfigs = KafkaConfigs.builder()
-            .bootStrapServers(params.get("bootstrap.servers", "localhost:9092"))
-            .topic(params.get("topic", "test-topic"))
-            .requestTimeoutMs(params.get("request.timeout.ms", "1000"))
-            .connectionMaxIdleMs(params.get("connections.max.idle.ms", "3000"))
+            .bootStrapServers(properties.getProperty("bootstrap.servers", "localhost:9092"))
+            .topic(targetTopic)
+            .requestTimeoutMs(properties.getProperty("request.timeout.ms", "1000"))
+            .connectionMaxIdleMs(properties.getProperty("connections.max.idle.ms", "3000"))
             .build();
+
+        log.info("Properties in Generator: {}", properties);
 
         ctx.collect(kafkaConfigs);
 

@@ -23,7 +23,6 @@ Modify run configuration of FlinkCanaryJob. Pass the following Kafka Config deta
 `--bootstrap.servers localhost:19093`
 `--topic test-topic`
 
-![img.png](img.png)
 
 ## Expected Output
 

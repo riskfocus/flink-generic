@@ -13,25 +13,13 @@
 #limitations under the License.
 
 # Application settings
-application:
-  windowProviderType: BASIC
-
-watermark:
-  watermarkType: CUSTOM_WITH_IDLE
-  windowSizeMs: 10000
-
-channel:
-  type: KAFKA_CONFLUENT
-
+# Canary target broker host should go here
 kafka:
   bootstrap.servers: localhost:19093
-  #schema.registry.url: http://localhost:8085
-  #schema.registry.basic.auth.credentials.source: URL
-  #schema.registry.basic.auth.credentials.source: USER_INFO
-  #schema.registry.basic.auth.user.info: user:pwd
-  #security.protocol: SASL_SSL
-  #sasl.mechanism: PLAIN
-  #sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule   required username='API_KEY' password='API_PASSWD';"
+
+# Canary target topic name should be configured here
+canary.test.source:
+  topic: test-topic1
 
 kafka.consumer:
   enable.auto.commit: "true"
@@ -42,26 +30,6 @@ kafka.consumer:
   offsets: COMMITTED
   fetch.max.wait.ms: 500
   group.id: "flinkCanary"
-  #skipBrokenMessages: true
-  #parallelism: 4
-
-kafka.producer:
-  acks: all
-  batch.size: 16384
-  linger.ms: 0
-  #### Exactly once semantic (requires enabled checkpoints!!!)
-  #transactionIdPrefix: "flink-orderProcessor_"
-  #deliveryGuarantee: EXACTLY_ONCE
-  #max.in.flight.requests.per.connection: 5
-  #enable.idempotence: true
-  #transaction.timeout.ms: 60000
-  #parallelism: 4
-
-string.source:
-    topic: stringSourceTopic
-
-string.sink:
-    topic: stringSinkTopic
 
 # Flink org.apache.flink.streaming.api.environment.StreamExecutionEnvironment configuration
 environment:
@@ -69,10 +37,3 @@ environment:
   bufferTimeoutMs: 0
   autoWatermarkInterval: 500
   disableGenericTypes: false
-  #enabledCheckpoints: true
-  #enabledRocksDb: true
-  #checkpointsDataUri: "file:/checkpoints/"
-  # see org.apache.flink.streaming.api.environment.CheckpointConfig.configure
-  #execution.checkpointing.interval: 30000
-  #execution.checkpointing.min-pause: 10000
-  #execution.checkpointing.unaligned: false

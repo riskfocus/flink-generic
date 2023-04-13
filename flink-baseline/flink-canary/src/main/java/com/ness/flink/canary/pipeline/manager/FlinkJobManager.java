@@ -21,6 +21,7 @@ import com.ness.flink.canary.pipeline.domain.KafkaConfigs;
 import com.ness.flink.canary.pipeline.function.HealthCheckFunction;
 import com.ness.flink.canary.pipeline.sources.KafkaConfigsGenerator;
 import com.ness.flink.config.operator.DefaultSource;
+import com.ness.flink.config.properties.KafkaConsumerProperties;
 import com.ness.flink.stream.StreamBuilder;
 import java.util.Optional;
 import lombok.AccessLevel;
@@ -42,11 +43,13 @@ public class FlinkJobManager {
 
         StreamBuilder streamBuilder = StreamBuilder.from(args);
         ParameterTool params = ParameterTool.fromArgs(args);
+
+        KafkaConsumerProperties kafkaConsumerProperties = KafkaConsumerProperties.from("canary.test.source", params);
         DefaultSource<KafkaConfigs> configsSource = new DefaultSource<>("configs.source") {
             @Override
             public SingleOutputStreamOperator<KafkaConfigs> build(
                 StreamExecutionEnvironment streamExecutionEnvironment) {
-                return streamExecutionEnvironment.addSource(new KafkaConfigsGenerator(params));
+                return streamExecutionEnvironment.addSource(new KafkaConfigsGenerator(kafkaConsumerProperties.getConsumerProperties(), kafkaConsumerProperties.getTopic()));
             }
 
             @Override
