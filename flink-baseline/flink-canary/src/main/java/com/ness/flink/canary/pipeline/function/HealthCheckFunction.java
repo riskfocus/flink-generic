@@ -16,12 +16,14 @@
 
 package com.ness.flink.canary.pipeline.function;
 
-import com.ness.flink.canary.pipeline.domain.KafkaConfigs;
+import com.ness.flink.canary.pipeline.config.properties.KafkaAdminProperties;
+import com.ness.flink.canary.pipeline.domain.TriggerEvent;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -29,17 +31,24 @@ import org.apache.kafka.clients.admin.DescribeClusterOptions;
 import org.apache.kafka.common.Node;
 
 @Slf4j
-public class HealthCheckFunction extends ProcessFunction<KafkaConfigs, String>{
+public class HealthCheckFunction extends ProcessFunction<TriggerEvent, String>{
     private static final long serialVersionUID = 1L;
+
     @Override
-    public void processElement(KafkaConfigs value, ProcessFunction<KafkaConfigs, String>.Context ctx, Collector<String> out) throws Exception {
+    public void open(Configuration parameters) throws Exception {
+        // TODO Initialize KafkaAdminProperties here and use KafkaAdminProperties to create AdminClient
+        KafkaAdminProperties kafkaAdminProperties = KafkaAdminProperties.from("canary.test.source", parameters);
+        AdminClient.create(kafkaAdminProperties);
+    }
+    @Override
+    public void processElement(TriggerEvent value, ProcessFunction<TriggerEvent, String>.Context ctx, Collector<String> out) throws Exception {
         String result;
 
-        Properties props = new Properties();
-        String bootStrapServers = value.getBootStrapServers();
-        props.put("bootstrap.servers", bootStrapServers);
-        props.put("request.timeout.ms", value.getRequestTimeoutMs());
-        props.put("connections.max.idle.ms", value.getConnectionMaxIdleMs());
+//        Properties props = new Properties();
+//        String bootStrapServers = value.getBootStrapServers();
+//        props.put("bootstrap.servers", bootStrapServers);
+//        props.put("request.timeout.ms", value.getRequestTimeoutMs());
+//        props.put("connections.max.idle.ms", value.getConnectionMaxIdleMs());
 
         if (log.isInfoEnabled()) {
             log.info("Broker : {} {}", bootStrapServers, props.get("bootstrap.servers"));

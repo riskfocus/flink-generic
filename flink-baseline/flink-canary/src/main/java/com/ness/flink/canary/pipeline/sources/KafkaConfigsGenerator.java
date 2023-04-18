@@ -16,41 +16,31 @@
 
 package com.ness.flink.canary.pipeline.sources;
 
-import com.ness.flink.canary.pipeline.domain.KafkaConfigs;
+import com.ness.flink.canary.pipeline.config.properties.ApplicationProperties;
+import com.ness.flink.canary.pipeline.domain.TriggerEvent;
 import java.util.Properties;
+import com.ness.flink.config.properties.KafkaConsumerProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 @Slf4j
-public class KafkaConfigsGenerator implements SourceFunction<KafkaConfigs> {
+public class KafkaConfigsGenerator implements SourceFunction<TriggerEvent> {
     private static final long serialVersionUID = 1L;
-    private final Properties properties;
-    private final String targetTopic;
-
+    private static ApplicationProperties applicationProperties;
 
     /** Create a bounded KafkaConfigsGenerator with the specified params */
-    public KafkaConfigsGenerator(Properties properties, String targetTopic) {
-        this.properties = properties;
-        this.targetTopic = targetTopic;
+    public KafkaConfigsGenerator(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
     }
 
     @Override
-    public void run(SourceContext<KafkaConfigs> ctx) {
-
-        log.info("Target Topic: {}", targetTopic);
+    public void run(SourceContext<TriggerEvent> ctx) {
 
         // Generate only one data for now
-        KafkaConfigs kafkaConfigs = KafkaConfigs.builder()
-            .bootStrapServers(properties.getProperty("bootstrap.servers", "localhost:9092"))
-            .topic(targetTopic)
-            .requestTimeoutMs(properties.getProperty("request.timeout.ms", "1000"))
-            .connectionMaxIdleMs(properties.getProperty("connections.max.idle.ms", "3000"))
-            .build();
+        TriggerEvent triggerEvent = new TriggerEvent(applicationProperties.getTopic());
 
-        log.info("Properties in Generator: {}", properties);
-
-        ctx.collect(kafkaConfigs);
-
+        ctx.collect(triggerEvent);
     }
 
     @Override

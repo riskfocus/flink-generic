@@ -27,15 +27,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class KafkaConfigs implements Serializable {
+public class TriggerEvent implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String bootStrapServers;
-
     private String topic;
-
-    private String requestTimeoutMs;
-
-    private String connectionMaxIdleMs;
-
 }

@@ -13,7 +13,8 @@
 #limitations under the License.
 
 # Application settings
-
+application:
+    topic: test-topic1
 # Canary target broker host should be configured here
 kafka:
   bootstrap.servers: localhost:19092

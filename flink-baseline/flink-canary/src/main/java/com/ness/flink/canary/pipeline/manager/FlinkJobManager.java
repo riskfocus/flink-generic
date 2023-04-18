@@ -17,7 +17,8 @@
 package com.ness.flink.canary.pipeline.manager;
 
 
-import com.ness.flink.canary.pipeline.domain.KafkaConfigs;
+import com.ness.flink.canary.pipeline.config.properties.ApplicationProperties;
+import com.ness.flink.canary.pipeline.domain.TriggerEvent;
 import com.ness.flink.canary.pipeline.function.HealthCheckFunction;
 import com.ness.flink.canary.pipeline.sources.KafkaConfigsGenerator;
 import com.ness.flink.config.operator.DefaultSource;
@@ -44,12 +45,15 @@ public class FlinkJobManager {
         StreamBuilder streamBuilder = StreamBuilder.from(args);
         ParameterTool params = ParameterTool.fromArgs(args);
 
-        KafkaConsumerProperties kafkaConsumerProperties = KafkaConsumerProperties.from("canary.test.source", params);
-        DefaultSource<KafkaConfigs> configsSource = new DefaultSource<>("configs.source") {
+        //TODO Create application properties and pass it down to KafkaConfigsGenerator
+        ApplicationProperties applicationProperties = ApplicationProperties.from(params);
+
+//        KafkaConsumerProperties kafkaConsumerProperties = KafkaConsumerProperties.from("canary.test.source", params);
+        DefaultSource<TriggerEvent> configsSource = new DefaultSource<>("configs.source") {
             @Override
-            public SingleOutputStreamOperator<KafkaConfigs> build(
+            public SingleOutputStreamOperator<TriggerEvent> build(
                 StreamExecutionEnvironment streamExecutionEnvironment) {
-                return streamExecutionEnvironment.addSource(new KafkaConfigsGenerator(kafkaConsumerProperties.getConsumerProperties(), kafkaConsumerProperties.getTopic()));
+                return streamExecutionEnvironment.addSource(new KafkaConfigsGenerator(applicationProperties));
             }
 
             @Override
