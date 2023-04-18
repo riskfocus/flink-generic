@@ -17,13 +17,10 @@ pipeline {
         ORG = 'RiskFocus'
         APP_NAME = 'flink-generic'
         BRANCH_NAME = ''
-        SONAR_OPTS = ' '
+        SONAR_OPTS = ''
         CODEARTIFACT_AUTH_TOKEN = credentials('codeartifact-auth-token')
         group_prefix            = credentials('group-prefix')
         domain_owner            = credentials('domain-owner')
-        AWS_ACCESS_KEY_ID       = credentials('aws-access-key')
-        AWS_SECRET_ACCESS_KEY   = credentials('aws-secret-key')
-        AWS_SESSION_TOKEN       = credentials('aws-token')
         aws_region              = credentials('aws-region')
         CODEARTIFACT_URL        = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.${aws_region}.amazonaws.com/maven/${group_prefix}-repo/"
     }
@@ -38,15 +35,17 @@ pipeline {
             when {
                 changeRequest()
             }
-            
-            steps {
-                sh 'pwd'
-                dir('/var/jenkins_home/workspace/super-seed'){
-                sh 'ls'
-                sh 'mvn -X clean | grep "settings"'
-                sh 'mv settings.xml /var/jenkins_home/.m2/'
+
+            withAWS(role:'gradov-dev-jenkins-cluster-cluster-20230417200448463200000001') {
+                steps {
+                    sh 'pwd'
+                    dir('/var/jenkins_home/workspace/super-seed'){
+                    sh 'ls'
+                    sh 'mvn -X clean | grep "settings"'
+                    sh 'mv settings.xml /var/jenkins_home/.m2/'
+                    }
+                    sh 'mvn clean install -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
                 }
-                sh 'mvn clean install -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
             }
         }
 
@@ -60,15 +59,17 @@ pipeline {
                     }
                 }
             } 
-            
-            steps {
-                sh 'pwd'
-                dir('/var/jenkins_home/workspace/super-seed'){
-                sh 'ls'
-                sh 'mvn -X clean | grep "settings"'
-                sh 'mv settings.xml /var/jenkins_home/.m2/'
+
+            withAWS(role:'gradov-dev-jenkins-cluster-cluster-20230417200448463200000001') {
+                steps {
+                    sh 'pwd'
+                    dir('/var/jenkins_home/workspace/super-seed'){
+                    sh 'ls'
+                    sh 'mvn -X clean | grep "settings"'
+                    sh 'mv settings.xml /var/jenkins_home/.m2/'
+                    }
+                    sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
                 }
-                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
             }
         }
 
@@ -80,15 +81,17 @@ pipeline {
                     changeRequest()
                 }
             } 
-            
-            steps {
-                sh 'pwd'
-                dir('/var/jenkins_home/workspace/super-seed'){
-                sh 'ls'
-                sh 'mvn -X clean | grep "settings"'
-                sh 'mv settings.xml /var/jenkins_home/.m2/'
+
+            withAWS(role:'gradov-dev-jenkins-cluster-cluster-20230417200448463200000001') {
+                steps {
+                    sh 'pwd'
+                    dir('/var/jenkins_home/workspace/super-seed'){
+                    sh 'ls'
+                    sh 'mvn -X clean | grep "settings"'
+                    sh 'mv settings.xml /var/jenkins_home/.m2/'
+                    }
+                    sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
                 }
-                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
             }
         }
     }
