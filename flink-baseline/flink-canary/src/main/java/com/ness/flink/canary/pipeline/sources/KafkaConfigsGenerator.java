@@ -18,11 +18,8 @@ package com.ness.flink.canary.pipeline.sources;
 
 import com.ness.flink.canary.pipeline.config.properties.ApplicationProperties;
 import com.ness.flink.canary.pipeline.domain.TriggerEvent;
-import java.util.Properties;
-import com.ness.flink.config.properties.KafkaConsumerProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 @Slf4j
 public class KafkaConfigsGenerator implements SourceFunction<TriggerEvent> {
@@ -32,11 +29,11 @@ public class KafkaConfigsGenerator implements SourceFunction<TriggerEvent> {
     /** Create a bounded KafkaConfigsGenerator with the specified params */
     public KafkaConfigsGenerator(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
+
     }
 
     @Override
     public void run(SourceContext<TriggerEvent> ctx) {
-
         // Generate only one data for now
         TriggerEvent triggerEvent = new TriggerEvent(applicationProperties.getTopic());
 

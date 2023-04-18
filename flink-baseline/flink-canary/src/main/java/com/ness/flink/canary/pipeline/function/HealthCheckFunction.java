@@ -16,17 +16,18 @@
 
 package com.ness.flink.canary.pipeline.function;
 
-import com.ness.flink.canary.pipeline.config.properties.KafkaAdminProperties;
 import com.ness.flink.canary.pipeline.domain.TriggerEvent;
+import com.ness.flink.config.properties.KafkaAdminProperties;
 import java.util.Collection;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.DescribeClusterOptions;
 import org.apache.kafka.common.Node;
 
@@ -34,28 +35,24 @@ import org.apache.kafka.common.Node;
 public class HealthCheckFunction extends ProcessFunction<TriggerEvent, String>{
     private static final long serialVersionUID = 1L;
 
+    public HealthCheckFunction(String name) {
+        this.name = name;
+    }
+
+    private String name;
+    private KafkaAdminProperties kafkaAdminProperties;
+
     @Override
     public void open(Configuration parameters) throws Exception {
-        // TODO Initialize KafkaAdminProperties here and use KafkaAdminProperties to create AdminClient
-        KafkaAdminProperties kafkaAdminProperties = KafkaAdminProperties.from("canary.test.source", parameters);
-        AdminClient.create(kafkaAdminProperties);
+        ParameterTool parameterTool = (ParameterTool) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
+        kafkaAdminProperties = KafkaAdminProperties.from(name, parameterTool);
     }
     @Override
     public void processElement(TriggerEvent value, ProcessFunction<TriggerEvent, String>.Context ctx, Collector<String> out) throws Exception {
         String result;
 
-//        Properties props = new Properties();
-//        String bootStrapServers = value.getBootStrapServers();
-//        props.put("bootstrap.servers", bootStrapServers);
-//        props.put("request.timeout.ms", value.getRequestTimeoutMs());
-//        props.put("connections.max.idle.ms", value.getConnectionMaxIdleMs());
-
-        if (log.isInfoEnabled()) {
-            log.info("Broker : {} {}", bootStrapServers, props.get("bootstrap.servers"));
-        }
-
-        try (AdminClient adminClient = AdminClient.create(props)) {
-            if (verifyBrokerConnection(out, bootStrapServers, adminClient))  {
+        try (AdminClient adminClient = AdminClient.create(kafkaAdminProperties.getAdminProperties())) {
+            if (verifyBrokerConnection(out, kafkaAdminProperties.getAdminProperties().getProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092"), adminClient))  {
                 Set<String> topicNames = adminClient.listTopics().names().get();
                 boolean topicExists = topicNames.contains(value.getTopic());
 
@@ -107,10 +104,10 @@ public class HealthCheckFunction extends ProcessFunction<TriggerEvent, String>{
 
     public boolean verifyConnection(AdminClient adminClient) throws ExecutionException, InterruptedException {
         Collection<Node> nodes;
-        /*
-        control how long to try to connect to broker in ms here. default is 5000 ms or 5 seconds.
-         */
-        nodes = adminClient.describeCluster(new DescribeClusterOptions().timeoutMs(5000))
+
+        nodes = adminClient.describeCluster(new DescribeClusterOptions().timeoutMs(
+            Integer.parseInt(
+                kafkaAdminProperties.getAdminProperties().getProperty(AdminClientConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG,"3000"))))
             .nodes()
             .get();
 

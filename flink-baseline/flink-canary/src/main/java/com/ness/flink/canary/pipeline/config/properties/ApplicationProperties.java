@@ -16,6 +16,8 @@
 
 package com.ness.flink.canary.pipeline.config.properties;
 
+import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.OperatorPropertiesFactory;
 import lombok.Getter;
@@ -25,16 +27,14 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
 
-import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
-
 @Getter
 @Setter
 @Slf4j
 @ToString
 public class ApplicationProperties {
+    private static final String NAME = "application";
 
     private String topic;
-    private static final String NAME = "application";
 
     public static ApplicationProperties from(@NonNull ParameterTool parameterTool) {
         ApplicationProperties properties = from(NAME, parameterTool, DEFAULT_CONFIG_FILE);

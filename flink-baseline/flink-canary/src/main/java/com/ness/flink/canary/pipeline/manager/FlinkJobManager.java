@@ -22,11 +22,9 @@ import com.ness.flink.canary.pipeline.domain.TriggerEvent;
 import com.ness.flink.canary.pipeline.function.HealthCheckFunction;
 import com.ness.flink.canary.pipeline.sources.KafkaConfigsGenerator;
 import com.ness.flink.config.operator.DefaultSource;
-import com.ness.flink.config.properties.KafkaConsumerProperties;
 import com.ness.flink.stream.StreamBuilder;
 import java.util.Optional;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -37,22 +35,20 @@ import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
  * @author Khokhlov Pavel
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class FlinkJobManager {
 
     public static void runJob(String... args) {
 
         StreamBuilder streamBuilder = StreamBuilder.from(args);
         ParameterTool params = ParameterTool.fromArgs(args);
-
-        //TODO Create application properties and pass it down to KafkaConfigsGenerator
         ApplicationProperties applicationProperties = ApplicationProperties.from(params);
 
-//        KafkaConsumerProperties kafkaConsumerProperties = KafkaConsumerProperties.from("canary.test.source", params);
         DefaultSource<TriggerEvent> configsSource = new DefaultSource<>("configs.source") {
             @Override
             public SingleOutputStreamOperator<TriggerEvent> build(
                 StreamExecutionEnvironment streamExecutionEnvironment) {
+
                 return streamExecutionEnvironment.addSource(new KafkaConfigsGenerator(applicationProperties));
             }
 
@@ -63,7 +59,7 @@ public class FlinkJobManager {
         };
 
         streamBuilder.stream().source(configsSource)
-            .addToStream(stream -> stream.process(new HealthCheckFunction()).uid("health-check-function"))
+            .addToStream(stream -> stream.process(new HealthCheckFunction("kafka.admin")).uid("health-check-function"))
             .addSink(PrintSinkFunction::new);
 
         streamBuilder.run("flink-canary");

@@ -17,23 +17,33 @@
 package com.ness.flink.config.properties;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.connector.kafka.source.KafkaSourceOptions;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
 
 @Slf4j
+@Getter
+@Setter
+@ToString
 public class KafkaAdminProperties extends KafkaProperties implements RawProperties<KafkaAdminProperties> {
     private static final long serialVersionUID = 8374164378532623386L;
     private static final String SHARED_PROPERTY_NAME = "kafka.admin";
 
-    private String topic;
-    private Integer connectionMaxIdleMs;
     private String bootstrapServers;
+    private Integer connectionMaxIdleMs;
+
 
     public static KafkaAdminProperties from(@NonNull String name, @NonNull ParameterTool parameterTool) {
         return from(name, parameterTool, DEFAULT_CONFIG_FILE);
@@ -51,10 +61,24 @@ public class KafkaAdminProperties extends KafkaProperties implements RawProperti
         adminProperties.rawValues.putAll(sharedProperties.getRawValues());
         // Now overwrites with Consumer related
         adminProperties.rawValues.putAll(adminRawValues);
-        // Register group.id if it wasn't registered
-        adminProperties.rawValues.putIfAbsent(ConsumerConfig.GROUP_ID_CONFIG, name);
         log.info("Building Kafka Admin: adminProperties={}", adminProperties);
         return adminProperties;
+    }
+
+    public Properties getAdminProperties() {
+        Properties adminProperties = new Properties();
+        Map<String, String> filtered = filterNonAdminProperties();
+        // We should provide unique prefix (in our case it's Operator name) for building "client.id"
+        filtered.putIfAbsent(KafkaSourceOptions.CLIENT_ID_PREFIX.key(), getName());
+        adminProperties.putAll(filtered);
+        log.info("Building Kafka AdminProperties: properties={}", adminProperties);
+        return adminProperties;
+    }
+
+    private Map<String, String> filterNonAdminProperties() {
+        return rawValues.entrySet().stream()
+            .filter(e -> AdminClientConfig.configNames().contains(e.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
 }

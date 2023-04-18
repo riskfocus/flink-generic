@@ -13,25 +13,18 @@
 #limitations under the License.
 
 # Application settings
+# Canary target topic name should be configured here
 application:
-    topic: test-topic1
+    topic: test-topic
+
 # Canary target broker host should be configured here
 kafka:
-  bootstrap.servers: localhost:19092
+    bootstrap.servers: localhost:19093
 
-# Canary target topic name should be configured here
-canary.test.source:
-  topic: test-topic1
-
-kafka.consumer:
-  enable.auto.commit: "true"
-  auto.commit.interval.ms: 5000
-  fetch.min.bytes: 1
-  max.poll.records: 1000
-  isolation.level: read_committed
-  offsets: COMMITTED
-  fetch.max.wait.ms: 500
-  group.id: "flinkCanary"
+# Kafka Admin Client configuration
+# Configure how long we should attempt to connect to Kafka broker before quitting
+kafka.admin:
+    connections.max.idle.ms: 10000
 
 # Flink org.apache.flink.streaming.api.environment.StreamExecutionEnvironment configuration
 environment:
