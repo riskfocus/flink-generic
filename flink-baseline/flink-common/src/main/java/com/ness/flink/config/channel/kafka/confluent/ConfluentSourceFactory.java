@@ -37,9 +37,10 @@ public class ConfluentSourceFactory extends KafkaSourceFactory {
             .name(sourceName)
             .watermarkProperties(watermarkProperties)
             .timestampAssignerFunction(timestampAssignerFunction)
+            .awsProperties(buildAwsProperties(parameterTool))
             .valueSchema(ConfluentRegistryAvroDeserializationSchema
                 .forSpecific(domainClass, kafkaConsumerProperties.getConfluentSchemaRegistry(),
-                    kafkaConsumerProperties.getConfluentRegistryConfigs()))
+                    kafkaConsumerProperties.getConfluentRegistryConfigs(buildAwsProperties(parameterTool))))
             .kafkaConsumerProperties(kafkaConsumerProperties)
             .build();
     }

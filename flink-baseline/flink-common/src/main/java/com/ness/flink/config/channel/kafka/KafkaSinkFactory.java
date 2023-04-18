@@ -20,6 +20,7 @@ import com.ness.flink.config.channel.EventTimeExtractor;
 import com.ness.flink.config.channel.KeyExtractor;
 import com.ness.flink.config.channel.SinkFactory;
 import com.ness.flink.config.operator.DefaultSink;
+import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.KafkaProducerProperties;
 import java.io.Serializable;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -35,12 +36,17 @@ public abstract class KafkaSinkFactory implements SinkFactory {
             .name(sinkName)
             .eventTimeExtractor(eventTimeExtractor)
             .keyExtractor(keyExtractor)
+            .awsProperties(buildAwsProperties(parameterTool))
             .kafkaProducerProperties(buildKafkaProducerProperties(sinkName, parameterTool))
             .build();
     }
 
     protected KafkaProducerProperties buildKafkaProducerProperties(String sinkName, ParameterTool parameterTool) {
         return KafkaProducerProperties.from(sinkName, parameterTool);
+    }
+
+    protected static AwsProperties buildAwsProperties(ParameterTool parameterTool) {
+        return AwsProperties.from(parameterTool);
     }
 
 }

@@ -34,6 +34,7 @@ public class ConfluentSinkFactory extends KafkaSinkFactory {
             .eventTimeExtractor(eventTimeExtractor)
             .keyExtractor(keyExtractor)
             .kafkaProducerProperties(buildKafkaProducerProperties(sinkName, parameterTool))
+            .awsProperties(buildAwsProperties(parameterTool))
             .build();
     }
 }
