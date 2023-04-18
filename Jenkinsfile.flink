@@ -29,26 +29,25 @@ pipeline {
         maven "maven-3.9.0"
     }
 
-    stages {
+    options {
+        withAWS(role:'gradov-dev-jenkins-cluster-cluster-20230417200448463200000001')
+    }
 
+    stages {
         stage('CI Build') {
             when {
                 changeRequest()
             }
-
-            withAWS(role:'gradov-dev-jenkins-cluster-cluster-20230417200448463200000001') {
-                steps {
-                    sh 'pwd'
-                    dir('/var/jenkins_home/workspace/super-seed'){
+            steps {
+                sh 'pwd'
+                dir('/var/jenkins_home/workspace/super-seed'){
                     sh 'ls'
                     sh 'mvn -X clean | grep "settings"'
                     sh 'mv settings.xml /var/jenkins_home/.m2/'
-                    }
                     sh 'mvn clean install -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
                 }
             }
         }
-
         stage('Build and push snapshot') {
             when {
                 not {
@@ -59,20 +58,16 @@ pipeline {
                     }
                 }
             } 
-
-            withAWS(role:'gradov-dev-jenkins-cluster-cluster-20230417200448463200000001') {
-                steps {
-                    sh 'pwd'
-                    dir('/var/jenkins_home/workspace/super-seed'){
-                    sh 'ls'
-                    sh 'mvn -X clean | grep "settings"'
-                    sh 'mv settings.xml /var/jenkins_home/.m2/'
-                    }
-                    sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
+            steps {
+                sh 'pwd'
+                dir('/var/jenkins_home/workspace/super-seed'){
+                sh 'ls'
+                sh 'mvn -X clean | grep "settings"'
+                sh 'mv settings.xml /var/jenkins_home/.m2/'
                 }
+                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
             }
         }
-
         stage('Build and push release') {
             when {
                 anyOf {
@@ -81,17 +76,14 @@ pipeline {
                     changeRequest()
                 }
             } 
-
-            withAWS(role:'gradov-dev-jenkins-cluster-cluster-20230417200448463200000001') {
-                steps {
-                    sh 'pwd'
-                    dir('/var/jenkins_home/workspace/super-seed'){
-                    sh 'ls'
-                    sh 'mvn -X clean | grep "settings"'
-                    sh 'mv settings.xml /var/jenkins_home/.m2/'
-                    }
-                    sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
+            steps {
+                sh 'pwd'
+                dir('/var/jenkins_home/workspace/super-seed'){
+                sh 'ls'
+                sh 'mvn -X clean | grep "settings"'
+                sh 'mv settings.xml /var/jenkins_home/.m2/'
                 }
+                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
             }
         }
     }
