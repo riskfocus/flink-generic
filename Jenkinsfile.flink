@@ -30,7 +30,7 @@ pipeline {
     }
 
     options {
-        withAWS(role:'gradov-dev-jenkins-cluster-worker')
+        withAWS()
     }
 
     stages {
