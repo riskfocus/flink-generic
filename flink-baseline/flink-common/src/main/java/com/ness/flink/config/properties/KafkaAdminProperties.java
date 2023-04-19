@@ -54,11 +54,11 @@ public class KafkaAdminProperties extends KafkaProperties implements RawProperti
         SharedKafkaProperties sharedProperties = SharedKafkaProperties.from(name, parameterTool, ymlConfigFile);
         KafkaAdminProperties adminProperties = OperatorPropertiesFactory
             .from(name, SHARED_PROPERTY_NAME, parameterTool, KafkaAdminProperties.class, ymlConfigFile);
-        // Original Kafka Consumer properties
+        // Original Kafka Admin properties
         final Map<String, String> adminRawValues = new LinkedHashMap<>(adminProperties.rawValues);
         // Provide all default Kafka properties
         adminProperties.rawValues.putAll(sharedProperties.getRawValues());
-        // Now overwrites with Consumer related
+        // Now overwrites with Admin related
         adminProperties.rawValues.putAll(adminRawValues);
         log.info("Building Kafka Admin: adminProperties={}", adminProperties);
         return adminProperties;

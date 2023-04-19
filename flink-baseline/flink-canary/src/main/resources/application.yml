@@ -25,6 +25,9 @@ kafka:
 # Configure how long we should attempt to connect to Kafka broker before quitting
 kafka.admin:
     connections.max.idle.ms: 10000
+    security.protocol: SASL_SSL
+    sasl.mechanism: PLAIN
+    sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule   required username='API_KEY' password='API_PASSWD';"
 
 # Flink org.apache.flink.streaming.api.environment.StreamExecutionEnvironment configuration
 environment:
