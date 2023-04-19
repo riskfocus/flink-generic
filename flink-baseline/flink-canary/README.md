@@ -22,13 +22,18 @@ Go to the configuration file titled application.yml, which is located in the src
 Here, you can update the target broker and topic that you want flink-canary to test.
 #### Kafka Config Sample Values
 ```yaml
+# Canary target topic name should be configured here
+application:
+    topic: test-topic
+
 # Canary target broker host should be configured here
 kafka:
-  bootstrap.servers: your-target-broker (i.e. localhost:19093)
+    bootstrap.servers: localhost:19093
 
-# Canary target topic name should be configured here
-canary.test.source:
-  topic: your-target-topic-name (i.e. test-topic)
+# Kafka Admin Client configuration
+# Configure how long we should attempt to connect to Kafka broker before quitting
+kafka.admin:
+    connections.max.idle.ms: 10000
 ```
 
 
