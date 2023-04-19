@@ -29,7 +29,6 @@ public class KafkaConfigsGenerator implements SourceFunction<TriggerEvent> {
     /** Create a bounded KafkaConfigsGenerator with the specified params */
     public KafkaConfigsGenerator(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
-
     }
 
     @Override

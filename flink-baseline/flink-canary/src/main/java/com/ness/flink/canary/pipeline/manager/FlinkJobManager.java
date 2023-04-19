@@ -24,7 +24,7 @@ import com.ness.flink.canary.pipeline.sources.KafkaConfigsGenerator;
 import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.stream.StreamBuilder;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -35,7 +35,8 @@ import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
  * @author Khokhlov Pavel
  */
 @Slf4j
-@AllArgsConstructor
+//@AllArgsConstructor
+@UtilityClass
 public class FlinkJobManager {
 
     public static void runJob(String... args) {

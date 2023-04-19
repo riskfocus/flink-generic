@@ -34,13 +34,13 @@ import org.apache.kafka.common.Node;
 @Slf4j
 public class HealthCheckFunction extends ProcessFunction<TriggerEvent, String>{
     private static final long serialVersionUID = 1L;
+    private final String name;
+    private KafkaAdminProperties kafkaAdminProperties;
 
     public HealthCheckFunction(String name) {
+        super();
         this.name = name;
     }
-
-    private String name;
-    private KafkaAdminProperties kafkaAdminProperties;
 
     @Override
     public void open(Configuration parameters) throws Exception {
