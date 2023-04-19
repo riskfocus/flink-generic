@@ -35,7 +35,6 @@ import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
  * @author Khokhlov Pavel
  */
 @Slf4j
-//@AllArgsConstructor
 @UtilityClass
 public class FlinkJobManager {
 
@@ -50,7 +49,7 @@ public class FlinkJobManager {
             public SingleOutputStreamOperator<TriggerEvent> build(
                 StreamExecutionEnvironment streamExecutionEnvironment) {
 
-                return streamExecutionEnvironment.addSource(new KafkaConfigsGenerator(applicationProperties));
+                return streamExecutionEnvironment.addSource(new KafkaConfigsGenerator(applicationProperties.getTopic()));
             }
 
             @Override

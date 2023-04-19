@@ -16,7 +16,6 @@
 
 package com.ness.flink.canary.pipeline.sources;
 
-import com.ness.flink.canary.pipeline.config.properties.ApplicationProperties;
 import com.ness.flink.canary.pipeline.domain.TriggerEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -24,17 +23,17 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 @Slf4j
 public class KafkaConfigsGenerator implements SourceFunction<TriggerEvent> {
     private static final long serialVersionUID = 1L;
-    private static ApplicationProperties applicationProperties;
+    private final String topic;
 
     /** Create a bounded KafkaConfigsGenerator with the specified params */
-    public KafkaConfigsGenerator(ApplicationProperties applicationProperties) {
-        this.applicationProperties = applicationProperties;
+    public KafkaConfigsGenerator(String topic) {
+        this.topic = topic;
     }
 
     @Override
     public void run(SourceContext<TriggerEvent> ctx) {
         // Generate only one data for now
-        TriggerEvent triggerEvent = new TriggerEvent(applicationProperties.getTopic());
+        TriggerEvent triggerEvent = new TriggerEvent(topic);
 
         ctx.collect(triggerEvent);
     }
