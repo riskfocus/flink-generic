@@ -26,7 +26,7 @@ pipeline {
         AWS_SESSION_TOKEN            = credentials('aws-token')
         aws_region                   = credentials('aws-region')
         CODEARTIFACT_URL             = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.${aws_region}.amazonaws.com/maven/${group_prefix}-repo/"
-        JENKINS_INFRA_WORKSPACE_DIR  = "/var/jenkins_home/workspace/ness-jenkins-environment"
+        JENKINS_INFRA_WORKSPACE_DIR  = "ness-jenkins-environment"
     }
     
     tools {
@@ -42,7 +42,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('/var/jenkins_home/workspace/ness-jenkins-environment'){
+                dir('/var/jenkins_home/workspace/${JENKINS_INFRA_WORKSPACE_DIR}'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
@@ -64,7 +64,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('/var/jenkins_home/workspace/ness-jenkins-environment'){
+                dir('/var/jenkins_home/workspace/${JENKINS_INFRA_WORKSPACE_DIR}'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
@@ -84,7 +84,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('/var/jenkins_home/workspace/ness-jenkins-environment'){
+                dir('/var/jenkins_home/workspace/${JENKINS_INFRA_WORKSPACE_DIR}'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
