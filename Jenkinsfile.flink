@@ -18,14 +18,15 @@ pipeline {
         APP_NAME = 'flink-generic'
         BRANCH_NAME = ''
         SONAR_OPTS = ' '
-        CODEARTIFACT_AUTH_TOKEN = credentials('codeartifact-auth-token')
-        group_prefix            = credentials('group-prefix')
-        domain_owner            = credentials('domain-owner')
-        AWS_ACCESS_KEY_ID       = credentials('aws-access-key')
-        AWS_SECRET_ACCESS_KEY   = credentials('aws-secret-key')
-        AWS_SESSION_TOKEN       = credentials('aws-token')
-        aws_region              = credentials('aws-region')
-        CODEARTIFACT_URL        = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.${aws_region}.amazonaws.com/maven/${group_prefix}-repo/"
+        CODEARTIFACT_AUTH_TOKEN      = credentials('codeartifact-auth-token')
+        group_prefix                 = credentials('group-prefix')
+        domain_owner                 = credentials('domain-owner')
+        AWS_ACCESS_KEY_ID            = credentials('aws-access-key')
+        AWS_SECRET_ACCESS_KEY        = credentials('aws-secret-key')
+        AWS_SESSION_TOKEN            = credentials('aws-token')
+        aws_region                   = credentials('aws-region')
+        CODEARTIFACT_URL             = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.${aws_region}.amazonaws.com/maven/${group_prefix}-repo/"
+        JENKINS_INFRA_WORKSPACE_DIR  = "/var/jenkins_home/workspace/ness-jenkins-environment"
     }
     
     tools {
@@ -41,7 +42,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('/var/jenkins_home/workspace/super-seed'){
+                dir('${JENKINS_INFRA_WORKSPACE_DIR}'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
@@ -63,7 +64,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('/var/jenkins_home/workspace/super-seed'){
+                dir('${JENKINS_INFRA_WORKSPACE_DIR}'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
@@ -83,7 +84,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('/var/jenkins_home/workspace/super-seed'){
+                dir('${JENKINS_INFRA_WORKSPACE_DIR}'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
