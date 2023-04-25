@@ -17,7 +17,7 @@ pipeline {
         ORG = 'RiskFocus'
         APP_NAME = 'flink-generic'
         BRANCH_NAME = ''
-        SONAR_OPTS = ' '
+        SONAR_OPTS = ''
         CODEARTIFACT_AUTH_TOKEN = credentials('codeartifact-auth-token')
         group_prefix            = credentials('group-prefix')
         domain_owner            = credentials('domain-owner')
@@ -41,7 +41,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('/var/jenkins_home/workspace/super-seed'){
+                dir('/var/jenkins_home/workspace/ness-jenkins-environment'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
@@ -63,7 +63,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('/var/jenkins_home/workspace/super-seed'){
+                dir('/var/jenkins_home/workspace/ness-jenkins-environment'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
@@ -83,7 +83,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('/var/jenkins_home/workspace/super-seed'){
+                dir('/var/jenkins_home/workspace/ness-jenkins-environment'){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
