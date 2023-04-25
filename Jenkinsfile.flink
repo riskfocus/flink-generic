@@ -17,7 +17,7 @@ pipeline {
         ORG = 'RiskFocus'
         APP_NAME = 'flink-generic'
         BRANCH_NAME = ''
-        SONAR_OPTS = ''
+        SONAR_OPTS = ' '
         CODEARTIFACT_AUTH_TOKEN = credentials('codeartifact-auth-token')
         group_prefix            = credentials('group-prefix')
         domain_owner            = credentials('domain-owner')
