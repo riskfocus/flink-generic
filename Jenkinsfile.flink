@@ -42,7 +42,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('${JENKINS_INFRA_WORKSPACE_DIR}'){
+                dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
@@ -64,7 +64,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('${JENKINS_INFRA_WORKSPACE_DIR}'){
+                dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
@@ -84,7 +84,7 @@ pipeline {
             
             steps {
                 sh 'pwd'
-                dir('${JENKINS_INFRA_WORKSPACE_DIR}'){
+                dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
                 sh 'ls'
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
