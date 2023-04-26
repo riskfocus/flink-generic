@@ -53,4 +53,10 @@ public abstract class DefaultSource<S> implements OperatorDefinition {
      */
     public abstract Optional<Integer> getMaxParallelism();
 
+    /**
+     * The Topic name of the Source
+     * This is the topic that the source reads its data from
+     * @return topic name of the source
+     */
+    public abstract Optional<String> getTopic();
 }

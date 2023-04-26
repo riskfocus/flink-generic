@@ -24,11 +24,13 @@ import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.config.operator.SinkDefinition;
 import com.ness.flink.config.properties.ChannelProperties;
 import com.ness.flink.config.properties.KafkaAdminProperties;
+import com.ness.flink.config.properties.KafkaConsumerProperties;
 import com.ness.flink.config.properties.WatermarkProperties;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -117,6 +119,7 @@ public class StreamOperation {
      */
     private <S> SingleOutputStreamOperator<S> configureSource(DefaultSource<S> defaultSource) {
         SingleOutputStreamOperator<S> streamSource = defaultSource.build(streamBuilder.getEnv());
+
         String name = defaultSource.getName();
         streamSource.name(name).uid(name);
         final int parallelism = defaultSource.getParallelism().orElse(streamBuilder.getParallelism());
@@ -131,8 +134,8 @@ public class StreamOperation {
 
 
         KafkaAdminProperties kafkaAdminProperties = KafkaAdminProperties.from(defaultSource.getName(), streamBuilder.getParameterTool());
-
-        checkParallelismPartitionMatch(kafkaAdminProperties, streamSource.getParallelism(), "ycInputsLive");
+        defaultSource.getTopic().ifPresent(topic ->
+            checkParallelismPartitionMatch(kafkaAdminProperties, streamSource.getParallelism(), topic));
 
         return streamSource;
     }

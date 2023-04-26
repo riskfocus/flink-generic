@@ -65,12 +65,12 @@ kafka.producer:
 option.price.source:
   topic: optionsPricesLive
   # Should be equals to kafka partitions number
-  maxParallelism: 4
+  maxParallelism: 3
 
 interest.rates.source:
   topic: ycInputsLive
   # Should be equals to kafka partitions number
-  maxParallelism: 4
+  maxParallelism: 5
 
 configuration.source:
     topic: configuration

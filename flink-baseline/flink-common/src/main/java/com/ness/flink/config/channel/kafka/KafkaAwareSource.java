@@ -19,6 +19,7 @@ package com.ness.flink.config.channel.kafka;
 import com.ness.flink.config.operator.WatermarkAwareSource;
 import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.KafkaConsumerProperties;
+import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -40,6 +41,8 @@ import java.util.Optional;
 abstract class KafkaAwareSource<S> extends WatermarkAwareSource<S> {
     protected final KafkaConsumerProperties kafkaConsumerProperties;
     protected final AwsProperties awsProperties;
+    @Override
+    public Optional<String> getTopic() { return Optional.ofNullable(kafkaConsumerProperties.getTopic()); }
 
     @Override
     public Optional<Integer> getParallelism() {
