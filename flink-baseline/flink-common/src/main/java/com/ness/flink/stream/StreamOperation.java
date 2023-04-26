@@ -23,9 +23,15 @@ import com.ness.flink.config.operator.DefaultSink;
 import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.config.operator.SinkDefinition;
 import com.ness.flink.config.properties.ChannelProperties;
+import com.ness.flink.config.properties.KafkaAdminProperties;
 import com.ness.flink.config.properties.WatermarkProperties;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import javax.annotation.Nullable;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
@@ -33,11 +39,15 @@ import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.common.KafkaFuture;
 
 /**
  * Building Flink Sink/Source operators.
  */
 @PublicEvolving
+@Slf4j
 public class StreamOperation {
     private final StreamBuilder streamBuilder;
     public StreamOperation(StreamBuilder streamBuilder) {
@@ -118,7 +128,38 @@ public class StreamOperation {
             }
             streamSource.setMaxParallelism(maxParallelism);
         }, () -> streamSource.setParallelism(parallelism));
+
+
+        KafkaAdminProperties kafkaAdminProperties = KafkaAdminProperties.from(defaultSource.getName(), streamBuilder.getParameterTool());
+
+        checkParallelismPartitionMatch(kafkaAdminProperties, streamSource.getParallelism(), "ycInputsLive");
+
         return streamSource;
+    }
+
+    private void checkParallelismPartitionMatch(KafkaAdminProperties kafkaAdminProperties,int parallelism, String topic){
+        Properties props = kafkaAdminProperties.getAdminProperties();
+        int partitions;
+        try (
+            AdminClient adminClient = AdminClient.create(props)) {
+            Map<String, KafkaFuture<TopicDescription>> topicNameValues =
+                adminClient.describeTopics(List.of(topic)).values();
+            try {
+                partitions = topicNameValues.get(topic).get().partitions().size();
+                // Here we do the if statement and check / give warnings
+                if (parallelism > partitions){
+                    log.warn("Your source parallelism ({}) is greater than the number of partitions in {} ({})", parallelism, topic, partitions);
+                } else if (parallelism < partitions){
+                    log.warn("Your source parallelism ({}) is less than the number of partitions in {} ({})", parallelism, topic, partitions);
+                }
+
+            } catch (InterruptedException interruptedException){
+                log.warn("Connection to broker was interrupted!", interruptedException);
+                Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                throw new RuntimeException("Error connecting to Kafka Cluster", e);
+            }
+        }
     }
 
     private <S> TimestampAssignerSupplier<S> assignerSupplier(String sourceName,
