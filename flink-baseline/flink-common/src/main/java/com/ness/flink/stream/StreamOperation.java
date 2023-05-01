@@ -24,14 +24,12 @@ import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.config.operator.SinkDefinition;
 import com.ness.flink.config.properties.ChannelProperties;
 import com.ness.flink.config.properties.KafkaAdminProperties;
-import com.ness.flink.config.properties.KafkaConsumerProperties;
 import com.ness.flink.config.properties.WatermarkProperties;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
@@ -134,34 +132,50 @@ public class StreamOperation {
 
 
         KafkaAdminProperties kafkaAdminProperties = KafkaAdminProperties.from(defaultSource.getName(), streamBuilder.getParameterTool());
-        defaultSource.getTopic().ifPresent(topic ->
-            checkParallelismPartitionMatch(kafkaAdminProperties, streamSource.getParallelism(), topic));
+        AdminClient adminClient = buildAdminClient(kafkaAdminProperties);
+
+        defaultSource.getTopic().ifPresent(topic -> {
+                int partitions = getPartitionForTopic(adminClient, topic);
+                printParallelismPartitionWarnings(streamSource.getParallelism(), partitions, topic);
+            });
 
         return streamSource;
     }
 
-    private void checkParallelismPartitionMatch(KafkaAdminProperties kafkaAdminProperties,int parallelism, String topic){
+    private AdminClient buildAdminClient(KafkaAdminProperties kafkaAdminProperties){
         Properties props = kafkaAdminProperties.getAdminProperties();
-        int partitions;
-        try (
-            AdminClient adminClient = AdminClient.create(props)) {
-            Map<String, KafkaFuture<TopicDescription>> topicNameValues =
-                adminClient.describeTopics(List.of(topic)).values();
-            try {
-                partitions = topicNameValues.get(topic).get().partitions().size();
-                // Here we do the if statement and check / give warnings
-                if (parallelism > partitions){
-                    log.warn("Your source parallelism ({}) is greater than the number of partitions in {} ({})", parallelism, topic, partitions);
-                } else if (parallelism < partitions){
-                    log.warn("Your source parallelism ({}) is less than the number of partitions in {} ({})", parallelism, topic, partitions);
-                }
 
-            } catch (InterruptedException interruptedException){
-                log.warn("Connection to broker was interrupted!", interruptedException);
-                Thread.currentThread().interrupt();
-            } catch (Exception e) {
-                throw new RuntimeException("Error connecting to Kafka Cluster", e);
-            }
+        try {
+            return AdminClient.create(props);
+        } catch (Exception e) {
+            throw new RuntimeException("Error connecting to Kafka Cluster", e);
+        }
+    }
+
+    private int getPartitionForTopic(AdminClient adminClient, String topic){
+        int partitions = -1;
+
+        Map<String, KafkaFuture<TopicDescription>> topicNameValues =
+            adminClient.describeTopics(List.of(topic)).values();
+
+        try {
+            partitions = topicNameValues.get(topic).get().partitions().size();
+        } catch (InterruptedException e) {
+            log.warn("Connection to broker was interrupted!", e);
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Error connecting to Kafka Cluster", e);
+        }
+        return partitions;
+    }
+
+    private void printParallelismPartitionWarnings(int parallelism, int partitions, String topic){
+        if (parallelism > partitions){
+            log.warn("Your source parallelism ({}) is greater than the number of partitions in {} ({})", parallelism, topic, partitions);
+        } else if (parallelism < partitions){
+            log.warn("Your source parallelism ({}) is less than the number of partitions in {} ({})", parallelism, topic, partitions);
+        } else {
+            log.info("Your source parallelism ({}) matches the number of partitions in {} ({})", parallelism, topic, partitions);
         }
     }
 
