@@ -56,6 +56,11 @@ class StreamBuilderTest {
             public Optional<Integer> getMaxParallelism() {
                 return Optional.empty();
             }
+
+            @Override
+            public Optional<String> getTopic() {
+                return Optional.empty();
+            }
         };
 
         StreamBuilder.from(env, params)

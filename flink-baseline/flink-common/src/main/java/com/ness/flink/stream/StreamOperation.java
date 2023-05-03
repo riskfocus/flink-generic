@@ -23,21 +23,33 @@ import com.ness.flink.config.operator.DefaultSink;
 import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.config.operator.SinkDefinition;
 import com.ness.flink.config.properties.ChannelProperties;
+import com.ness.flink.config.properties.KafkaAdminProperties;
 import com.ness.flink.config.properties.WatermarkProperties;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.common.KafkaFuture;
 
 /**
  * Building Flink Sink/Source operators.
  */
 @PublicEvolving
+@Slf4j
 public class StreamOperation {
     private final StreamBuilder streamBuilder;
     public StreamOperation(StreamBuilder streamBuilder) {
@@ -107,6 +119,7 @@ public class StreamOperation {
      */
     private <S> SingleOutputStreamOperator<S> configureSource(DefaultSource<S> defaultSource) {
         SingleOutputStreamOperator<S> streamSource = defaultSource.build(streamBuilder.getEnv());
+
         String name = defaultSource.getName();
         streamSource.name(name).uid(name);
         final int parallelism = defaultSource.getParallelism().orElse(streamBuilder.getParallelism());
@@ -118,7 +131,60 @@ public class StreamOperation {
             }
             streamSource.setMaxParallelism(maxParallelism);
         }, () -> streamSource.setParallelism(parallelism));
+
+
+        KafkaAdminProperties kafkaAdminProperties = KafkaAdminProperties.from(defaultSource.getName(), streamBuilder.getParameterTool());
+        AdminClient adminClient = buildAdminClient(kafkaAdminProperties);
+
+        defaultSource.getTopic().ifPresent(topic -> {
+                int partitions = getPartitionForTopic(adminClient, topic);
+                String warningMessage = printParallelismPartitionWarnings(streamSource.getParallelism(), partitions, topic);
+                if (warningMessage != null){
+                    log.warn(warningMessage);
+                }
+            });
+
         return streamSource;
+    }
+
+    private AdminClient buildAdminClient(KafkaAdminProperties kafkaAdminProperties){
+        Properties props = kafkaAdminProperties.getAdminProperties();
+
+        try {
+            return AdminClient.create(props);
+        } catch (Exception e) {
+            throw new RuntimeException("Error connecting to Kafka Cluster", e);
+        }
+    }
+
+    private int getPartitionForTopic(AdminClient adminClient, String topic){
+        int partitions = -1;
+
+        Map<String, KafkaFuture<TopicDescription>> topicNameValues =
+            adminClient.describeTopics(List.of(topic)).values();
+
+        try {
+            partitions = topicNameValues.get(topic).get().partitions().size();
+        } catch (InterruptedException e) {
+            log.warn("Connection to broker was interrupted!", e);
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Error connecting to Kafka Cluster", e);
+        }
+        return partitions;
+    }
+
+    public String printParallelismPartitionWarnings(int parallelism, int partitions, String topic){
+        if (parallelism > partitions){
+            return String.format("Your source parallelism (%d) is greater than the number of partitions in %s (%d)", parallelism, topic, partitions);
+//            log.warn("Your source parallelism ({}) is greater than the number of partitions in {} ({})", parallelism, topic, partitions);
+        } else if (parallelism < partitions){
+            return String.format("Your source parallelism (%d) is less than the number of partitions in %s (%d)", parallelism, topic, partitions);
+//            log.warn("Your source parallelism ({}) is less than the number of partitions in {} ({})", parallelism, topic, partitions);
+        } else {
+            return null;
+//            log.info("Your source parallelism ({}) matches the number of partitions in {} ({})", parallelism, topic, partitions);
+        }
     }
 
     private <S> TimestampAssignerSupplier<S> assignerSupplier(String sourceName,
