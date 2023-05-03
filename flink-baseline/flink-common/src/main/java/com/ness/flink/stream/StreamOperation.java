@@ -28,12 +28,14 @@ import com.ness.flink.config.properties.WatermarkProperties;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
 import org.apache.flink.api.connector.sink2.Sink;
@@ -136,7 +138,10 @@ public class StreamOperation {
 
         defaultSource.getTopic().ifPresent(topic -> {
                 int partitions = getPartitionForTopic(adminClient, topic);
-                printParallelismPartitionWarnings(streamSource.getParallelism(), partitions, topic);
+                String warningMessage = printParallelismPartitionWarnings(streamSource.getParallelism(), partitions, topic);
+                if (warningMessage != null){
+                    log.warn(warningMessage);
+                }
             });
 
         return streamSource;
@@ -169,13 +174,16 @@ public class StreamOperation {
         return partitions;
     }
 
-    private void printParallelismPartitionWarnings(int parallelism, int partitions, String topic){
+    public String printParallelismPartitionWarnings(int parallelism, int partitions, String topic){
         if (parallelism > partitions){
-            log.warn("Your source parallelism ({}) is greater than the number of partitions in {} ({})", parallelism, topic, partitions);
+            return String.format("Your source parallelism (%d) is greater than the number of partitions in %s (%d)", parallelism, topic, partitions);
+//            log.warn("Your source parallelism ({}) is greater than the number of partitions in {} ({})", parallelism, topic, partitions);
         } else if (parallelism < partitions){
-            log.warn("Your source parallelism ({}) is less than the number of partitions in {} ({})", parallelism, topic, partitions);
+            return String.format("Your source parallelism (%d) is less than the number of partitions in %s (%d)", parallelism, topic, partitions);
+//            log.warn("Your source parallelism ({}) is less than the number of partitions in {} ({})", parallelism, topic, partitions);
         } else {
-            log.info("Your source parallelism ({}) matches the number of partitions in {} ({})", parallelism, topic, partitions);
+            return null;
+//            log.info("Your source parallelism ({}) matches the number of partitions in {} ({})", parallelism, topic, partitions);
         }
     }
 
