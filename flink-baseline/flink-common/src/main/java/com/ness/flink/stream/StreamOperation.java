@@ -118,6 +118,9 @@ public class StreamOperation {
      * @return source
      */
     private <S> SingleOutputStreamOperator<S> configureSource(DefaultSource<S> defaultSource) {
+        KafkaAdminProperties kafkaAdminProperties = KafkaAdminProperties.from(defaultSource.getName(), streamBuilder.getParameterTool());
+        AdminClient adminClient = buildAdminClient(kafkaAdminProperties);
+
         SingleOutputStreamOperator<S> streamSource = defaultSource.build(streamBuilder.getEnv());
 
         String name = defaultSource.getName();
@@ -130,11 +133,17 @@ public class StreamOperation {
                 streamSource.setParallelism(parallelism);
             }
             streamSource.setMaxParallelism(maxParallelism);
-        }, () -> streamSource.setParallelism(parallelism));
-
-
-        KafkaAdminProperties kafkaAdminProperties = KafkaAdminProperties.from(defaultSource.getName(), streamBuilder.getParameterTool());
-        AdminClient adminClient = buildAdminClient(kafkaAdminProperties);
+        }, () ->
+            defaultSource.getTopic().ifPresentOrElse(topic -> {
+                int partitions = getPartitionForTopic(adminClient, topic);
+                streamSource.setMaxParallelism(partitions);
+                if (parallelism > partitions) {
+                    streamSource.setParallelism(partitions);
+                } else {
+                    streamSource.setParallelism(parallelism);
+                }
+            }, () -> streamSource.setParallelism(parallelism))
+        );
 
         defaultSource.getTopic().ifPresent(topic -> {
                 int partitions = getPartitionForTopic(adminClient, topic);
@@ -165,6 +174,7 @@ public class StreamOperation {
 
         try {
             partitions = topicNameValues.get(topic).get().partitions().size();
+//            log.info("JeffHu Found topic {} with partitions {}", topic, partitions);
         } catch (InterruptedException e) {
             log.warn("Connection to broker was interrupted!", e);
             Thread.currentThread().interrupt();
