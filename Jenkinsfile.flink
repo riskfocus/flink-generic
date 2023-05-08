@@ -14,15 +14,12 @@
 pipeline {
     agent any 
     environment {
-        ORG = 'RiskFocus'
-        APP_NAME = 'flink-generic'
-        BRANCH_NAME = ''
-        SONAR_OPTS = ''
         CODEARTIFACT_AUTH_TOKEN = credentials('codeartifact-auth-token')
         group_prefix            = credentials('group-prefix')
         domain_owner            = credentials('domain-owner')
         aws_region              = credentials('aws-region')
         CODEARTIFACT_URL        = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.${aws_region}.amazonaws.com/maven/${group_prefix}-repo/"
+        JENKINS_INFRA_WORKSPACE_DIR  = "/var/jenkins_home/workspace/ness-jenkins-environment"
     }
     tools {
         maven "maven-3.9.0"
