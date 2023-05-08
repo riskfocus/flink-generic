@@ -17,29 +17,24 @@ pipeline {
         ORG = 'RiskFocus'
         APP_NAME = 'flink-generic'
         BRANCH_NAME = ''
-        SONAR_OPTS = ' '
-        CODEARTIFACT_AUTH_TOKEN      = credentials('codeartifact-auth-token')
-        group_prefix                 = credentials('group-prefix')
-        domain_owner                 = credentials('domain-owner')
-        AWS_ACCESS_KEY_ID            = credentials('aws-access-key')
-        AWS_SECRET_ACCESS_KEY        = credentials('aws-secret-key')
-        AWS_SESSION_TOKEN            = credentials('aws-token')
-        aws_region                   = credentials('aws-region')
-        CODEARTIFACT_URL             = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.${aws_region}.amazonaws.com/maven/${group_prefix}-repo/"
-        JENKINS_INFRA_WORKSPACE_DIR  = "/var/jenkins_home/workspace/ness-jenkins-environment"
+        SONAR_OPTS = ''
+        CODEARTIFACT_AUTH_TOKEN = credentials('codeartifact-auth-token')
+        group_prefix            = credentials('group-prefix')
+        domain_owner            = credentials('domain-owner')
+        aws_region              = credentials('aws-region')
+        CODEARTIFACT_URL        = "https://${group_prefix}-domain-${domain_owner}.d.codeartifact.${aws_region}.amazonaws.com/maven/${group_prefix}-repo/"
     }
-    
     tools {
         maven "maven-3.9.0"
     }
-
+    options {
+        withAWS()
+    }
     stages {
-
         stage('CI Build') {
             when {
                 changeRequest()
             }
-            
             steps {
                 sh 'pwd'
                 dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
@@ -47,10 +42,9 @@ pipeline {
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
                 }
-                sh 'mvn clean install -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
+                sh 'mvn clean install -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
             }
         }
-
         stage('Build and push snapshot') {
             when {
                 not {
@@ -60,8 +54,7 @@ pipeline {
                         changeRequest()
                     }
                 }
-            } 
-            
+            }
             steps {
                 sh 'pwd'
                 dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
@@ -69,10 +62,9 @@ pipeline {
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
                 }
-                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
+                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
             }
         }
-
         stage('Build and push release') {
             when {
                 anyOf {
@@ -80,8 +72,7 @@ pipeline {
                     branch pattern: "release-.*", comparator: "REGEXP"
                     changeRequest()
                 }
-            } 
-            
+            }
             steps {
                 sh 'pwd'
                 dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
@@ -89,7 +80,7 @@ pipeline {
                 sh 'mvn -X clean | grep "settings"'
                 sh 'mv settings.xml /var/jenkins_home/.m2/'
                 }
-                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'            
+                sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
             }
         }
     }
