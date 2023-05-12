@@ -34,7 +34,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>it.ozimov</groupId>
+            <groupId>com.github.kstyrc</groupId>
             <artifactId>embedded-redis</artifactId>
         </dependency>
         <dependency>

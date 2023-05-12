@@ -89,6 +89,12 @@
                 <scope>test</scope>
             </dependency>
 
+            <dependency>
+                <groupId>com.github.kstyrc</groupId>
+                <artifactId>embedded-redis</artifactId>
+                <version>0.6</version>
+                <scope>test</scope>
+            </dependency>
 
             <!-- These dependencies are excluded from the application JAR by default. -->
             <dependency>
