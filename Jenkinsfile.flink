@@ -28,17 +28,21 @@ pipeline {
         withAWS()
     }
     stages {
+        stage('Intialization'){
+            steps {
+                dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
+                sh 'ls'
+                sh 'mvn -X clean | grep "settings"'
+                sh 'cp settings.xml /var/jenkins_home/.m2/'
+                }
+            }
+        }
         stage('CI Build') {
             when {
                 changeRequest()
             }
             steps {
                 sh 'pwd'
-                dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
-                sh 'ls'
-                sh 'mvn -X clean | grep "settings"'
-                sh 'mv settings.xml /var/jenkins_home/.m2/'
-                }
                 sh 'mvn clean install -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
             }
         }
@@ -54,11 +58,6 @@ pipeline {
             }
             steps {
                 sh 'pwd'
-                dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
-                sh 'ls'
-                sh 'mvn -X clean | grep "settings"'
-                sh 'mv settings.xml /var/jenkins_home/.m2/'
-                }
                 sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
             }
         }
@@ -72,11 +71,6 @@ pipeline {
             }
             steps {
                 sh 'pwd'
-                dir("${JENKINS_INFRA_WORKSPACE_DIR}"){
-                sh 'ls'
-                sh 'mvn -X clean | grep "settings"'
-                sh 'mv settings.xml /var/jenkins_home/.m2/'
-                }
                 sh 'mvn clean deploy -DaltDeploymentRepository=rfac-codeartifact-repo::default::${CODEARTIFACT_URL}'
             }
         }
