@@ -38,7 +38,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <sonar.organization>ness.com</sonar.organization>
@@ -269,12 +269,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M7</version>
+                    <version>3.2.1</version>
                     <!-- without this config fails on local machine -->
                     <configuration>
                         <forkCount>3</forkCount>
                         <reuseForks>true</reuseForks>
-                        <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+                        <argLine>
+                            -Xmx1024m
+                            --add-opens java.base/java.util=ALL-UNNAMED
+                            --add-opens=java.base/java.lang=ALL-UNNAMED
+                            --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                        </argLine>
                     </configuration>
                 </plugin>
                 <plugin>

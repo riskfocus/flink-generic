@@ -36,7 +36,9 @@
     <artifactId>flink-baseline</artifactId>
 
     <properties>
-        <flink.version>1.15.4</flink.version>
+        <flink.version>1.18.0</flink.version>
+        <flink.connector.kafka>3.0.1-1.18</flink.connector.kafka>
+        <jackson.version>2.15.3</jackson.version>
         <redis.lettuce.version>5.3.7.RELEASE</redis.lettuce.version>
         <embedded.redis.version>0.7.2</embedded.redis.version>
         <log4j.version>2.19.0</log4j.version>
@@ -68,6 +70,12 @@
                 <artifactId>log4j-core</artifactId>
                 <version>${log4j.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
 
             <dependency>
@@ -145,7 +153,7 @@
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-kafka</artifactId>
-                <version>${flink.version}</version>
+                <version>${flink.connector.kafka}</version>
             </dependency>
 
             <dependency>
@@ -308,6 +316,12 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
