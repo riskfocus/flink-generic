@@ -52,43 +52,9 @@ public class EnvironmentFactory {
     private static final String REPORTER_PORT = "port";
 
     @SneakyThrows
-    @SuppressWarnings({"PMD.NPathComplexity", "PMD.CyclomaticComplexity"})
     public static StreamExecutionEnvironment from(ParameterTool parameterTool) {
         FlinkEnvironmentProperties properties = FlinkEnvironmentProperties.from(parameterTool);
-        StreamExecutionEnvironment env;
-        if (properties.isLocalDev()) {
-            Configuration config = new Configuration();
-            config.set(RestOptions.PORT, properties.getLocalPortWebUi());
-
-            properties.ofJmxReportPort().ifPresent(jmxPort -> {
-                config.setString(METRICS_REPORTER_PREFIX + REPORTER_JMX_PREFIX +
-                    ConfigConstants.METRICS_REPORTER_FACTORY_CLASS_SUFFIX, JMXReporterFactory.class.getName());
-                config.setString(JMX_SERVER_PORT.key(), jmxPort.toString());
-            });
-
-            properties.ofPrometheusReporterPort().ifPresent(prometheusReporterPort -> {
-                config.setString(METRICS_REPORTER_PREFIX + REPORTER_PROM_PREFIX +
-                    ConfigConstants.METRICS_REPORTER_FACTORY_CLASS_SUFFIX, PrometheusReporterFactory.class.getName());
-                config.setString(METRICS_REPORTER_PREFIX + REPORTER_PROM_PREFIX + REPORTER_PORT,
-                    prometheusReporterPort.toString());
-            });
-
-            config.setLong(METRIC_FETCHER_UPDATE_INTERVAL, properties.getMetricsFetcherUpdateInterval());
-            config.setBoolean(SYSTEM_RESOURCE_METRICS, properties.isMetricsSystemResource());
-
-            env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
-            env.setParallelism(properties.getLocalParallelism());
-
-            if (properties.isEnabledRocksDb()) {
-                env.setStateBackend(new EmbeddedRocksDBStateBackend(properties.isEnabledIncrementalCheckpointing()));
-            }
-
-        } else {
-            // Cluster Flink environment.
-            // All configuration passed via Cluster Flink configuration
-            // see https://nightlies.apache.org/flink/flink-docs-master/docs/deployment/config/
-            env = StreamExecutionEnvironment.getExecutionEnvironment();
-        }
+        StreamExecutionEnvironment env = buildStreamExecutionEnvironment(properties);
 
         ExecutionConfig executionConfig = env.getConfig();
         // Register parameters to be accessible from operators code
@@ -127,6 +93,44 @@ public class EnvironmentFactory {
         }
         properties.ofRuntimeExecutionMode().ifPresent(env::setRuntimeMode);
 
+        return env;
+    }
+
+    private static StreamExecutionEnvironment buildStreamExecutionEnvironment(FlinkEnvironmentProperties properties) {
+        StreamExecutionEnvironment env;
+        if (properties.isLocalDev()) {
+            Configuration config = new Configuration();
+            config.set(RestOptions.PORT, properties.getLocalPortWebUi());
+
+            properties.ofJmxReportPort().ifPresent(jmxPort -> {
+                config.setString(METRICS_REPORTER_PREFIX + REPORTER_JMX_PREFIX +
+                    ConfigConstants.METRICS_REPORTER_FACTORY_CLASS_SUFFIX, JMXReporterFactory.class.getName());
+                config.setString(JMX_SERVER_PORT.key(), jmxPort.toString());
+            });
+
+            properties.ofPrometheusReporterPort().ifPresent(prometheusReporterPort -> {
+                config.setString(METRICS_REPORTER_PREFIX + REPORTER_PROM_PREFIX +
+                    ConfigConstants.METRICS_REPORTER_FACTORY_CLASS_SUFFIX, PrometheusReporterFactory.class.getName());
+                config.setString(METRICS_REPORTER_PREFIX + REPORTER_PROM_PREFIX + REPORTER_PORT,
+                    prometheusReporterPort.toString());
+            });
+
+            config.setLong(METRIC_FETCHER_UPDATE_INTERVAL, properties.getMetricsFetcherUpdateInterval());
+            config.setBoolean(SYSTEM_RESOURCE_METRICS, properties.isMetricsSystemResource());
+
+            env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
+            env.setParallelism(properties.getLocalParallelism());
+
+            if (properties.isEnabledRocksDb()) {
+                env.setStateBackend(new EmbeddedRocksDBStateBackend(properties.isEnabledIncrementalCheckpointing()));
+            }
+
+        } else {
+            // Cluster Flink environment.
+            // All configuration passed via Cluster Flink configuration
+            // see https://nightlies.apache.org/flink/flink-docs-master/docs/deployment/config/
+            env = StreamExecutionEnvironment.getExecutionEnvironment();
+        }
         return env;
     }
 

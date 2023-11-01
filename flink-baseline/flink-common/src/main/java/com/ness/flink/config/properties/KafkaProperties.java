@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.Getter;
@@ -43,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Getter
 @Setter
-@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class KafkaProperties {
     private String name;
     private String topic;
@@ -59,6 +59,14 @@ public abstract class KafkaProperties {
     private static final CharSequence KAFKA_USERNAME_TEMPLATE = "{API_USERNAME}";
     private static final CharSequence KAFKA_PASSWORD_TEMPLATE = "{API_PASSWORD}";
     private static final CharSequence MASKED_VALUE = "***";
+
+
+    /**
+     * Building final Kafka properties with secrets (if they were provided)
+     * @param secretProviderProperties additional properties
+     * @return kafka properties
+     */
+    public abstract Properties buildProperties(@Nullable RawProperties<?> secretProviderProperties);
 
     /**
      * Provides Confluent Schema Registry URL

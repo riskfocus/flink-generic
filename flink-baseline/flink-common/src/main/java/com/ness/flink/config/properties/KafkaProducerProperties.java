@@ -71,7 +71,8 @@ public class KafkaProducerProperties extends KafkaProperties implements RawPrope
         return producerProperties;
     }
 
-    public Properties getProducerProperties(@Nullable RawProperties<?> secretProviderProperties) {
+    @Override
+    public Properties buildProperties(@Nullable RawProperties<?> secretProviderProperties) {
         Properties producerProperties = new Properties();
         Map<String, String> filtered = filterNonProducerProperties();
         String masked = replaceKafkaCredentials(filtered, secretProviderProperties);

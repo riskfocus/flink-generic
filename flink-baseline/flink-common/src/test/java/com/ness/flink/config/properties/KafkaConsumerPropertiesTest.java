@@ -77,7 +77,7 @@ class KafkaConsumerPropertiesTest {
             Assertions.assertNull(properties.getTimestamp());
             Assertions.assertNull(properties.getTopic());
 
-            Properties consumerProperties = properties.getConsumerProperties(awsProperties);
+            Properties consumerProperties = properties.buildProperties(awsProperties);
             Assertions.assertEquals("localhost:29092",
                 consumerProperties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
             Assertions.assertEquals("flinkProcessor", consumerProperties.getProperty(ConsumerConfig.GROUP_ID_CONFIG));
@@ -109,7 +109,7 @@ class KafkaConsumerPropertiesTest {
         Assertions.assertEquals(Offsets.TIMESTAMP, properties.getOffsets());
         Assertions.assertEquals(OffsetResetStrategy.NONE, offsetsInitializer.getAutoOffsetResetStrategy());
 
-        Properties consumerProperties = properties.getConsumerProperties(null);
+        Properties consumerProperties = properties.buildProperties(null);
         Assertions.assertEquals("localhost:9092",
             consumerProperties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
         Assertions.assertEquals("test.source", consumerProperties.getProperty(ConsumerConfig.GROUP_ID_CONFIG));

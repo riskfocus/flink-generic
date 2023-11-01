@@ -65,7 +65,7 @@ public class InterestRateStream {
             private static final long serialVersionUID = 3760053930726684910L;
             @Override
             public void accept(PreparedStatement stmt, InterestRate interestRate) throws SQLException {
-                final int interestRateId = interestRate.getId();
+                final int interestRateId = interestRate.getInterestRateId();
                 final String maturity = interestRate.getMaturity();
                 final long timestamp = interestRate.getTimestamp();
                 final double rate = interestRate.getRate();
@@ -142,7 +142,7 @@ public class InterestRateStream {
                 @Override
                 public void accept(PreparedStatement stmt, InterestRate interestRate) throws SQLException {
                         int idx = 0;
-                        final long interestRateId = interestRate.getId();
+                        final long interestRateId = interestRate.getInterestRateId();
                         final String sourceId = interestRate.getMaturity();
                         final BigDecimal rate = BigDecimal.valueOf(interestRate.getRate());
 

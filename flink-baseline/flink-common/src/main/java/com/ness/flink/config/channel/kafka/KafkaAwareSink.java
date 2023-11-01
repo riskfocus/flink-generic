@@ -44,7 +44,7 @@ public abstract class KafkaAwareSink<S extends Serializable> extends DefaultSink
     protected final EventTimeExtractor<S> eventTimeExtractor;
 
     protected Properties producerProps() {
-        return kafkaProducerProperties.getProducerProperties(awsProperties);
+        return kafkaProducerProperties.buildProperties(awsProperties);
     }
 
     protected String getTopic() {
