@@ -220,7 +220,7 @@
                     </licenses>
                     <licenseFamilies>
                         <licenseFamily
-                                implementation="org.apache.rat.license.SimpleLicenseFamily">
+                            implementation="org.apache.rat.license.SimpleLicenseFamily">
                             <familyName>Ness open source</familyName>
                         </licenseFamily>
                     </licenseFamilies>

@@ -1,0 +1,93 @@
+#Copyright 2021-2023 Ness Digital Engineering
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+
+watermark:
+    watermarkType: MONOTONOUS_TIMESTAMPS
+    idlenessMs: 1000
+    windowSizeMs: 10000
+
+kafka:
+    bootstrap.servers: localhost:29092
+    schema.registry.url: http://localhost:8085
+    schema.registry.basic.auth.credentials.source: URL
+    schema.secret.name: schemaRegistrySecret
+    schema.registry.basic.auth.user.info: user:pwd
+    bootstrap.secret.name: kafkaSecret
+    security.protocol: SASL_SSL
+    sasl.mechanism: PLAIN
+
+aws:
+    region: us-east-1
+    glue.registry.name: poc-msk-schema-registry
+    glue.avroRecordType: SPECIFIC_RECORD
+    glue.schemaAutoRegistrationEnabled: true
+    glue.schemaNameGenerationClass: "com.ness.flink.config.channel.kafka.msk.AwsGlueSchemaNamingStrategy"
+
+default.source:
+    parallelism: 4
+    topic: "default"
+
+kafka.consumer:
+    enable.auto.commit: "true"
+    auto.commit.interval.ms: 5000
+    fetch.min.bytes: 1
+    max.poll.records: 1000
+    isolation.level: read_committed
+    offsets: COMMITTED
+    fetch.max.wait.ms: 500
+    group.id: "flinkProcessor"
+
+kafka.producer:
+    acks: all
+    batch.size: 16384
+    linger.ms: 0
+
+order.source:
+    topic: orders
+    watermark:
+        type: MONOTONOUS_TIMESTAMPS
+        idlenessMs: 1000
+
+price.source:
+    topic: prices
+    watermark:
+        type: MONOTONOUS_TIMESTAMPS
+        idlenessMs: 1000
+
+position.by.symbol.sink:
+    topic: position-by-symbol
+
+position.by.account.subAccount.symbol.sink:
+    topic: position-by-account
+
+market.value.by.account.subAccount.sink:
+    topic: position-by-account-price
+
+market.value.by.symbol.sink:
+    topic: position-by-symbol-price
+
+# Application settings
+application:
+    windowProviderType: BASIC
+
+# Flink org.apache.flink.streaming.api.environment.StreamExecutionEnvironment configuration
+environment:
+    localDev: false
+    bufferTimeoutMs: 0
+    autoWatermarkInterval: 500
+    enabledCheckpoints: true
+    checkpointsDataUri: "file:/checkpoints"
+    execution.checkpointing.interval: 30000
+    execution.checkpointing.min-pause: 10000
+    execution.checkpointing.unaligned: true

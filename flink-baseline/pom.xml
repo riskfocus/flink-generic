@@ -31,6 +31,7 @@
         <module>flink-snapshot</module>
         <module>flink-example</module>
         <module>flink-jdbc-sink</module>
+        <module>flink-dsl</module>
     </modules>
 
     <artifactId>flink-baseline</artifactId>
@@ -43,6 +44,7 @@
         <aws-kinesisanalytics-runtime.version>1.2.0</aws-kinesisanalytics-runtime.version>
         <aws.glue.flink.serde.version>1.1.14</aws.glue.flink.serde.version>
         <aws.secret.manager.version>1.0.2</aws.secret.manager.version>
+        <jackson.version>2.15.4</jackson.version>
     </properties>
 
     <dependencyManagement>
@@ -97,7 +99,7 @@
                 <version>${flink.version}</version>
                 <scope>provided</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-metrics-dropwizard</artifactId>
@@ -191,11 +193,21 @@
                 <type>test-jar</type>
             </dependency>
 
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java</artifactId>

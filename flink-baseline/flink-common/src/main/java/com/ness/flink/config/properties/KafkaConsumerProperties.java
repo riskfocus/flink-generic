@@ -48,14 +48,12 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 @Setter
 @ToString
 public class KafkaConsumerProperties extends KafkaProperties implements RawProperties<KafkaConsumerProperties> {
-    private static final long serialVersionUID = 8374164378532623386L;
 
+    private static final long serialVersionUID = 1L;
     private static final String SHARED_PROPERTY_NAME = "kafka.consumer";
 
     private Long timestamp;
-
     private boolean skipBrokenMessages;
-
     private Integer maxParallelism;
 
     private Offsets offsets = Offsets.EARLIEST;
@@ -136,4 +134,5 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
         rawValues.putAll(defaults);
         return this;
     }
+
 }
