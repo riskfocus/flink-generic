@@ -60,7 +60,7 @@ abstract class KafkaAwareSource<S> extends WatermarkAwareSource<S> {
     @Override
     public final SingleOutputStreamOperator<S> build(StreamExecutionEnvironment streamExecutionEnvironment) {
         KafkaSource<S> source = KafkaSource.<S>builder()
-                .setProperties(kafkaConsumerProperties.getConsumerProperties(awsProperties))
+                .setProperties(kafkaConsumerProperties.buildProperties(awsProperties))
                 .setTopics(kafkaConsumerProperties.getTopic())
                 .setStartingOffsets(kafkaConsumerProperties.getOffsetsInitializer())
                 .setDeserializer(WithMetricsKafkaDeserialization.build(getName(), getDeserializationSchema(),

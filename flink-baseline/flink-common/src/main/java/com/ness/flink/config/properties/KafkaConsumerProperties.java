@@ -87,7 +87,8 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
         EARLIEST, LATEST, TIMESTAMP, COMMITTED
     }
 
-    public Properties getConsumerProperties(@Nullable RawProperties<?> secretProviderProperties) {
+    @Override
+    public Properties buildProperties(@Nullable RawProperties<?> secretProviderProperties) {
         Properties consumerProperties = new Properties();
         Map<String, String> filtered = filterNonConsumerProperties();
         String masked = replaceKafkaCredentials(filtered, secretProviderProperties);

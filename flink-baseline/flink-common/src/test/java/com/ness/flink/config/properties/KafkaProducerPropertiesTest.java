@@ -70,7 +70,7 @@ class KafkaProducerPropertiesTest {
             Assertions.assertEquals("URL", confluentRegistryConfigs.get(BASIC_AUTH_CREDENTIALS_SOURCE));
             Assertions.assertEquals("userFromSecret:passwordFromSecret", confluentRegistryConfigs.get(USER_INFO_CONFIG));
 
-            Properties producerProperties = properties.getProducerProperties(awsProperties);
+            Properties producerProperties = properties.buildProperties(awsProperties);
             Assertions.assertEquals("localhost:29092", producerProperties.getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
             Assertions.assertEquals("org.apache.kafka.common.security.plain.PlainLoginModule   required username='kafkaUsernameFromSecret' password='kafkaPasswordFromSecret';", producerProperties.getProperty(SASL_JAAS_CONFIG));
 
@@ -93,7 +93,7 @@ class KafkaProducerPropertiesTest {
         Assertions.assertEquals("test.sink", properties.getName());
         Assertions.assertEquals("test-out", properties.getTopic());
 
-        Properties producerProperties = properties.getProducerProperties(null);
+        Properties producerProperties = properties.buildProperties(null);
 
         Assertions.assertEquals("localhost:29092", producerProperties.getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
     }
@@ -102,7 +102,7 @@ class KafkaProducerPropertiesTest {
     @SetEnvironmentVariable(key = "KAFKA_PRODUCER_BOOTSTRAP_SERVERS", value = "kafka:9090")
     void shouldOverwriteFromArgsAndEnv() {
         KafkaProducerProperties properties = buildTest();
-        Properties producerProperties = properties.getProducerProperties(null);
+        Properties producerProperties = properties.buildProperties(null);
         Assertions.assertEquals("kafka:9090", producerProperties.getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
     }
 
@@ -111,7 +111,7 @@ class KafkaProducerPropertiesTest {
     void shouldNotOverwriteFromArgs() {
         KafkaProducerProperties  properties = KafkaProducerProperties.from("test.sink", ParameterTool.fromMap(
                 Map.of("kafka.producer.bootstrap.servers", "kafka:9095")), "/application-test.yml");
-        Properties producerProperties = properties.getProducerProperties(null);
+        Properties producerProperties = properties.buildProperties(null);
         Assertions.assertEquals("kafka:9095", producerProperties.getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG), "Argument has higher priority than ENV property");
     }
 

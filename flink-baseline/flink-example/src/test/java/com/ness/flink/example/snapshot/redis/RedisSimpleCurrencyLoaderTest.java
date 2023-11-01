@@ -119,7 +119,7 @@ class RedisSimpleCurrencyLoaderTest extends WithEmbeddedRedis {
         loadedUsd = loadByTime(now - windowSize, "USD");
         Assertions.assertFalse(loadedUsd.isPresent());
 
-        long expectedContextId = generateCtx(now).getId();
+        long expectedContextId = generateCtx(now).getContextId();
         ContextMetadata ctx = generateCtx(now + windowSize);
 
         loadedUsd = load(ctx, "USD");

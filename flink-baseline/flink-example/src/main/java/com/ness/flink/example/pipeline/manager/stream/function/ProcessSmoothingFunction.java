@@ -158,7 +158,7 @@ public class ProcessSmoothingFunction extends KeyedBroadcastProcessFunction<Stri
             log.debug("WindowPeriod: {}, fired timer: {}, nextFireTime: {}, currentWatermark{}", context, timestamp,
                 nextFireTime, ctx.timerService().currentWatermark());
         }
-        final long windowId = context.getId();
+        final long windowId = context.getWindowId();
         // Was prices updated for that specific Underlying?
         boolean updatePrices = pricesUpdateRequiredState.value();
 

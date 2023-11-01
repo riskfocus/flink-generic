@@ -76,7 +76,7 @@ public class InterestRatesRedisImpl implements InterestRatesLoader {
         byte[] snapshotPrefix = interestRatesMapper.buildSnapshotPrefix(context).getBytes();
 
         byte[][] keys = convert(getKey, indexKey, snapshotPrefix);
-        byte[][] values = convert(InterestRates.EMPTY_RATES.getCurrency().getBytes(), String.valueOf(context.getId()).getBytes(), context.getDate().getBytes());
+        byte[][] values = convert(InterestRates.EMPTY_RATES.getCurrency().getBytes(), String.valueOf(context.getContextId()).getBytes(), context.getDate().getBytes());
 
         byte[] data = connect.sync().evalsha(scriptDigest, ScriptOutputType.VALUE, keys, values);
         if (data != null) {
