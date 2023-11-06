@@ -36,7 +36,7 @@
     <artifactId>flink-baseline</artifactId>
 
     <properties>
-        <flink.version>1.15.4</flink.version>
+        <flink.version>1.17.1</flink.version>
         <redis.lettuce.version>5.3.7.RELEASE</redis.lettuce.version>
         <embedded.redis.version>0.7.2</embedded.redis.version>
         <log4j.version>2.19.0</log4j.version>
