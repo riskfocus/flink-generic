@@ -18,7 +18,6 @@ package com.ness.flink.example.snapshot.redis;
 
 import com.ness.flink.config.properties.RedisProperties;
 import com.ness.flink.config.properties.WatermarkProperties;
-import com.ness.flink.example.redis.WithEmbeddedRedis;
 import com.ness.flink.example.snapshot.redis.domain.SimpleCurrency;
 import com.ness.flink.example.snapshot.redis.manager.RedisSimpleCurrencyLoader;
 import com.ness.flink.example.snapshot.redis.manager.SimpleCurrencyLoader;
@@ -32,6 +31,7 @@ import com.ness.flink.snapshot.redis.SnapshotData;
 import com.ness.flink.storage.cache.EntityTypeEnum;
 import com.ness.flink.stream.StreamBuilder;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -40,6 +40,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.utility.DockerImageName;
 
 import java.io.IOException;
 import java.util.Map;
@@ -50,51 +53,63 @@ import java.util.Optional;
  * Test which saves data to EmbeddedRedis and checks if it was saved or not (load data from Redis)
  * @author Khokhlov Pavel
  */
-class RedisSimpleCurrencyLoaderTest extends WithEmbeddedRedis {
+@Slf4j
+class RedisSimpleCurrencyLoaderIT {
 
     private static final long windowSize = 10_000;
 
     private static ContextService contextService;
     private static SimpleCurrencyLoader currencyLoader;
+    private static final int REDIS_PORT = 6379;
+    private static ParameterTool parameterTool;
+    private static GenericContainer redis;
 
-    private static final ParameterTool PARAMETER_TOOL = ParameterTool.fromMap(Map.of(
-        "redis.port", String.valueOf(REDIS_PORT),
-        "redis.password", "",
-        "watermark.windowSizeMs", Long.toString(windowSize)));
-
-    private static final RedisProperties REDIS_PROPERTIES = RedisProperties.from(PARAMETER_TOOL);
 
     @SneakyThrows
     @BeforeAll
     static void setup() {
+
+        redis = new GenericContainer(DockerImageName.parse("redis:7.2.4"))
+            .withExposedPorts(REDIS_PORT).withLogConsumer(new Slf4jLogConsumer(log));
+        redis.start();
+        parameterTool = ParameterTool.fromMap(Map.of(
+            "redis.port", String.valueOf(redis.getMappedPort(REDIS_PORT)),
+            "redis.password", "",
+            "watermark.windowSizeMs", Long.toString(windowSize)));
+
         new MiniClusterWithClientResource(
             new MiniClusterResourceConfiguration.Builder()
                 .setNumberSlotsPerTaskManager(2)
                 .setNumberTaskManagers(1)
                 .build());
-        currencyLoader = new RedisSimpleCurrencyLoader(REDIS_PROPERTIES);
+        currencyLoader = new RedisSimpleCurrencyLoader(RedisProperties.from(parameterTool));
         currencyLoader.init();
-        WatermarkProperties watermarkProperties = WatermarkProperties.from(PARAMETER_TOOL);
-        contextService = ContextServiceProvider.create(ContextProperties.from(PARAMETER_TOOL), watermarkProperties);
+        WatermarkProperties watermarkProperties = WatermarkProperties.from(parameterTool);
+        contextService = ContextServiceProvider.create(ContextProperties.from(parameterTool), watermarkProperties);
 
     }
 
     @SneakyThrows
     @AfterAll
     static void close() {
-        currencyLoader.close();
+        if (currencyLoader != null) {
+            currencyLoader.close();
+        }
+        if (redis != null) {
+            redis.close();
+        }
     }
 
 
     @Test
     void shouldLoadSimpleCurrency() throws Exception {
 
-        StreamBuilder streamBuilder = StreamBuilder.from(PARAMETER_TOOL);
+        StreamBuilder streamBuilder = StreamBuilder.from(parameterTool);
         StreamExecutionEnvironment env = streamBuilder.getEnv();
         env.setParallelism(2);
 
         SnapshotSink<SimpleCurrency> sink = new SnapshotSink<>(new SimpleCurrencyMapper(":"),
-            EntityTypeEnum.MEM_CACHE_WITH_INDEX_SUPPORT_ONLY, PARAMETER_TOOL);
+            EntityTypeEnum.MEM_CACHE_WITH_INDEX_SUPPORT_ONLY, parameterTool);
 
         long now = 1586253482643L;
         SimpleCurrency usd = save(now, "USD", 10);
