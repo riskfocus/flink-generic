@@ -95,6 +95,7 @@ environment:
   bufferTimeoutMs: 0
   autoWatermarkInterval: 500
   disableGenericTypes: false
+  restFlameGraph: true
   #enabledCheckpoints: true
   #enabledRocksDb: true
   #checkpointsDataUri: "file:/checkpoints/"

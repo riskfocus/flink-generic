@@ -101,7 +101,7 @@ public class EnvironmentFactory {
         if (properties.isLocalDev()) {
             Configuration config = new Configuration();
             config.set(RestOptions.PORT, properties.getLocalPortWebUi());
-
+            config.setBoolean(RestOptions.ENABLE_FLAMEGRAPH, properties.isRestFlameGraph());
             properties.ofJmxReportPort().ifPresent(jmxPort -> {
                 config.setString(METRICS_REPORTER_PREFIX + REPORTER_JMX_PREFIX +
                     ConfigConstants.METRICS_REPORTER_FACTORY_CLASS_SUFFIX, JMXReporterFactory.class.getName());
