@@ -75,7 +75,7 @@ public class RedisSimpleCurrencyLoader implements SimpleCurrencyLoader {
         byte[] indexKey = indexKeyStr.getBytes();
         byte[] snapshotPrefix = snapshotPrefixStr.getBytes();
 
-        long ctxId = contextMetadata.getId();
+        long ctxId = contextMetadata.getContextId();
         String dateStr = contextMetadata.getDate();
 
         byte[][] keys = convert(directKey, indexKey, snapshotPrefix);

@@ -34,7 +34,7 @@ public class InterestRatesMapper extends SnapshotMapper<InterestRates> {
 
     @Override
     public String buildKey(InterestRates data, ContextMetadata context) {
-        long contextId = context.getId();
+        long contextId = context.getContextId();
         return buildSnapshotPrefix(context) + delimiter + context.getDate() + delimiter + contextId +
             delimiter + data.getCurrency();
     }

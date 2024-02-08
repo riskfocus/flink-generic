@@ -50,6 +50,9 @@ public class ApplicationProperties {
     private EntityTypeEnum snapshotType = EntityTypeEnum.MEM_CACHE_WITH_INDEX_SUPPORT_ONLY;
     private JobMode jobMode = JobMode.FULL;
     private boolean interestRatesKafkaSnapshotEnabled;
+
+    private boolean enabledExtendedLogging;
+
     public static ApplicationProperties from(@NonNull ParameterTool parameterTool) {
         ApplicationProperties properties = from(NAME, parameterTool, DEFAULT_CONFIG_FILE);
         log.info("Build parameters: applicationProperties={}", properties);

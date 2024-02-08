@@ -21,14 +21,20 @@ watermark:
   windowSizeMs: 10000
 
 kafka:
+  # We are using AWS Secret Manager
+  secretProvider: AWS
   bootstrap.servers: localhost:29092
   schema.registry.url: http://localhost:8085
   schema.registry.basic.auth.credentials.source: URL
-  #schema.registry.basic.auth.credentials.source: USER_INFO
+  # Providing Secret name
+  schema.secret.name: schemaRegistrySecret
+  # Since Secret provided, should be replaced with real user and password
   schema.registry.basic.auth.user.info: user:pwd
-  #security.protocol: SASL_SSL
-  #sasl.mechanism: PLAIN
-  #sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule   required username='API_KEY' password='API_PASSWD';"
+  # Kafka secret.name
+  bootstrap.secret.name: kafkaSecret
+  security.protocol: SASL_SSL
+  sasl.mechanism: PLAIN
+  sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule   required username='{API_USERNAME}' password='{API_PASSWORD}';"
 
 aws:
   region: us-east-1

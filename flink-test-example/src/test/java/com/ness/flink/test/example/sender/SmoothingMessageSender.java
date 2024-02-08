@@ -196,6 +196,6 @@ public class SmoothingMessageSender extends KafkaJsonMessageSender {
 
     private String generate(long timestamp) {
         WindowContext windowContext = windowIdGenerator.generateWindowPeriod(timestamp);
-        return "W" + windowContext.getId();
+        return "W" + windowContext.getWindowId();
     }
 }

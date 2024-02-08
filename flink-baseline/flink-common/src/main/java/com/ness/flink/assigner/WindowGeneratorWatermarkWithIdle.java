@@ -50,7 +50,7 @@ public class WindowGeneratorWatermarkWithIdle<T> implements WatermarkGeneratorSu
         private long windowId;
 
         private WindowBasedWatermarkGenerator() {
-            windowId = basicGenerator.generateWindowPeriod(now()).getId();
+            windowId = basicGenerator.generateWindowPeriod(now()).getWindowId();
         }
 
         @Override
@@ -64,7 +64,7 @@ public class WindowGeneratorWatermarkWithIdle<T> implements WatermarkGeneratorSu
         }
 
         private void generate(WatermarkOutput output, long eventTimestamp) {
-            long newWindowId = basicGenerator.generateWindowPeriod(eventTimestamp).getId();
+            long newWindowId = basicGenerator.generateWindowPeriod(eventTimestamp).getWindowId();
             if (newWindowId == windowId) {
                 output.markIdle();
             } else {

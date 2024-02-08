@@ -37,6 +37,7 @@ import java.util.Map;
 public class AwsProperties implements RawProperties<AwsProperties> {
     private static final long serialVersionUID = -5869618107831628207L;
     private static final String AWS_PROPERTY_NAME = "aws";
+    public static final String AWS_REGION = "region";
     private static final String AWS_PROPERTY_SECOND_NAME = "glue.";
 
     /**
