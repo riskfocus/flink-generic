@@ -20,6 +20,12 @@ watermark:
   idlenessMs: 1000
   windowSizeMs: 10000
 
+watermarkCustom:
+  watermarkType: CUSTOM_WITH_IDLE
+  maxOutOfOrderliness: 1000
+  idlenessDetectionDuration: 5000
+  processingTimeTrailingDuration: 10
+
 kafka:
   # We are using AWS Secret Manager
   secretProvider: AWS
