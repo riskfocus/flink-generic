@@ -19,7 +19,9 @@ package com.ness.flink.config.properties;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.SetEnvironmentVariable;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static com.ness.flink.config.properties.WatermarkType.*;
@@ -68,7 +70,26 @@ class WatermarkPropertiesTest {
     void shouldGetCustomWithIdleWatermark() {
         WatermarkProperties properties = WatermarkProperties.from("customWithIdle.watermark.sink",
                 ParameterTool.fromMap(Map.of()), "/application-test.yml");
-        Assertions.assertEquals(-1, properties.getIdlenessMs());
+        Assertions.assertEquals(0, properties.getIdlenessMs());
+        Assertions.assertEquals(Duration.ZERO, properties.buildIdlenessDetectionDuration());
+        Assertions.assertEquals(Duration.ZERO, properties.buildProcessingTimeTrailingDuration());
+        Assertions.assertEquals(Duration.ZERO, properties.buildMaxOutOfOrderliness());
+        Assertions.assertEquals(5000, properties.getWindowSizeMs());
+        Assertions.assertEquals(CUSTOM_WITH_IDLE, properties.getWatermarkType());
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "WATERMARK_MAX_OUT_OF_ORDERLINESS", value = "10000")
+    @SetEnvironmentVariable(key = "WATERMARK_IDLENESS_DETECTION_DURATION", value = "45000")
+    @SetEnvironmentVariable(key = "WATERMARK_PROCESSING_TIME_TRAILING_DURATION", value = "50")
+    void shouldGetCustomWatermarkWithCustomization() {
+        // WATERMARK
+        WatermarkProperties properties = WatermarkProperties.from("customWithIdle.watermark.sink",
+                ParameterTool.fromMap(Map.of()), "/application-test.yml");
+        Assertions.assertEquals(0, properties.getIdlenessMs());
+        Assertions.assertEquals(Duration.ofMillis(10000), properties.buildMaxOutOfOrderliness());
+        Assertions.assertEquals(Duration.ofMillis(45000), properties.buildIdlenessDetectionDuration());
+        Assertions.assertEquals(Duration.ofMillis(50), properties.buildProcessingTimeTrailingDuration());
         Assertions.assertEquals(5000, properties.getWindowSizeMs());
         Assertions.assertEquals(CUSTOM_WITH_IDLE, properties.getWatermarkType());
     }

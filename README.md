@@ -11,7 +11,7 @@ Project contains sub-modules:
 
 ## Dependencies
 Module requires:
- - Latest version of Java SE Development Kit 11
+ - Latest version of Java SE Development Kit 17
  - Maven Apache Maven 3.6.2+
 
 ## Build

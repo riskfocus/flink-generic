@@ -13,7 +13,6 @@
 #limitations under the License.
 
 # Application settings
-# Application settings
 application:
   windowProviderType: BASIC
 
@@ -73,6 +72,11 @@ interest.rates.source:
   # Should be equals to kafka partitions number
   maxParallelism: 4
 
+configuration.source:
+    topic: configuration
+    # Should be equals to kafka partitions number
+    maxParallelism: 4
+
 smoothing.request.sink:
   topic: smoothingInputsLatest
 
@@ -91,6 +95,7 @@ environment:
   bufferTimeoutMs: 0
   autoWatermarkInterval: 500
   disableGenericTypes: false
+  restFlameGraph: true
   #enabledCheckpoints: true
   #enabledRocksDb: true
   #checkpointsDataUri: "file:/checkpoints/"
@@ -102,7 +107,7 @@ environment:
 jdbc.shared:
   username: "root"
   password: "example"
-  url: "jdbc:mysql://localhost:3306/test?useConfigs=maxPerformance&connectTimeout=10&sessionVariables=wait_timeout=3"
+  url: "jdbc:mysql://localhost:3306/test?useConfigs=maxPerformance&connectTimeout=10&sessionVariables=wait_timeout=300"
   connectionCheckMaxIdleMs: 500
 
 rates.jdbc.sink:
