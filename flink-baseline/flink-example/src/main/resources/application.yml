@@ -63,7 +63,7 @@ kafka.producer:
   #parallelism: 4
 
 option.price.source:
-  topic: optionsPricesLive
+  topic: input
   # Should be equals to kafka partitions number
   maxParallelism: 4
 
@@ -91,7 +91,8 @@ reduceByUSDCurrency.operator:
 
 # Flink org.apache.flink.streaming.api.environment.StreamExecutionEnvironment configuration
 environment:
-  localDev: false
+  localDev: true
+  localParallelism: 4
   bufferTimeoutMs: 0
   autoWatermarkInterval: 500
   disableGenericTypes: false

@@ -13,7 +13,7 @@
 #limitations under the License.
 
 global:
-  scrape_interval:     10s # By default, scrape targets every 15 seconds.
+  scrape_interval:     1s # By default, scrape targets every 15 seconds.
 
   # Attach these labels to any time series or alerts when communicating with
   # external systems (federation, remote storage, Alertmanager).
@@ -24,14 +24,13 @@ global:
 # Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'flink'
+  - job_name: 'local'
     metrics_path: ''
     static_configs:
       - targets: ['host.docker.internal:9249']
-  - job_name: 'kafka'
-    # metrics_path defaults to '/metrics'
-    # scheme defaults to 'http'.
-    static_configs:
-    - targets: ['jmx-kafka:5556']
+  -   job_name: 'flink'
+      metrics_path: ''
+      static_configs:
+          -   targets: [ 'jobmanager:9249','taskmanager:9249' ]
 
 

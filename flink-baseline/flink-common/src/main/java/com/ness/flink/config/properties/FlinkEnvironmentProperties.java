@@ -49,7 +49,7 @@ public class FlinkEnvironmentProperties implements RawProperties<FlinkEnvironmen
     private static final String CONFIG_NAME = "environment";
 
     private boolean localDev;
-    private Integer localPortWebUi = 8081;
+    private Integer localPortWebUi = 8086;
     private Integer localParallelism = Runtime.getRuntime().availableProcessors();
     private Long metricsFetcherUpdateInterval = 10_000L;
     private boolean metricsSystemResource;

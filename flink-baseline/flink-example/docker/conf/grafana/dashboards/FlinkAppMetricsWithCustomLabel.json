@@ -16,7 +16,7 @@
     "editable": true,
     "gnetId": 8966,
     "graphTooltip": 0,
-    "iteration": 1678351750793,
+    "iteration": 1732226175382,
     "links": [],
     "panels": [
         {
@@ -344,7 +344,7 @@
             "dashLength": 10,
             "dashes": false,
             "datasource": "Prometheus",
-            "description": "End2End Latency-SmoothingRequest",
+            "description": "End2End Latency",
             "fieldConfig": {
                 "defaults": {
                     "custom": {},
@@ -362,6 +362,7 @@
             },
             "hiddenSeries": false,
             "id": 90,
+            "interval": "1",
             "legend": {
                 "avg": true,
                 "current": true,
@@ -386,29 +387,17 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "max(flink_taskmanager_job_task_operator_user_kinesisanalytics_e2eLatencyHistogram{operator_name=\"smoothing_request_sink:_Writer\",quantile=\"0.99\"}) by (operator_name)",
+                    "expr": "avg(flink_taskmanager_job_task_operator_custom_latency) by (operator_name,subtask_index)",
                     "interval": "",
-                    "legendFormat": "{{operator_name}}",
+                    "legendFormat": "{{operator_name}}-{{subtask_index}}",
                     "refId": "F"
-                },
-                {
-                    "expr": "min(flink_taskmanager_job_task_operator_user_kinesisanalytics_e2eLatencyHistogram{operator_name=\"smoothing_request_sink:_Writer\",quantile=\"0.99\"}) by (operator_name)",
-                    "interval": "",
-                    "legendFormat": "{{operator_name}}",
-                    "refId": "A"
-                },
-                {
-                    "expr": "avg(flink_taskmanager_job_task_operator_user_kinesisanalytics_e2eLatencyHistogram{operator_name=\"smoothing_request_sink:_Writer\",quantile=\"0.99\"}) by (operator_name)",
-                    "interval": "",
-                    "legendFormat": "{{operator_name}}",
-                    "refId": "B"
                 }
             ],
             "thresholds": [],
             "timeFrom": null,
             "timeRegions": [],
             "timeShift": null,
-            "title": "End2End Latency-SmoothingRequest",
+            "title": "End2End Latency",
             "tooltip": {
                 "shared": false,
                 "sort": 0,
@@ -3458,7 +3447,7 @@
             }
         }
     ],
-    "refresh": false,
+    "refresh": "5s",
     "schemaVersion": 26,
     "style": "dark",
     "tags": [],
@@ -3468,8 +3457,8 @@
                 "allValue": null,
                 "current": {
                     "selected": false,
-                    "text": "smoothing_full",
-                    "value": "smoothing_full"
+                    "text": "test",
+                    "value": "test"
                 },
                 "datasource": "Prometheus",
                 "definition": "label_values(flink_taskmanager_job_task_numRecordsOut,job_name)",
@@ -3493,12 +3482,9 @@
             {
                 "allValue": null,
                 "current": {
-                    "selected": true,
-                    "text": "Source:_interest_rates_source + Source:_option_price_source",
-                    "value": [
-                        "Source:_interest_rates_source",
-                        "Source:_option_price_source"
-                    ]
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
                 },
                 "datasource": "Prometheus",
                 "definition": "label_values(flink_taskmanager_job_task_numRecordsIn,task_name)",
