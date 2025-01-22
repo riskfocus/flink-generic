@@ -23,6 +23,7 @@ import com.ness.flink.util.EventUtils;
 import com.ness.flink.window.WindowAware;
 import com.ness.flink.window.WindowContext;
 import com.ness.flink.window.generator.WindowGeneratorProvider;
+import java.io.Serial;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
@@ -38,6 +39,7 @@ import org.apache.flink.util.Collector;
  */
 @Slf4j
 public class ProcessRatesFunction extends KeyedProcessFunction<String, InterestRate, InterestRates> {
+    @Serial
     private static final long serialVersionUID = -1673971835941156836L;
 
     private transient ValueState<Boolean> updateRequired;
@@ -53,8 +55,7 @@ public class ProcessRatesFunction extends KeyedProcessFunction<String, InterestR
                 new MapStateDescriptor<>(opName + "-interestRates", String.class, InterestRate.class);
         latest = getRuntimeContext().getMapState(ratesValueStateDescriptor);
         updateRequired = getRuntimeContext().getState(new ValueStateDescriptor<>(opName + "UpdateRequiredState", Boolean.class));
-
-        ParameterTool parameterTool = (ParameterTool) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
+        ParameterTool parameterTool = ParameterTool.fromMap(getRuntimeContext().getGlobalJobParameters());
         WatermarkProperties watermarkProperties = WatermarkProperties.from(parameterTool);
 
         windowAware = WindowGeneratorProvider.create(watermarkProperties);

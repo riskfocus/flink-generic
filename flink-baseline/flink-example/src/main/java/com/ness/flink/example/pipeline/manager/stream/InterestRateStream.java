@@ -28,8 +28,9 @@ import com.ness.flink.sink.jdbc.JdbcSinkBuilder;
 import com.ness.flink.sink.jdbc.core.executor.JdbcStatementBuilder;
 import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
 import com.ness.flink.storage.cache.EntityTypeEnum;
-import com.ness.flink.stream.StreamBuilder;
 import com.ness.flink.stream.FlinkDataStream;
+import com.ness.flink.stream.StreamBuilder;
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -62,6 +63,7 @@ public class InterestRateStream {
             + " ON DUPLICATE KEY UPDATE maturity = ?, rate = ?, timestamp = ?";
 
         JdbcStatementBuilder<InterestRate> jdbcStatementBuilder = new JdbcStatementBuilder<>() {
+            @Serial
             private static final long serialVersionUID = 3760053930726684910L;
             @Override
             public void accept(PreparedStatement stmt, InterestRate interestRate) throws SQLException {

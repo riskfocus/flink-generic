@@ -39,6 +39,7 @@ import com.ness.flink.util.SupplierThrowsException;
 import com.ness.flink.window.WindowAware;
 import com.ness.flink.window.WindowContext;
 import com.ness.flink.window.generator.WindowGeneratorProvider;
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -60,6 +61,7 @@ import org.apache.flink.util.Collector;
 @SuppressWarnings({"PMD.ExcessiveImports", "PMD.TooManyMethods"})
 public class ProcessSmoothingFunction extends KeyedBroadcastProcessFunction<String, OptionPrice, JobConfig, SmoothingRequest> {
 
+    @Serial
     private static final long serialVersionUID = -4848961500498134626L;
 
     private static final String CONFIG_KEY = "configKey";
@@ -87,7 +89,7 @@ public class ProcessSmoothingFunction extends KeyedBroadcastProcessFunction<Stri
 
         pricesUpdateRequiredState = getRuntimeContext().getState(new ValueStateDescriptor<>(opName + "-pricesUpdateRequiredState", Boolean.class));
 
-        ParameterTool parameterTool = (ParameterTool) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
+        ParameterTool parameterTool = ParameterTool.fromMap(getRuntimeContext().getGlobalJobParameters());
         
         WatermarkProperties watermarkProperties = WatermarkProperties.from(parameterTool);
         ApplicationProperties applicationProperties = ApplicationProperties.from(parameterTool);

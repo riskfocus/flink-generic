@@ -16,7 +16,10 @@
 
 package com.ness.flink.config.properties;
 
+import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
+
 import com.google.common.annotations.VisibleForTesting;
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,8 +36,6 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
-import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
-
 /**
  * Provides Kafka Producer properties
  *
@@ -45,6 +46,7 @@ import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
 @Setter
 @ToString
 public class KafkaProducerProperties extends KafkaProperties implements RawProperties<KafkaProducerProperties> {
+    @Serial
     private static final long serialVersionUID = -6867523426958957197L;
     private static final String SHARED_PROPERTY_NAME = "kafka.producer";
 
