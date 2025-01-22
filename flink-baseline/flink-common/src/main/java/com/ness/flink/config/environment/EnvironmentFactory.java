@@ -22,6 +22,7 @@ import static org.apache.flink.configuration.MetricOptions.METRIC_FETCHER_UPDATE
 import static org.apache.flink.configuration.MetricOptions.SYSTEM_RESOURCE_METRICS;
 
 import com.ness.flink.config.properties.FlinkEnvironmentProperties;
+import java.time.Duration;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -101,7 +102,7 @@ public class EnvironmentFactory {
         if (properties.isLocalDev()) {
             Configuration config = new Configuration();
             config.set(RestOptions.PORT, properties.getLocalPortWebUi());
-            config.setBoolean(RestOptions.ENABLE_FLAMEGRAPH, properties.isRestFlameGraph());
+            config.set(RestOptions.ENABLE_FLAMEGRAPH, properties.isRestFlameGraph());
             properties.ofJmxReportPort().ifPresent(jmxPort -> {
                 config.setString(METRICS_REPORTER_PREFIX + REPORTER_JMX_PREFIX +
                     ConfigConstants.METRICS_REPORTER_FACTORY_CLASS_SUFFIX, JMXReporterFactory.class.getName());
@@ -115,8 +116,8 @@ public class EnvironmentFactory {
                     prometheusReporterPort.toString());
             });
 
-            config.setLong(METRIC_FETCHER_UPDATE_INTERVAL, properties.getMetricsFetcherUpdateInterval());
-            config.setBoolean(SYSTEM_RESOURCE_METRICS, properties.isMetricsSystemResource());
+            config.set(METRIC_FETCHER_UPDATE_INTERVAL, Duration.ofMillis(properties.getMetricsFetcherUpdateInterval()));
+            config.set(SYSTEM_RESOURCE_METRICS, properties.isMetricsSystemResource());
 
             env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
             env.setParallelism(properties.getLocalParallelism());

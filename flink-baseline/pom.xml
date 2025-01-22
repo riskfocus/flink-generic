@@ -36,8 +36,8 @@
     <artifactId>flink-baseline</artifactId>
 
     <properties>
-        <flink.version>1.18.1</flink.version>
-        <flink.connector.kafka>3.0.1-1.18</flink.connector.kafka>
+        <flink.version>1.20.0</flink.version>
+        <flink.connector.kafka>3.4.0-1.20</flink.connector.kafka>
         <jackson.version>2.15.3</jackson.version>
         <redis.lettuce.version>5.3.7.RELEASE</redis.lettuce.version>
         <log4j.version>2.19.0</log4j.version>
@@ -144,6 +144,12 @@
 
             <dependency>
                 <groupId>org.apache.flink</groupId>
+                <artifactId>flink-connector-base</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-kafka</artifactId>
                 <version>${flink.connector.kafka}</version>
             </dependency>
@@ -221,6 +227,11 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-base</artifactId>
         </dependency>
 
         <dependency>
