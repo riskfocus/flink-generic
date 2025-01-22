@@ -32,7 +32,7 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
-import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
+import org.apache.flink.configuration.StateBackendOptions;
 import org.apache.flink.metrics.jmx.JMXReporterFactory;
 import org.apache.flink.metrics.prometheus.PrometheusReporterFactory;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
@@ -119,12 +119,12 @@ public class EnvironmentFactory {
             config.set(METRIC_FETCHER_UPDATE_INTERVAL, Duration.ofMillis(properties.getMetricsFetcherUpdateInterval()));
             config.set(SYSTEM_RESOURCE_METRICS, properties.isMetricsSystemResource());
 
+            if (properties.isEnabledRocksDb()) {
+                config.set(StateBackendOptions.STATE_BACKEND, "rocksdb");
+            }
+
             env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
             env.setParallelism(properties.getLocalParallelism());
-
-            if (properties.isEnabledRocksDb()) {
-                env.setStateBackend(new EmbeddedRocksDBStateBackend(properties.isEnabledIncrementalCheckpointing()));
-            }
 
         } else {
             // Cluster Flink environment.
