@@ -19,6 +19,7 @@ package com.ness.flink.config.environment;
 import static org.apache.flink.configuration.ConfigConstants.METRICS_REPORTER_PREFIX;
 import static org.apache.flink.configuration.JMXServerOptions.JMX_SERVER_PORT;
 import static org.apache.flink.configuration.MetricOptions.METRIC_FETCHER_UPDATE_INTERVAL;
+import static org.apache.flink.configuration.MetricOptions.REPORTER_FACTORY_CLASS;
 import static org.apache.flink.configuration.MetricOptions.SYSTEM_RESOURCE_METRICS;
 
 import com.ness.flink.config.properties.FlinkEnvironmentProperties;
@@ -29,7 +30,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.configuration.StateBackendOptions;
@@ -105,13 +105,13 @@ public class EnvironmentFactory {
             config.set(RestOptions.ENABLE_FLAMEGRAPH, properties.isRestFlameGraph());
             properties.ofJmxReportPort().ifPresent(jmxPort -> {
                 config.setString(METRICS_REPORTER_PREFIX + REPORTER_JMX_PREFIX +
-                    ConfigConstants.METRICS_REPORTER_FACTORY_CLASS_SUFFIX, JMXReporterFactory.class.getName());
+                    REPORTER_FACTORY_CLASS.key(), JMXReporterFactory.class.getName());
                 config.setString(JMX_SERVER_PORT.key(), jmxPort.toString());
             });
 
             properties.ofPrometheusReporterPort().ifPresent(prometheusReporterPort -> {
                 config.setString(METRICS_REPORTER_PREFIX + REPORTER_PROM_PREFIX +
-                    ConfigConstants.METRICS_REPORTER_FACTORY_CLASS_SUFFIX, PrometheusReporterFactory.class.getName());
+                    REPORTER_FACTORY_CLASS.key(), PrometheusReporterFactory.class.getName());
                 config.setString(METRICS_REPORTER_PREFIX + REPORTER_PROM_PREFIX + REPORTER_PORT,
                     prometheusReporterPort.toString());
             });
