@@ -17,8 +17,11 @@
 package com.ness.flink.distribution;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +77,13 @@ class FlinkKeyGroupTest {
             });
         });
         Assertions.assertEquals(actualParallelism, distribution.size());
-        log.info("Keys distribution across slots: {}", distribution);
+        Map<Integer, Integer> sortedMap =
+            distribution.entrySet().stream()
+                .sorted(Entry.comparingByValue())
+                .collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+                    (e1, e2) -> e1, LinkedHashMap::new));
+
+        sortedMap.forEach((key, value) -> log.info("Keys: k={}, v={}", key, value));
     }
 
     int getSlotIndexByKey(String key, int actualParallelism) {
