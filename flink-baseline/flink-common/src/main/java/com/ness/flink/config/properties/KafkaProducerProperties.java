@@ -16,7 +16,17 @@
 
 package com.ness.flink.config.properties;
 
+import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
+
 import com.google.common.annotations.VisibleForTesting;
+import java.io.Serial;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -25,12 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.kafka.clients.producer.ProducerConfig;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * Provides Kafka Producer properties
@@ -42,6 +46,7 @@ import java.util.stream.Collectors;
 @Setter
 @ToString
 public class KafkaProducerProperties extends KafkaProperties implements RawProperties<KafkaProducerProperties> {
+    @Serial
     private static final long serialVersionUID = -6867523426958957197L;
     private static final String SHARED_PROPERTY_NAME = "kafka.producer";
 
@@ -68,10 +73,19 @@ public class KafkaProducerProperties extends KafkaProperties implements RawPrope
         return producerProperties;
     }
 
-    public Properties getProducerProperties() {
+    @Override
+    public Properties buildProperties(@Nullable RawProperties<?> secretProviderProperties) {
         Properties producerProperties = new Properties();
-        producerProperties.putAll(filterNonProducerProperties());
-        log.info("Building Kafka ProducerProperties: producerProperties={}", producerProperties);
+        Map<String, String> filtered = filterNonProducerProperties();
+        String masked = replaceKafkaCredentials(filtered, secretProviderProperties);
+        producerProperties.putAll(filtered);
+
+        HashMap<Object, Object> forPrint = new HashMap<>(producerProperties);
+        if (masked != null) {
+            // Masks credential configuration
+            forPrint.replace(SASL_JAAS_CONFIG, masked);
+        }
+        log.info("Building Kafka ProducerProperties: producerProperties={}", forPrint);
         return producerProperties;
     }
 

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>flink-generic</artifactId>
         <groupId>com.ness.flink.generic</groupId>
-        <version>2.0.7-SNAPSHOT</version>
+        <version>2.0.19-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
@@ -36,13 +36,15 @@
     <artifactId>flink-baseline</artifactId>
 
     <properties>
-        <flink.version>1.15.3</flink.version>
+        <flink.version>1.20.0</flink.version>
+        <flink.connector.kafka>3.4.0-1.20</flink.connector.kafka>
+        <jackson.version>2.15.3</jackson.version>
         <redis.lettuce.version>5.3.7.RELEASE</redis.lettuce.version>
-        <embedded.redis.version>0.7.2</embedded.redis.version>
         <log4j.version>2.19.0</log4j.version>
         <dropwizard.metrics.version>4.1.10.1</dropwizard.metrics.version>
         <aws-kinesisanalytics-runtime.version>1.2.0</aws-kinesisanalytics-runtime.version>
         <aws.glue.flink.serde.version>1.1.14</aws.glue.flink.serde.version>
+        <aws.secret.manager.version>1.0.2</aws.secret.manager.version>
     </properties>
 
     <dependencyManagement>
@@ -70,6 +72,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-avro-confluent-registry</artifactId>
                 <version>${flink.version}</version>
@@ -79,13 +87,6 @@
                 <groupId>io.lettuce</groupId>
                 <artifactId>lettuce-core</artifactId>
                 <version>${redis.lettuce.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>it.ozimov</groupId>
-                <artifactId>embedded-redis</artifactId>
-                <version>${embedded.redis.version}</version>
-                <scope>test</scope>
             </dependency>
 
 
@@ -136,9 +137,21 @@
             </dependency>
 
             <dependency>
+                <groupId>com.amazonaws.secretsmanager</groupId>
+                <artifactId>aws-secretsmanager-caching-java</artifactId>
+                <version>${aws.secret.manager.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-connector-base</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-kafka</artifactId>
-                <version>${flink.version}</version>
+                <version>${flink.connector.kafka}</version>
             </dependency>
 
             <dependency>
@@ -218,6 +231,11 @@
 
         <dependency>
             <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-base</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka</artifactId>
         </dependency>
 
@@ -278,6 +296,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.amazonaws.secretsmanager</groupId>
+            <artifactId>aws-secretsmanager-caching-java</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-statebackend-rocksdb</artifactId>
         </dependency>
@@ -296,6 +319,12 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

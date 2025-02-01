@@ -19,16 +19,16 @@ package com.ness.flink.config.channel.kafka;
 import com.ness.flink.config.channel.EventTimeExtractor;
 import com.ness.flink.config.channel.KeyExtractor;
 import com.ness.flink.config.operator.DefaultSink;
+import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.KafkaProducerProperties;
+import java.io.Serializable;
+import java.util.Optional;
+import java.util.Properties;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.sink.KafkaSinkBuilder;
-
-import java.io.Serializable;
-import java.util.Optional;
-import java.util.Properties;
 
 /**
  *
@@ -37,12 +37,13 @@ import java.util.Properties;
 @SuperBuilder
 public abstract class KafkaAwareSink<S extends Serializable> extends DefaultSink<S> {
     protected final KafkaProducerProperties kafkaProducerProperties;
+    protected final AwsProperties awsProperties;
     protected final Class<S> domainClass;
     protected final KeyExtractor<S> keyExtractor;
     protected final EventTimeExtractor<S> eventTimeExtractor;
 
     protected Properties producerProps() {
-        return kafkaProducerProperties.getProducerProperties();
+        return kafkaProducerProperties.buildProperties(awsProperties);
     }
 
     protected String getTopic() {
@@ -59,7 +60,7 @@ public abstract class KafkaAwareSink<S extends Serializable> extends DefaultSink
     @Override
     public final Sink<S> build() {
         KafkaSinkBuilder<S> builder = KafkaSink.<S>builder()
-                .setDeliverGuarantee(kafkaProducerProperties.getDeliveryGuarantee())
+                .setDeliveryGuarantee(kafkaProducerProperties.getDeliveryGuarantee())
                 .setKafkaProducerConfig(producerProps())
                 .setRecordSerializer(getKafkaRecordSerializationSchema());
         kafkaProducerProperties.buildTransactionIdPrefix(getName()).ifPresent(builder::setTransactionalIdPrefix);

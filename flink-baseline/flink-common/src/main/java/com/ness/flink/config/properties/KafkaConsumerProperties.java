@@ -16,7 +16,16 @@
 
 package com.ness.flink.config.properties;
 
+import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
+import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
+
 import com.google.common.annotations.VisibleForTesting;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -27,13 +36,6 @@ import org.apache.flink.connector.kafka.source.KafkaSourceOptions;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
-import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
 
 
 /**
@@ -48,7 +50,6 @@ import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT
 public class KafkaConsumerProperties extends KafkaProperties implements RawProperties<KafkaConsumerProperties> {
     private static final long serialVersionUID = 8374164378532623386L;
 
-    private static final String CONFLUENT_SCHEMA_REGISTRY_KEY = "schema.registry.url";
     private static final String SHARED_PROPERTY_NAME = "kafka.consumer";
 
     private Long timestamp;
@@ -86,13 +87,21 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
         EARLIEST, LATEST, TIMESTAMP, COMMITTED
     }
 
-    public Properties getConsumerProperties() {
+    @Override
+    public Properties buildProperties(@Nullable RawProperties<?> secretProviderProperties) {
         Properties consumerProperties = new Properties();
         Map<String, String> filtered = filterNonConsumerProperties();
+        String masked = replaceKafkaCredentials(filtered, secretProviderProperties);
         // We should provide unique prefix (in our case it's Operator name) for building "client.id"
         filtered.putIfAbsent(KafkaSourceOptions.CLIENT_ID_PREFIX.key(), getName());
         consumerProperties.putAll(filtered);
-        log.info("Building Kafka ConsumerProperties: properties={}", consumerProperties);
+
+        HashMap<Object, Object> forPrint = new HashMap<>(consumerProperties);
+        if (masked != null) {
+            // Masks credential configuration
+            forPrint.replace(SASL_JAAS_CONFIG, masked);
+        }
+        log.info("Building Kafka ConsumerProperties: properties={}", forPrint);
         return consumerProperties;
     }
 

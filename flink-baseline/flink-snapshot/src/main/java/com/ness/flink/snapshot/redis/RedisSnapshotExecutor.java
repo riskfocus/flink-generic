@@ -47,7 +47,7 @@ public class RedisSnapshotExecutor<T extends TimeAware> implements SnapshotAware
     @Override
     public void execute(@NonNull T data, ContextService contextService, @NonNull String contextName, StatefulRedisConnection<byte[], byte[]> connection) throws IOException {
         ContextMetadata ctx = contextService.generate(data, contextName);
-        long contextId = ctx.getId();
+        long contextId = ctx.getContextId();
         long expireAt = expireAt();
         RedisCommands<byte[], byte[]> commands = connection.sync();
         // write data to Redis in one Transaction

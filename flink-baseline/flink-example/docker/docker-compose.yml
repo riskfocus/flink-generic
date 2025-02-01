@@ -97,6 +97,7 @@ services:
                        sleep 5 && \
                        kafka-topics --bootstrap-server kafka:9093 --topic optionsPricesLive --create --replication-factor 1 --partitions 4 && \
                        kafka-topics --bootstrap-server kafka:9093 --topic ycInputsLive --create --replication-factor 1 --partitions 4 && \
+                       kafka-topics --bootstrap-server kafka:9093 --topic configuration --create --replication-factor 1 --partitions 4 && \
                        kafka-topics --bootstrap-server kafka:9093 --topic interestRatesSnapshot --create --replication-factor 1 --partitions 1 && \
                        kafka-topics --bootstrap-server kafka:9093 --topic smoothingInputsLatest --create --replication-factor 1 --partitions 4 '"
     environment:
@@ -105,7 +106,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: ignored
 
   mysql:
-    image: mysql:5.7.41
+    image: mysql:8.0.33
     container_name: mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always

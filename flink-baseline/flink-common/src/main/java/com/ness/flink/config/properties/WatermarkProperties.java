@@ -42,6 +42,9 @@ public class WatermarkProperties {
     private Long idlenessMs;
     private Long maxOutOfOrderliness;
     private long windowSizeMs;
+    private Long idlenessDetectionDuration;
+    private Long processingTimeTrailingDuration;
+
     private WatermarkType watermarkType = NO_WATERMARK;
 
     private WindowGeneratorProvider.GeneratorType windowGeneratorType = WindowGeneratorProvider.GeneratorType.BASIC;
@@ -65,9 +68,21 @@ public class WatermarkProperties {
     }
 
     public Duration buildMaxOutOfOrderliness() {
-        if (maxOutOfOrderliness != null) {
-            return Duration.ofMillis(maxOutOfOrderliness);
+        return buildDuration(maxOutOfOrderliness);
+    }
+
+    public Duration buildIdlenessDetectionDuration() {
+        return buildDuration(idlenessDetectionDuration);
+    }
+
+    public Duration buildProcessingTimeTrailingDuration() {
+        return buildDuration(processingTimeTrailingDuration);
+    }
+
+    private Duration buildDuration(Long durationMs) {
+        if (durationMs != null) {
+            return Duration.ofMillis(durationMs);
         }
-        return null;
+        return Duration.ZERO;
     }
 }
