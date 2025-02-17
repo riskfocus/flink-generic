@@ -26,6 +26,7 @@ import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDe
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 /**
@@ -70,18 +71,18 @@ final class WithMetricsKafkaDeserialization<T> implements KafkaRecordDeserializa
     public void deserialize(ConsumerRecord<byte[], byte[]> message, Collector<T> out) throws IOException {
         try {
             kafkaRecordDeserializationSchema.deserialize(message, out);
-        } catch (IOException e) {
+        } catch (Exception e) {
             handleDeserializationError(message, e);
         }
     }
 
-    private void handleDeserializationError(ConsumerRecord<byte[], byte[]> message, IOException ioException) throws IOException {
+    private void handleDeserializationError(ConsumerRecord<byte[], byte[]> message, Exception exception) {
         if (skipBrokenMessages) {
             String errorMessage = String.format("Message was skipped due to deserialization issue: operatorName=%s, topic=%s, partition=%d, offset=%d, timestamp=%d", operatorName, message.topic(), message.partition(), message.offset(), message.timestamp());
-            log.warn(errorMessage, ioException);
+            log.warn(errorMessage, exception);
             brokenMessages.inc();
         } else {
-            throw ioException;
+            throw new FlinkRuntimeException(exception);
         }
     }
 
