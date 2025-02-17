@@ -17,14 +17,14 @@
 package com.ness.flink.watermark;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.Serial;
+import java.time.Duration;
+import javax.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.Watermark;
 import org.apache.flink.api.common.eventtime.WatermarkGenerator;
 import org.apache.flink.api.common.eventtime.WatermarkGeneratorSupplier;
 import org.apache.flink.api.common.eventtime.WatermarkOutput;
-
-import javax.validation.ValidationException;
-import java.time.Duration;
 
 /**
  * This is a {@link WatermarkWithIdle} used to emit Watermarks that lag behind the
@@ -41,6 +41,7 @@ import java.time.Duration;
  */
 @Slf4j
 public class WatermarkWithIdle<T> implements WatermarkGeneratorSupplier<T> {
+    @Serial
     private static final long serialVersionUID = -3132268849554279554L;
 
     /**
@@ -158,9 +159,13 @@ public class WatermarkWithIdle<T> implements WatermarkGeneratorSupplier<T> {
                 long processingTimeWatermark = now - processingTimeTrailingDuration;
                 if (processingTimeWatermark > lastEmittedWatermark) {
                     lastEmittedWatermark = processingTimeWatermark;
+                    lastUpdatedTimestamp = now;
+                    log.debug("Changed watermark to={}", lastEmittedWatermark);
+                } else {
+                    return;
                 }
             } else {
-                log.debug("lastEmittedWatermark update skipped, because of difference between current time and lastUpdatedTimestamp: {}", now - lastUpdatedTimestamp);
+                return;
             }
             log.debug("Emitting watermark with lastEmittedWatermark={}", lastEmittedWatermark);
             output.emitWatermark(new Watermark(lastEmittedWatermark));
