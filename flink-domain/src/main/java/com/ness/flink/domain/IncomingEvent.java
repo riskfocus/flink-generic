@@ -19,6 +19,7 @@ package com.ness.flink.domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -30,6 +31,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
+@ToString
 @SuppressWarnings("PMD.AbstractClassWithoutAnyMethod")
 public abstract class IncomingEvent implements Event {
 
