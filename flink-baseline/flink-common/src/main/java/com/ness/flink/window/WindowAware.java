@@ -16,8 +16,9 @@
 
 package com.ness.flink.window;
 
-@FunctionalInterface
-public interface WindowAware {
+import java.io.Serializable;
+
+public interface WindowAware extends Serializable {
 
     /**
      * Generates window context
@@ -27,4 +28,10 @@ public interface WindowAware {
      * @return Window context
      */
     WindowContext generateWindowPeriod(long timestamp);
+
+    /**
+     * Returns window duration in milliseconds
+     * @return window duration in milliseconds
+     */
+    long windowDurationMs();
 }

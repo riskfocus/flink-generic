@@ -18,10 +18,9 @@ package com.ness.flink.window.generator.impl;
 
 import com.ness.flink.window.WindowAware;
 import com.ness.flink.window.WindowContext;
+import java.io.Serial;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
-
-import java.io.Serializable;
 
 /**
  * Wall clock based generator
@@ -30,7 +29,8 @@ import java.io.Serializable;
  */
 @ToString
 @AllArgsConstructor
-public class BasicGenerator implements Serializable, WindowAware {
+public class BasicGenerator implements WindowAware {
+    @Serial
     private static final long serialVersionUID = 1670857446143857575L;
 
     private static final long ZERO = calculateZeroTime();
@@ -63,4 +63,8 @@ public class BasicGenerator implements Serializable, WindowAware {
         return 0;
     }
 
+    @Override
+    public long windowDurationMs() {
+        return windowDuration;
+    }
 }

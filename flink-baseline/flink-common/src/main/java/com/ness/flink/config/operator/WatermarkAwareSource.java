@@ -19,13 +19,14 @@ package com.ness.flink.config.operator;
 
 import com.ness.flink.config.properties.WatermarkProperties;
 import com.ness.flink.config.properties.WatermarkType;
+import com.ness.flink.watermark.WaterMarkWithIdleWindowAware;
 import com.ness.flink.watermark.WatermarkWithIdle;
+import com.ness.flink.window.generator.impl.BasicGenerator;
+import java.time.Duration;
+import javax.annotation.Nullable;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-
-import javax.annotation.Nullable;
-import java.time.Duration;
 
 /**
  * Any Source which support Flink Source Watermarks
@@ -38,33 +39,30 @@ public abstract class WatermarkAwareSource<S> extends DefaultSource<S> {
 
     protected WatermarkStrategy<S> buildWatermarkStrategy(@Nullable TimestampAssignerSupplier<S> timestampAssignerFunction) {
         WatermarkType watermarkType = watermarkProperties.getWatermarkType();
-        WatermarkStrategy<S> watermarkStrategy;
-        switch (watermarkType) {
-            case NO_WATERMARK:
-                watermarkStrategy = WatermarkStrategy.noWatermarks();
-                break;
-            case MONOTONOUS_TIMESTAMPS:
-                watermarkStrategy = WatermarkStrategy.forMonotonousTimestamps();
-                break;
-            case BOUNDED_OUT_OF_ORDER_NESS:
-                watermarkStrategy = WatermarkStrategy.forBoundedOutOfOrderness(watermarkProperties.buildMaxOutOfOrderliness());
-                break;
-            case CUSTOM_WITH_IDLE:
-                watermarkStrategy = WatermarkStrategy
-                    .forGenerator(
-                        new WatermarkWithIdle<>(watermarkProperties.buildMaxOutOfOrderliness(),
-                            watermarkProperties.buildIdlenessDetectionDuration(),
-                            watermarkProperties.buildProcessingTimeTrailingDuration()));
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported WatermarkType: " + watermarkType);
+        WatermarkStrategy<S> watermarkStrategy = switch (watermarkType) {
+            case NO_WATERMARK -> WatermarkStrategy.noWatermarks();
+            case MONOTONOUS_TIMESTAMPS -> WatermarkStrategy.forMonotonousTimestamps();
+            case BOUNDED_OUT_OF_ORDER_NESS ->
+                WatermarkStrategy.forBoundedOutOfOrderness(watermarkProperties.buildMaxOutOfOrderliness());
+            case CUSTOM_WITH_IDLE -> WatermarkStrategy
+                .forGenerator(
+                    new WatermarkWithIdle<>(watermarkProperties.buildMaxOutOfOrderliness(),
+                        watermarkProperties.buildIdlenessDetectionDuration(),
+                        watermarkProperties.buildProcessingTimeTrailingDuration()));
+            case CUSTOM_WITH_IDLE_WINDOW_AWARE -> WatermarkStrategy
+                .forGenerator(new WaterMarkWithIdleWindowAware<>(new BasicGenerator(watermarkProperties.getWindowSizeMs())));
+        };
+        if (timestampAssignerFunction != null) {
+            watermarkStrategy = watermarkStrategy.withTimestampAssigner(timestampAssignerFunction);
         }
         Long watermarkIdlenessMs = watermarkProperties.getIdlenessMs();
         if (watermarkIdlenessMs != null && watermarkIdlenessMs > 0) {
             watermarkStrategy = watermarkStrategy.withIdleness(Duration.ofMillis(watermarkIdlenessMs));
         }
-        if (timestampAssignerFunction != null) {
-            watermarkStrategy = watermarkStrategy.withTimestampAssigner(timestampAssignerFunction);
+        String group = watermarkProperties.getGroup();
+        if (group != null) {
+            watermarkStrategy = watermarkStrategy.withWatermarkAlignment(group,
+                watermarkProperties.buildMaxAllowedWatermarkDriftMsDuration(), watermarkProperties.buildAlignmentUpdateInterval());
         }
         return watermarkStrategy;
     }

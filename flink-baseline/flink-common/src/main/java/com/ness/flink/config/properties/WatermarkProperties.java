@@ -16,18 +16,18 @@
 
 package com.ness.flink.config.properties;
 
+import static com.ness.flink.config.properties.WatermarkType.NO_WATERMARK;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.window.generator.WindowGeneratorProvider;
+import java.time.Duration;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
-
-import java.time.Duration;
-
-import static com.ness.flink.config.properties.WatermarkType.NO_WATERMARK;
 
 /**
  * @author Khokhlov Pavel
@@ -44,8 +44,19 @@ public class WatermarkProperties {
     private long windowSizeMs;
     private Long idlenessDetectionDuration;
     private Long processingTimeTrailingDuration;
+    private String group;
+    private Long maxAllowedWatermarkDriftMs;
+    private Long alignmentUpdateIntervalMs;
 
     private WatermarkType watermarkType = NO_WATERMARK;
+
+    public Duration buildMaxAllowedWatermarkDriftMsDuration() {
+        return buildDuration(maxAllowedWatermarkDriftMs);
+    }
+
+    public Duration buildAlignmentUpdateInterval() {
+        return buildDuration(alignmentUpdateIntervalMs, Duration.ofMillis(1000).toMillis());
+    }
 
     private WindowGeneratorProvider.GeneratorType windowGeneratorType = WindowGeneratorProvider.GeneratorType.BASIC;
 
@@ -84,5 +95,9 @@ public class WatermarkProperties {
             return Duration.ofMillis(durationMs);
         }
         return Duration.ZERO;
+    }
+
+    private Duration buildDuration(Long durationMs, long defaultValue) {
+        return Duration.ofMillis(Objects.requireNonNullElse(durationMs, defaultValue));
     }
 }
