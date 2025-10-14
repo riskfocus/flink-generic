@@ -22,6 +22,7 @@ import com.ness.flink.example.pipeline.config.sink.mapper.InterestRatesMapper;
 import com.ness.flink.example.pipeline.domain.intermediate.InterestRates;
 import com.ness.flink.snapshot.SnapshotSink;
 import com.ness.flink.storage.cache.EntityTypeEnum;
+import java.io.Serial;
 import java.util.Optional;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.api.connector.sink2.Sink;
@@ -32,6 +33,8 @@ import org.apache.flink.util.ParameterTool;
  */
 @SuperBuilder
 public class InterestRatesSink extends DefaultSink<InterestRates> {
+    @Serial
+    private static final long serialVersionUID = 9183826822022335650L;
     private final ParameterTool parameterTool;
     private final EntityTypeEnum entityTypeEnum;
     private final OperatorProperties operatorProperties;
