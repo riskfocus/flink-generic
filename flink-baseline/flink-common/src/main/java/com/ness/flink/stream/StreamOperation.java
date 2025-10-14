@@ -32,7 +32,6 @@ import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
 /**
  * Building Flink Sink/Source operators.
@@ -188,7 +187,7 @@ public class StreamOperation {
     }
 
     /**
-     * Generic Sink data from provided DataStream {@link SinkFunction} based
+     * Generic Sink data from provided DataStream {@link Sink} based
      *
      * @param fromStream     source stream
      * @param sinkDefinition sink definition
@@ -196,7 +195,7 @@ public class StreamOperation {
      */
     public <S extends Serializable> void sink(DataStreamProvider<S> fromStream, SinkDefinition<S> sinkDefinition) {
         String name = sinkDefinition.getName();
-        fromStream.getDataStream().addSink(sinkDefinition.buildSink()).name(name).uid(name)
+        fromStream.getDataStream().sinkTo(sinkDefinition.build()).name(name).uid(name)
             .setParallelism(sinkDefinition.getParallelism().orElse(streamBuilder.getParallelism()));
     }
 

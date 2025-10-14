@@ -16,7 +16,12 @@
 
 package com.ness.flink.stream;
 
-import com.ness.flink.config.operator.*;
+import com.ness.flink.config.operator.DefaultSink;
+import com.ness.flink.config.operator.KeyedBroadcastProcessorDefinition;
+import com.ness.flink.config.operator.KeyedProcessorDefinition;
+import com.ness.flink.config.operator.OperatorDefinition;
+import com.ness.flink.config.operator.SinkDefinition;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,8 +31,7 @@ import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
-import org.apache.flink.streaming.api.functions.sink.DiscardingSink;
-import java.util.function.Function;
+import org.apache.flink.streaming.api.functions.sink.v2.DiscardingSink;
 
 /**
  * Auxiliary data stream wrapper, providing simple process/sink operators configuration.
@@ -93,24 +97,24 @@ public class FlinkDataStream<T> implements DataStreamProvider<T> {
 
     /**
      * Adds custom sink to current data stream wrapper, without changing event type
-     * @param sinkDefinition based on old SinkFunction
+     * @param sinkDefinition based on Sink API
      * @return same data stream wrapper, with sink added
      */
     public FlinkDataStream<T> addSink(SinkDefinition<T> sinkDefinition) {
-        singleOutputStreamOperator.addSink(sinkDefinition.buildSink())
+        singleOutputStreamOperator.sinkTo(sinkDefinition.build())
             .setParallelism(sinkDefinition.getParallelism().orElse(getParallelism()))
             .name(sinkDefinition.getName()).uid(sinkDefinition.getName());
         return this;
     }
 
     /**
-     * Adds discarding sink {@link org.apache.flink.streaming.api.functions.sink.DiscardingSink}
+     * Adds a discarding sink (drops all incoming records).
      *
      * @param sinkDefinition operator Definition
      * @return same data stream wrapper, with sink added
      */
     public FlinkDataStream<T> addDiscardingSink(OperatorDefinition sinkDefinition) {
-        singleOutputStreamOperator.addSink(new DiscardingSink<>())
+        singleOutputStreamOperator.sinkTo(new DiscardingSink<>())
             .setParallelism(sinkDefinition.getParallelism().orElse(getParallelism()))
             .name(sinkDefinition.getName()).uid(sinkDefinition.getName());
         return this;
@@ -123,7 +127,7 @@ public class FlinkDataStream<T> implements DataStreamProvider<T> {
     /**
      * Adds custom sink to current data stream wrapper, without changing event type
      *
-     * @param defaultSink based on new Flink Sink API
+     * @param defaultSink based on Flink Sink API
      * @return same data stream wrapper, with sink added
      */
     public FlinkDataStream<T> addSink(DefaultSink<T> defaultSink) {

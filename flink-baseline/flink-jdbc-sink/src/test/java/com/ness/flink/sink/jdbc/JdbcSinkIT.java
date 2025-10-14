@@ -18,8 +18,8 @@ package com.ness.flink.sink.jdbc;
 
 import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.sink.jdbc.core.executor.JdbcStatementBuilder;
-import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
 import com.ness.flink.sink.jdbc.domain.Price;
+import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
 import com.ness.flink.stream.StreamBuilder;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -35,7 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.source.FromElementsFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -75,14 +74,13 @@ class JdbcSinkIT implements Serializable {
         DefaultSource<Price> testSource = new DefaultSource<>("test.source") {
             @Override
             public SingleOutputStreamOperator<Price> build(StreamExecutionEnvironment streamExecutionEnvironment) {
-                return streamExecutionEnvironment.addSource(TestSourceFunction.from(
-                    jdbcSinkProperties.getMaxWaitThreshold() + 5000,
+                return streamExecutionEnvironment.fromElements(
                     Price.builder().id(1).value(new BigDecimal("23.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(2).value(new BigDecimal("5.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build(),
                     // duplicate
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build()
-                ));
+                );
             }
 
             @Override
@@ -142,28 +140,6 @@ class JdbcSinkIT implements Serializable {
             }
         }
         return 0;
-    }
-
-    static class TestSourceFunction extends FromElementsFunction<Price> {
-        private static final long serialVersionUID = 7060005340557699393L;
-        private final long waitTime;
-
-        private TestSourceFunction(long waitTime, Price... elements) {
-            super(elements);
-            this.waitTime = waitTime;
-        }
-
-        public static TestSourceFunction from(long waitTime, Price... elements) {
-            return new TestSourceFunction(waitTime, elements);
-        }
-
-        @Override
-        public void run(SourceContext<Price> ctx) throws Exception {
-            super.run(ctx);
-            if (waitTime > 0) {
-                Thread.sleep(waitTime);
-            }
-        }
     }
 
 }

@@ -19,6 +19,7 @@ package com.ness.flink.config.channel.kafka.msk;
 import com.amazonaws.services.schemaregistry.flink.avro.GlueSchemaRegistryAvroSerializationSchema;
 import com.ness.flink.config.channel.kafka.KafkaAwareSink;
 import com.ness.flink.config.channel.kafka.KafkaSerializationSchemaBuilder;
+import java.io.Serial;
 import lombok.experimental.SuperBuilder;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
@@ -29,6 +30,9 @@ import org.apache.flink.formats.avro.RegistryAvroSerializationSchema;
  */
 @SuperBuilder
 public final class MskAvroSpecificRecordSink<S extends SpecificRecordBase> extends KafkaAwareSink<S> {
+    @Serial
+    private static final long serialVersionUID = 5619563512422666317L;
+
     @Override
     protected KafkaRecordSerializationSchema<S> getKafkaRecordSerializationSchema() {
         return KafkaSerializationSchemaBuilder.<S>builder()

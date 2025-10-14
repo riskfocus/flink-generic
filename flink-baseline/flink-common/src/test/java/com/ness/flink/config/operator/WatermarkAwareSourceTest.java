@@ -37,9 +37,7 @@ class WatermarkAwareSourceTest {
         var watermarkProperties = WatermarkProperties.from("watermarkCustom", ParameterTool.fromMap(Map.of()));
         CustomSource<TestPojo> myCustom = CustomSource.<TestPojo>builder().watermarkProperties(watermarkProperties).build();
         var watermarkStrategy = myCustom.buildWatermarkStrategy(null);
-        var watermarkGenerator = watermarkStrategy.createWatermarkGenerator(() -> null);
         Assertions.assertNotNull(watermarkStrategy);
-        Assertions.assertNotNull(watermarkGenerator);
     }
 
     @SuperBuilder

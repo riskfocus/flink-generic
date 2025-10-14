@@ -21,6 +21,7 @@ import com.ness.flink.config.channel.KeyExtractor;
 import com.ness.flink.config.operator.DefaultSink;
 import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.KafkaProducerProperties;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.Properties;
@@ -36,6 +37,8 @@ import org.apache.flink.connector.kafka.sink.KafkaSinkBuilder;
  */
 @SuperBuilder
 public abstract class KafkaAwareSink<S extends Serializable> extends DefaultSink<S> {
+    @Serial
+    private static final long serialVersionUID = -4899497033417504115L;
     protected final KafkaProducerProperties kafkaProducerProperties;
     protected final AwsProperties awsProperties;
     protected final Class<S> domainClass;

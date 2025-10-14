@@ -25,12 +25,12 @@ import com.ness.flink.window.WindowContext;
 import com.ness.flink.window.generator.WindowGeneratorProvider;
 import java.io.Serial;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.common.functions.OpenContext;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
 
@@ -48,8 +48,8 @@ public class ProcessRatesFunction extends KeyedProcessFunction<String, InterestR
     private transient WindowAware windowAware;
 
     @Override
-    public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
+    public void open(OpenContext openContext) throws Exception {
+        super.open(openContext);
         String opName = getClass().getName();
         MapStateDescriptor<String, InterestRate> ratesValueStateDescriptor =
                 new MapStateDescriptor<>(opName + "-interestRates", String.class, InterestRate.class);
