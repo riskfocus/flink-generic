@@ -19,7 +19,7 @@ package com.ness.flink.config.operator;
 import org.apache.flink.api.connector.sink2.Sink;
 
 /**
- * Adds sink capabilities to operator definition (for Sinks based on new Flink Sink API v2).
+ * Adds Sink capabilities to operator definition
  *
  * @param <T> Sink event type
  */
