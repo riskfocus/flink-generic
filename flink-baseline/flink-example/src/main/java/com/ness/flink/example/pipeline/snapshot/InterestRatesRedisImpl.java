@@ -16,6 +16,8 @@
 
 package com.ness.flink.example.pipeline.snapshot;
 
+import static com.ness.flink.util.ByteUtils.convert;
+
 import com.google.common.io.Resources;
 import com.ness.flink.config.properties.RedisProperties;
 import com.ness.flink.example.pipeline.config.sink.mapper.InterestRatesMapper;
@@ -28,15 +30,12 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.codec.ByteArrayCodec;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-
-import static com.ness.flink.util.ByteUtils.convert;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * Redis implementation loading InterestRates

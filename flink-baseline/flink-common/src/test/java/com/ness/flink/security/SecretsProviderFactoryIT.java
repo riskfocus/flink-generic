@@ -19,7 +19,7 @@ package com.ness.flink.security;
 import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.SecretProvider;
 import java.util.Map;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

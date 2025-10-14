@@ -16,18 +16,17 @@
 
 package com.ness.flink.config.properties;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.RuntimeExecutionMode;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * Provides properties for Flink execution environment

@@ -29,7 +29,6 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.CheckpointingOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.MetricOptions;
@@ -40,6 +39,7 @@ import org.apache.flink.metrics.jmx.JMXReporterFactory;
 import org.apache.flink.metrics.prometheus.PrometheusReporterFactory;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * The purpose of this utility class is to provide a standard default environment that is common across different jobs. Any job

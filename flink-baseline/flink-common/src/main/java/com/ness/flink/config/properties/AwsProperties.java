@@ -18,12 +18,15 @@ package com.ness.flink.config.properties;
 
 import com.amazonaws.services.schemaregistry.common.AWSSchemaNamingStrategy;
 import com.amazonaws.services.schemaregistry.utils.AWSSchemaRegistryConstants;
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * AWS Properties

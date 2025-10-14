@@ -24,18 +24,21 @@ import com.ness.flink.example.snapshot.redis.manager.SimpleCurrencyLoader;
 import com.ness.flink.example.snapshot.redis.manager.SimpleCurrencyMapper;
 import com.ness.flink.snapshot.SnapshotSink;
 import com.ness.flink.snapshot.context.ContextMetadata;
-import com.ness.flink.snapshot.context.properties.ContextProperties;
 import com.ness.flink.snapshot.context.ContextService;
 import com.ness.flink.snapshot.context.ContextServiceProvider;
+import com.ness.flink.snapshot.context.properties.ContextProperties;
 import com.ness.flink.snapshot.redis.SnapshotData;
 import com.ness.flink.storage.cache.EntityTypeEnum;
 import com.ness.flink.stream.StreamBuilder;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.test.util.MiniClusterWithClientResource;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,10 +46,6 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.utility.DockerImageName;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
 
 
 /**

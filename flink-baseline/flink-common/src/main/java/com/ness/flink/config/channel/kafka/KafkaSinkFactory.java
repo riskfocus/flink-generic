@@ -23,7 +23,7 @@ import com.ness.flink.config.operator.DefaultSink;
 import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.KafkaProducerProperties;
 import java.io.Serializable;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class KafkaSinkFactory implements SinkFactory {

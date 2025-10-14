@@ -20,9 +20,9 @@ import com.ness.flink.config.properties.WatermarkProperties;
 import java.util.Map;
 import java.util.Optional;
 import lombok.experimental.SuperBuilder;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

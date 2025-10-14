@@ -16,14 +16,13 @@
 
 package com.ness.flink.config.properties;
 
-import org.apache.flink.api.java.utils.ParameterTool;
+import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
+
+import java.util.Map;
+import org.apache.flink.util.ParameterTool;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-
-import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
 
 class SharedKafkaPropertiesTest {
     @Test

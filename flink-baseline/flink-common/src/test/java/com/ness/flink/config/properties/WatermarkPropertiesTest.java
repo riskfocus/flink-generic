@@ -16,15 +16,16 @@
 
 package com.ness.flink.config.properties;
 
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.SetEnvironmentVariable;
+import static com.ness.flink.config.properties.WatermarkType.BOUNDED_OUT_OF_ORDER_NESS;
+import static com.ness.flink.config.properties.WatermarkType.CUSTOM_WITH_IDLE;
+import static com.ness.flink.config.properties.WatermarkType.MONOTONOUS_TIMESTAMPS;
 
 import java.time.Duration;
 import java.util.Map;
-
-import static com.ness.flink.config.properties.WatermarkType.*;
+import org.apache.flink.util.ParameterTool;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.SetEnvironmentVariable;
 
 
 /**

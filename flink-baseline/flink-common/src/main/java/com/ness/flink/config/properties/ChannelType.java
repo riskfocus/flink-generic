@@ -26,11 +26,11 @@ import com.ness.flink.config.channel.kafka.msk.MskSinkFactory;
 import com.ness.flink.config.channel.kafka.msk.MskSourceFactory;
 import com.ness.flink.config.operator.DefaultSink;
 import com.ness.flink.config.operator.DefaultSource;
+import java.io.Serializable;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 import org.jetbrains.annotations.Nullable;
-import java.io.Serializable;
 
 /**
  * Different set of Channels (could be Kafka/Kinesis etc)

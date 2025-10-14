@@ -23,16 +23,15 @@ import com.ness.flink.sink.jdbc.connector.SimpleJdbcConnectionProvider;
 import com.ness.flink.sink.jdbc.core.executor.JdbcStatementBuilder;
 import com.ness.flink.sink.jdbc.core.output.keyed.KeyedJdbcProcessFunction;
 import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
+import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 import org.apache.flink.util.function.SerializableFunction;
-
-import javax.annotation.Nullable;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

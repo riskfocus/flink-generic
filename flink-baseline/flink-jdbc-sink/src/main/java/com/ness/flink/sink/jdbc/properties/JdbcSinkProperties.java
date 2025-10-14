@@ -16,16 +16,16 @@
 
 package com.ness.flink.sink.jdbc.properties;
 
-import java.io.Serializable;
 import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.OperatorPropertiesFactory;
 import com.ness.flink.sink.jdbc.config.JdbcExecutionOptions;
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * JDBC Properties

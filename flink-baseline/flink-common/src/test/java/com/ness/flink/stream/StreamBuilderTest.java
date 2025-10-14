@@ -26,12 +26,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.util.testing.CollectingSink;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

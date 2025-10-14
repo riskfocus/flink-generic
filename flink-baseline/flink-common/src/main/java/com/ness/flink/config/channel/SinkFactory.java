@@ -20,7 +20,7 @@ import com.ness.flink.config.operator.DefaultSink;
 import java.io.Serializable;
 import javax.annotation.Nullable;
 import org.apache.avro.specific.SpecificRecordBase;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 
 public interface SinkFactory {
      <S extends Serializable> DefaultSink<S> sinkPojo(String sinkName,

@@ -16,24 +16,23 @@
 
 package com.ness.flink.config.properties;
 
+import static io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig.BASIC_AUTH_CREDENTIALS_SOURCE;
+import static io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig.USER_INFO_CONFIG;
+import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
+import static org.mockito.ArgumentMatchers.eq;
+
 import com.ness.flink.security.Credentials;
 import com.ness.flink.security.SecretsProviderFactory;
-import org.apache.flink.api.java.utils.ParameterTool;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.util.ParameterTool;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-
-import java.util.Map;
-import java.util.Properties;
-
-import static io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig.BASIC_AUTH_CREDENTIALS_SOURCE;
-import static io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig.USER_INFO_CONFIG;
-import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
-import static org.mockito.ArgumentMatchers.eq;
 
 
 /**

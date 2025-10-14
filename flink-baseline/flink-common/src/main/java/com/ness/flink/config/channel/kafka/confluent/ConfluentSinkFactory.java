@@ -21,7 +21,7 @@ import com.ness.flink.config.channel.KeyExtractor;
 import com.ness.flink.config.channel.kafka.KafkaSinkFactory;
 import com.ness.flink.config.operator.DefaultSink;
 import org.apache.avro.specific.SpecificRecordBase;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 import org.jetbrains.annotations.Nullable;
 
 public class ConfluentSinkFactory extends KafkaSinkFactory {

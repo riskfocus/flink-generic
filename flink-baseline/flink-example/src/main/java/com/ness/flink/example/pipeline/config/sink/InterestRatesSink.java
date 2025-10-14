@@ -22,11 +22,10 @@ import com.ness.flink.example.pipeline.config.sink.mapper.InterestRatesMapper;
 import com.ness.flink.example.pipeline.domain.intermediate.InterestRates;
 import com.ness.flink.snapshot.SnapshotSink;
 import com.ness.flink.storage.cache.EntityTypeEnum;
+import java.util.Optional;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.api.connector.sink2.Sink;
-import org.apache.flink.api.java.utils.ParameterTool;
-
-import java.util.Optional;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * @author Khokhlov Pavel

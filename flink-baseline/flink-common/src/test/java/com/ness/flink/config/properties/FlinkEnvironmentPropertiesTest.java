@@ -16,13 +16,13 @@
 
 package com.ness.flink.config.properties;
 
+import java.util.Map;
+import java.util.Optional;
 import org.apache.flink.api.common.RuntimeExecutionMode;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Khokhlov Pavel

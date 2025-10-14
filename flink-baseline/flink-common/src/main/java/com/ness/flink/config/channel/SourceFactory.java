@@ -21,7 +21,7 @@ import com.ness.flink.config.properties.WatermarkProperties;
 import java.io.Serializable;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 
 public interface SourceFactory {
     <S extends SpecificRecordBase> DefaultSource<S> sourceAvroSpecific(String sourceName,

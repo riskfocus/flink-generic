@@ -24,7 +24,7 @@ import com.ness.flink.config.properties.WatermarkProperties;
 import com.ness.flink.schema.PojoDeserializationSchema;
 import java.io.Serializable;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 
 public abstract class KafkaSourceFactory implements SourceFactory {
 
