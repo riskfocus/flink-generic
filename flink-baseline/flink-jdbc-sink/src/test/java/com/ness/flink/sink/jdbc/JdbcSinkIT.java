@@ -74,7 +74,7 @@ class JdbcSinkIT implements Serializable {
         DefaultSource<Price> testSource = new DefaultSource<>("test.source") {
             @Override
             public SingleOutputStreamOperator<Price> build(StreamExecutionEnvironment streamExecutionEnvironment) {
-                return streamExecutionEnvironment.fromElements(
+                return streamExecutionEnvironment.fromData(
                     Price.builder().id(1).value(new BigDecimal("23.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(2).value(new BigDecimal("5.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build(),

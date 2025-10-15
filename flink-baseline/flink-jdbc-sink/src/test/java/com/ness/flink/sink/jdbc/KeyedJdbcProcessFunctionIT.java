@@ -33,6 +33,10 @@ import java.util.Collections;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.connector.datagen.source.DataGeneratorSource;
+import org.apache.flink.connector.datagen.source.GeneratorFunction;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.util.testing.CollectingSink;
@@ -46,7 +50,6 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 @Slf4j
 class KeyedJdbcProcessFunctionIT {
-
 
     static ParameterTool params = ParameterTool.fromMap(Collections.emptyMap());
     static JdbcSinkProperties jdbcSinkProperties = JdbcSinkProperties.from("test.jdbc.sink", params);
@@ -85,6 +88,7 @@ class KeyedJdbcProcessFunctionIT {
         StreamBuilder streamBuilder = StreamBuilder.from(params);
 
         DefaultSource<Price> testSource = source(
+                    notSafeJdbcSinkProperties.getMaxWaitThreshold(),
                     Price.builder().id(1).value(new BigDecimal("23.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(2).value(new BigDecimal("5.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build(),
@@ -147,6 +151,7 @@ class KeyedJdbcProcessFunctionIT {
         StreamBuilder streamBuilder = StreamBuilder.from(params);
 
         DefaultSource<Price> testSource = source(
+                    jdbcSinkProperties.getMaxWaitThreshold(),
                     Price.builder().id(1).value(new BigDecimal("23.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(2).value(new BigDecimal("5.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build(),
@@ -185,7 +190,7 @@ class KeyedJdbcProcessFunctionIT {
 
         runJob(jdbcSinkProperties, sql, jdbcStatementBuilder, streamBuilder, testSource);
         var output = testSink.getRemainingOutput();
-        Assertions.assertEquals(6, output.size(),
+        Assertions.assertEquals(5, output.size(),
             "Number of passing records must be equals to original data");
         for (PriceWithEmissionTime priceWithEmissionTime : output) {
             Assertions.assertNotNull(priceWithEmissionTime);
@@ -196,17 +201,27 @@ class KeyedJdbcProcessFunctionIT {
         Assertions.assertEquals(5, getRecordsNumber(), "Table should contains only this number of records");
     }
 
-    private DefaultSource<Price> source(Price... elements) {
+    private DefaultSource<Price> source(long delay, Price... prices) {
         return new DefaultSource<>("test.source") {
             @Override
             public SingleOutputStreamOperator<Price> build(StreamExecutionEnvironment streamExecutionEnvironment) {
-                return streamExecutionEnvironment.fromElements(elements);
+                return streamExecutionEnvironment.fromSource(sleepingSource(delay, prices),
+                    WatermarkStrategy.noWatermarks(), getName());
             }
             @Override
             public Optional<Integer> getMaxParallelism() {
                 return Optional.empty();
             }
         };
+    }
+
+    private DataGeneratorSource<Price> sleepingSource(long delay, Price... prices) {
+        GeneratorFunction<Long, Price> generatorFunction = total -> {
+            Thread.sleep(delay);
+            return prices[total.intValue()];
+        };
+        return new DataGeneratorSource<>(generatorFunction, prices.length,
+            TypeInformation.of(Price.class));
     }
 
     private void runJob(JdbcSinkProperties jdbcSinkProperties, String sql,
