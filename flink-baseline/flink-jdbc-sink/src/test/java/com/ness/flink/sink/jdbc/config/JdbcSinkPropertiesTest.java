@@ -37,7 +37,7 @@ class JdbcSinkPropertiesTest {
         Assertions.assertEquals(5000, jdbcSinkProperties.getWaitBeforeRetryMs());
         Assertions.assertEquals(10, jdbcSinkProperties.getMaxRetries());
         Assertions.assertEquals(100, jdbcSinkProperties.getBatchSize());
-        Assertions.assertEquals(10000, jdbcSinkProperties.getMaxWaitThreshold());
+        Assertions.assertEquals(1000, jdbcSinkProperties.getMaxWaitThreshold());
         Assertions.assertFalse(jdbcSinkProperties.isIgnoreSQLExceptions());
         Assertions.assertEquals("jdbc:mysql://localhost:3306/test?useConfigs=maxPerformance",
             jdbcSinkProperties.getUrl());
