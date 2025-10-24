@@ -45,8 +45,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.mysql.MySQLContainer;
 
 @Slf4j
 class KeyedJdbcProcessFunctionIT {
@@ -55,7 +55,7 @@ class KeyedJdbcProcessFunctionIT {
     static JdbcSinkProperties jdbcSinkProperties = JdbcSinkProperties.from("test.jdbc.sink", params);
     static JdbcSinkProperties notSafeJdbcSinkProperties = JdbcSinkProperties.from("non.safe.jdbc.sink", params);
 
-    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.4.7")
+    static MySQLContainer mysql = new MySQLContainer("mysql:8.4.7")
         .withDatabaseName("test")
         .withUsername(jdbcSinkProperties.getUsername()).withPassword(jdbcSinkProperties.getPassword())
         .withInitScript("price.sql")

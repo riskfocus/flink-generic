@@ -21,6 +21,7 @@ import com.ness.flink.sink.jdbc.core.executor.JdbcStatementBuilder;
 import com.ness.flink.sink.jdbc.domain.Price;
 import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
 import com.ness.flink.stream.StreamBuilder;
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -38,9 +39,8 @@ import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.mysql.MySQLContainer;
 
 /**
  * Example of JdbcSink to Mysql database
@@ -49,12 +49,13 @@ import org.testcontainers.utility.DockerImageName;
  */
 @Slf4j
 class JdbcSinkIT implements Serializable {
+    @Serial
     private static final long serialVersionUID = 6264113652492089626L;
 
     static ParameterTool params = ParameterTool.fromMap(Collections.emptyMap());
     static JdbcSinkProperties jdbcSinkProperties = JdbcSinkProperties.from("test.jdbc.sink", params);
     
-    static MySQLContainer<?> mysql = new MySQLContainer<>(DockerImageName.parse("mysql:8.4.7"))
+    static MySQLContainer mysql = new MySQLContainer("mysql:8.4.7")
         .withDatabaseName("test")
         .withUsername(jdbcSinkProperties.getUsername()).withPassword(jdbcSinkProperties.getPassword())
         .withInitScript("price.sql")
