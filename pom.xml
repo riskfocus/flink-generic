@@ -45,7 +45,7 @@
         <lombok.version>1.18.22</lombok.version>
         <guava.version>31.1-jre</guava.version>
         <spring.boot.version>2.5.14</spring.boot.version>
-        <test.containers.version>1.17.6</test.containers.version>
+        <test.containers.version>2.0.1</test.containers.version>
     </properties>
 
     <repositories>
@@ -87,6 +87,13 @@
                 <version>5.2.0</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${test.containers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -118,14 +125,12 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>${test.containers.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${test.containers.version}</version>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
 

@@ -55,7 +55,7 @@ class KeyedJdbcProcessFunctionIT {
     static JdbcSinkProperties jdbcSinkProperties = JdbcSinkProperties.from("test.jdbc.sink", params);
     static JdbcSinkProperties notSafeJdbcSinkProperties = JdbcSinkProperties.from("non.safe.jdbc.sink", params);
 
-    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:5.7.41")
+    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.4.7")
         .withDatabaseName("test")
         .withUsername(jdbcSinkProperties.getUsername()).withPassword(jdbcSinkProperties.getPassword())
         .withInitScript("price.sql")

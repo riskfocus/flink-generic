@@ -106,9 +106,9 @@ services:
       KAFKA_ADVERTISED_LISTENERS: ignored
 
   mysql:
-    image: mysql:8.0.33
+    image: mysql:8.4.7
     container_name: mysql
-    command: --default-authentication-plugin=mysql_native_password
+    command: ["mysqld", "--mysql-native-password=ON"]
     restart: always
     volumes:
       - ./conf/mysql-dump:/docker-entrypoint-initdb.d
