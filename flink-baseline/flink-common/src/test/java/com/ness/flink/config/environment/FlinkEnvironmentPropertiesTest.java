@@ -18,12 +18,11 @@ package com.ness.flink.config.environment;
 
 
 import com.ness.flink.config.properties.FlinkEnvironmentProperties;
-import org.apache.flink.api.java.utils.ParameterTool;
+import java.util.Map;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
-
-import java.util.Map;
 
 /**
  * @author Khokhlov Pavel

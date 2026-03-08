@@ -19,14 +19,14 @@ package com.ness.flink.config.properties;
 import static io.lettuce.core.RedisURI.DEFAULT_REDIS_PORT;
 
 import io.lettuce.core.RedisURI;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * @author Khokhlov Pavel

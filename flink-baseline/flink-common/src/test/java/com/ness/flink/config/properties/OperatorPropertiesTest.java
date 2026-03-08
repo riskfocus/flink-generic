@@ -17,7 +17,7 @@
 package com.ness.flink.config.properties;
 
 import java.util.Map;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

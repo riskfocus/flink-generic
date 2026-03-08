@@ -35,7 +35,7 @@ class BasicGeneratorTest {
         WindowContext context = windowAware.generateWindowPeriod(1578037899903L);
         Assertions.assertNotNull(context);
         long windowId = 157803790L;
-        Assertions.assertEquals(windowId, context.getId());
+        Assertions.assertEquals(windowId, context.getWindowId());
         Assertions.assertEquals(1578037890000L, context.getStart());
         Assertions.assertEquals(1578037900000L, context.getEnd());
 
@@ -43,15 +43,15 @@ class BasicGeneratorTest {
 
         Assertions.assertEquals(startWindow.duration(), windowSize, "Size of the batch must be equals to provided settings");
 
-        Assertions.assertEquals(windowId, startWindow.getId());
+        Assertions.assertEquals(windowId, startWindow.getWindowId());
 
         long endOfBatch = context.endOfWindow();
-        Assertions.assertEquals(windowAware.generateWindowPeriod(endOfBatch).getId(), windowId, "endOfBatch must be part of the same batch");
+        Assertions.assertEquals(windowAware.generateWindowPeriod(endOfBatch).getWindowId(), windowId, "endOfBatch must be part of the same batch");
 
         long nextWindow = context.getEnd();
 
         WindowContext contextNext = windowAware.generateWindowPeriod(nextWindow);
-        Assertions.assertEquals(windowId + 1, contextNext.getId());
+        Assertions.assertEquals(windowId + 1, contextNext.getWindowId());
 
 
     }

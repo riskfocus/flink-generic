@@ -39,7 +39,7 @@ public class SimpleCurrencyMapper extends SnapshotMapper<SimpleCurrency> {
 
     @Override
     public String buildKey(SimpleCurrency data, ContextMetadata contextMetadata) {
-        long contextId = contextMetadata.getId();
+        long contextId = contextMetadata.getContextId();
         return buildSnapshotPrefix(contextMetadata) + delimiter + contextMetadata.getDate() + delimiter + contextId + delimiter + data.getCode();
     }
 

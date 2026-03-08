@@ -17,12 +17,10 @@
 package com.ness.flink.config.operator;
 
 import com.ness.flink.config.properties.OperatorProperties;
-import java.io.Serializable;
-import java.util.Optional;
 import lombok.Getter;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+
 import javax.annotation.Nullable;
 
 /**
@@ -34,43 +32,22 @@ import javax.annotation.Nullable;
  * @param <U> result event type, could be the same
  */
 @Getter
-public class KeyedProcessorDefinition<K, T, U> implements OperatorDefinition, Serializable {
+public class KeyedProcessorDefinition<K, T, U> extends CommonKeyedProcessorDefinition<K, T, U> {
 
     private static final long serialVersionUID = -877624968339600530L;
-    private final OperatorProperties operatorProperties;
-    private final KeySelector<T, K> keySelector;
+
     private final KeyedProcessFunction<K, T, U> processFunction;
-    private Class<U> returnClass;
 
     public KeyedProcessorDefinition(OperatorProperties operatorProperties, KeySelector<T, K> keySelector,
         KeyedProcessFunction<K, T, U> processFunction) {
-        this.operatorProperties = operatorProperties;
-        this.keySelector = keySelector;
+        super(operatorProperties, keySelector);
         this.processFunction = processFunction;
     }
 
     public KeyedProcessorDefinition(OperatorProperties operatorProperties, KeySelector<T, K> keySelector,
         KeyedProcessFunction<K, T, U> processFunction, @Nullable Class<U> returnClass) {
-        this(operatorProperties, keySelector, processFunction);
-        this.returnClass = returnClass;
-    }
-
-    @Override
-    public String getName() {
-        return operatorProperties.getName();
-    }
-
-    @Override
-    public Optional<Integer> getParallelism() {
-        return Optional.ofNullable(operatorProperties.getParallelism());
-    }
-
-    public Optional<TypeInformation<U>> getReturnTypeInformation() {
-        if (returnClass == null) {
-            return Optional.empty();
-        } else {
-            return Optional.of(TypeInformation.of(returnClass));
-        }
+        super(operatorProperties, keySelector, returnClass);
+        this.processFunction = processFunction;
     }
 }
 

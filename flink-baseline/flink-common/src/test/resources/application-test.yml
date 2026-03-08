@@ -80,7 +80,7 @@ customWithIdle.watermark.sink:
   deliveryGuarantee: EXACTLY_ONCE
   transactionIdPrefix: testSink
   watermarkType: CUSTOM_WITH_IDLE
-  idlenessMs: -1
+  idlenessMs: 0
 
 confluent.sink:
   topic: confluent-topic

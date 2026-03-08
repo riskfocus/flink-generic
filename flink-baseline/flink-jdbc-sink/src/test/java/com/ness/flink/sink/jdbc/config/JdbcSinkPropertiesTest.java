@@ -16,9 +16,9 @@
 
 package com.ness.flink.sink.jdbc.config;
 
-import java.util.Map;
 import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
-import org.apache.flink.api.java.utils.ParameterTool;
+import java.util.Map;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +37,7 @@ class JdbcSinkPropertiesTest {
         Assertions.assertEquals(5000, jdbcSinkProperties.getWaitBeforeRetryMs());
         Assertions.assertEquals(10, jdbcSinkProperties.getMaxRetries());
         Assertions.assertEquals(100, jdbcSinkProperties.getBatchSize());
-        Assertions.assertEquals(10000, jdbcSinkProperties.getMaxWaitThreshold());
+        Assertions.assertEquals(1000, jdbcSinkProperties.getMaxWaitThreshold());
         Assertions.assertFalse(jdbcSinkProperties.isIgnoreSQLExceptions());
         Assertions.assertEquals("jdbc:mysql://localhost:3306/test?useConfigs=maxPerformance",
             jdbcSinkProperties.getUrl());

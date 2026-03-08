@@ -16,19 +16,21 @@
 
 package com.ness.flink.example.pipeline.manager.stream;
 
-import com.ness.flink.config.operator.KeyedProcessorDefinition;
+import com.ness.flink.config.operator.KeyedBroadcastProcessorDefinition;
 import com.ness.flink.config.properties.OperatorProperties;
+import com.ness.flink.example.pipeline.domain.JobConfig;
 import com.ness.flink.example.pipeline.domain.OptionPrice;
 import com.ness.flink.example.pipeline.domain.SmoothingRequest;
 import com.ness.flink.example.pipeline.manager.stream.function.ProcessSmoothingFunction;
 import com.ness.flink.stream.StreamBuilder;
-import com.ness.flink.stream.StreamBuilder.FlinkDataStream;
+import com.ness.flink.stream.FlinkDataStream;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
+import org.apache.flink.api.common.state.MapStateDescriptor;
 
 /**
  * @author Khokhlov Pavel
@@ -38,19 +40,26 @@ import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OptionPriceStream {
 
+    public static final MapStateDescriptor<String, JobConfig> CONFIGURATION_DESCRIPTOR =
+        new MapStateDescriptor<>("configState", String.class, JobConfig.class);
+
     public static void build(@NonNull StreamBuilder streamBuilder) {
+
+        FlinkDataStream<JobConfig> configPipeline = streamBuilder.stream()
+            .sourcePojo("configuration.source",
+                JobConfig.class, null);
 
         FlinkDataStream<OptionPrice> optionPriceStream = streamBuilder.stream()
             .sourcePojo("option.price.source", OptionPrice.class,
                 (SerializableTimestampAssigner<OptionPrice>) (event, recordTimestamp) -> event.getTimestamp());
 
-        KeyedProcessorDefinition<String, OptionPrice, SmoothingRequest> ratesKeyedProcessorDefinition =
-            new KeyedProcessorDefinition<>(OperatorProperties.from("interestRatesEnricher.operator",
+        KeyedBroadcastProcessorDefinition<String, OptionPrice, JobConfig, SmoothingRequest> ratesKeyedProcessorDefinition =
+            new KeyedBroadcastProcessorDefinition<>(OperatorProperties.from("interestRatesEnricher.operator",
                 streamBuilder.getParameterTool()), v -> v.getUnderlying().getName(),
-                new ProcessSmoothingFunction());
+                new ProcessSmoothingFunction(), CONFIGURATION_DESCRIPTOR);
 
-        FlinkDataStream<SmoothingRequest> interestRatesDataStream = optionPriceStream.addKeyedProcessor(
-            ratesKeyedProcessorDefinition);
+        FlinkDataStream<SmoothingRequest> interestRatesDataStream = optionPriceStream.addKeyedBroadcastProcessor(
+            ratesKeyedProcessorDefinition, configPipeline);
 
         streamBuilder.stream().sinkPojo(interestRatesDataStream, "smoothing.request.sink",
             SmoothingRequest.class, SmoothingRequest::kafkaKey, SmoothingRequest::getTimestamp);

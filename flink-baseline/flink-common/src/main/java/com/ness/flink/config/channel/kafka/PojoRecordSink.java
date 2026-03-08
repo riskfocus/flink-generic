@@ -16,8 +16,9 @@
 
 package com.ness.flink.config.channel.kafka;
 
-import java.io.Serializable;
 import com.ness.flink.schema.PojoSerializationSchema;
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 
@@ -28,6 +29,10 @@ import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
  */
 @SuperBuilder
 public class PojoRecordSink<S extends Serializable> extends KafkaAwareSink<S> {
+
+    @Serial
+    private static final long serialVersionUID = 3253055673002245937L;
+
     @Override
     protected KafkaRecordSerializationSchema<S> getKafkaRecordSerializationSchema() {
         return KafkaSerializationSchemaBuilder.<S>builder()

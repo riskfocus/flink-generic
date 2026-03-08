@@ -18,12 +18,15 @@ package com.ness.flink.config.properties;
 
 import com.amazonaws.services.schemaregistry.common.AWSSchemaNamingStrategy;
 import com.amazonaws.services.schemaregistry.utils.AWSSchemaRegistryConstants;
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * AWS Properties
@@ -37,6 +40,7 @@ import java.util.Map;
 public class AwsProperties implements RawProperties<AwsProperties> {
     private static final long serialVersionUID = -5869618107831628207L;
     private static final String AWS_PROPERTY_NAME = "aws";
+    public static final String AWS_REGION = "region";
     private static final String AWS_PROPERTY_SECOND_NAME = "glue.";
 
     /**

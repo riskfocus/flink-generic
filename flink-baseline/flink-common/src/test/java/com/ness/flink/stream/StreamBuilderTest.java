@@ -20,18 +20,18 @@ import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.config.operator.KeyedProcessorDefinition;
 import com.ness.flink.config.properties.OperatorProperties;
 import com.ness.flink.stream.test.TestEventString;
-import com.ness.flink.stream.test.TestSourceFunction;
+import java.io.Serial;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.streaming.util.testing.CollectingSink;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +40,6 @@ import org.junit.jupiter.api.Test;
  */
 @Slf4j
 class StreamBuilderTest {
-    private static final Set<TestEventString> VALUES = new HashSet<>();
 
     @Test
     void shouldExecuteJob() {
@@ -49,7 +48,7 @@ class StreamBuilderTest {
         DefaultSource<String> testSource = new DefaultSource<>("test.source") {
             @Override
             public SingleOutputStreamOperator<String> build(StreamExecutionEnvironment streamExecutionEnvironment) {
-                return streamExecutionEnvironment.addSource(TestSourceFunction.from("one", "two"));
+                return streamExecutionEnvironment.fromData("one", "two");
             }
 
             @Override
@@ -57,7 +56,7 @@ class StreamBuilderTest {
                 return Optional.empty();
             }
         };
-
+        CollectingSink<TestEventString> sink = new CollectingSink<>();
         StreamBuilder.from(env, params)
             .stream()
             .source(testSource)
@@ -67,21 +66,16 @@ class StreamBuilderTest {
                 log.info("Read: value={}", v);
                 return v;
             }))
-            .addSink(() -> new SinkFunction<>() {
-                private static final long serialVersionUID = -2159861918086239581L;
-
-                @Override
-                public void invoke(TestEventString value, Context context) {
-                    VALUES.add(value);
-                }
-            }).build().run("test.sink");
-
-        Assertions.assertEquals(2, VALUES.size());
+            .addSink(() -> sink).build().run("test.sink");
+        List<TestEventString> output = sink.getRemainingOutput();
+        Assertions.assertEquals(2, output.size());
         Assertions.assertTrue(
-            VALUES.containsAll(Set.of(TestEventString.fromKey("one"), TestEventString.fromKey("two"))));
+            output.containsAll(Set.of(TestEventString.fromKey("one"), TestEventString.fromKey("two"))));
     }
 
+
     private static class TestProcessFunction extends KeyedProcessFunction<String, String, TestEventString> {
+        @Serial
         private static final long serialVersionUID = -2235368612899508484L;
 
         @Override

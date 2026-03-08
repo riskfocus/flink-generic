@@ -60,7 +60,6 @@ public class KafkaSerializationSchemaBuilder<S extends Serializable> implements 
             private transient Long e2eTimestamp;
 
             @Override
-            @SuppressWarnings("PMD.NullAssignment")
             public ProducerRecord<byte[], byte[]> serialize(S value, KafkaSinkContext context, Long timestamp) {
                 Long eventTime = timestamp;
                 if (eventTimeExtractor != null) {
@@ -72,7 +71,8 @@ public class KafkaSerializationSchemaBuilder<S extends Serializable> implements 
                     e2eTimestamp = System.currentTimeMillis() - eventTime;
                     histogram.update(e2eTimestamp);
                 }
-                return new ProducerRecord<>(topicName, null, timestamp == null || timestamp < 0L ? null : timestamp, serializedKey, serializedValue);
+                Long recordTimestamp = timestamp == null || timestamp < 0L ? null : timestamp;
+                return new ProducerRecord<>(topicName, null, recordTimestamp, serializedKey, serializedValue);
             }
 
             @Override

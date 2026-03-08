@@ -18,47 +18,50 @@ package com.ness.flink.sink.jdbc;
 
 import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.config.operator.KeyedProcessorDefinition;
-import com.ness.flink.sink.jdbc.JdbcSinkIT.TestSourceFunction;
 import com.ness.flink.sink.jdbc.core.executor.JdbcStatementBuilder;
 import com.ness.flink.sink.jdbc.domain.Price;
 import com.ness.flink.sink.jdbc.domain.PriceWithEmissionTime;
 import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
 import com.ness.flink.stream.StreamBuilder;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collections;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.connector.datagen.source.DataGeneratorSource;
+import org.apache.flink.connector.datagen.source.GeneratorFunction;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.streaming.util.testing.CollectingSink;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-
-import java.math.BigDecimal;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import org.testcontainers.mysql.MySQLContainer;
 
 @Slf4j
 class KeyedJdbcProcessFunctionIT {
-
-    private static final List<PriceWithEmissionTime> PRICE_WITH_EMISSION_TIMES = new ArrayList<>();
 
     static ParameterTool params = ParameterTool.fromMap(Collections.emptyMap());
     static JdbcSinkProperties jdbcSinkProperties = JdbcSinkProperties.from("test.jdbc.sink", params);
     static JdbcSinkProperties notSafeJdbcSinkProperties = JdbcSinkProperties.from("non.safe.jdbc.sink", params);
 
-    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:5.7.41")
+    static MySQLContainer mysql = new MySQLContainer("mysql:8.4.7")
         .withDatabaseName("test")
         .withUsername(jdbcSinkProperties.getUsername()).withPassword(jdbcSinkProperties.getPassword())
         .withInitScript("price.sql")
         .withLogConsumer(new Slf4jLogConsumer(log));
+
+    CollectingSink<PriceWithEmissionTime> testSink;
 
     @SneakyThrows
     @BeforeAll
@@ -71,7 +74,7 @@ class KeyedJdbcProcessFunctionIT {
 
     @BeforeEach
     void init() throws SQLException {
-        PRICE_WITH_EMISSION_TIMES.clear();
+        testSink = new CollectingSink<>();
         try (Connection connection = mysql.createConnection("")) {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate("TRUNCATE TABLE price;");
@@ -84,18 +87,18 @@ class KeyedJdbcProcessFunctionIT {
     void shouldSkipSomeWrongRecords() {
         StreamBuilder streamBuilder = StreamBuilder.from(params);
 
-        DefaultSource<Price> testSource = source(TestSourceFunction.from(
-                    notSafeJdbcSinkProperties.getMaxWaitThreshold() + 5000,
+        DefaultSource<Price> testSource = source(
+                    notSafeJdbcSinkProperties.getMaxWaitThreshold(),
                     Price.builder().id(1).value(new BigDecimal("23.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(2).value(new BigDecimal("5.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(4).value(new BigDecimal("6.8")).sourceId("127.0.0.3").build(),
                     Price.builder().id(5).value(new BigDecimal("6.9")).sourceId("127.0.0.3").build(),
-                    // Emulate wrong data type
+                    // Emulate the wrong data type
                     Price.builder().id(6).currencyNum("USD").value(new BigDecimal("6.9")).sourceId("127.0.0.3").build(),
                     // duplicate
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build()
-                ));
+                );
 
         String sql = "INSERT INTO price (id, timestamp, sourceIp, price, currencyNum) values (?, ?, ?, ?, ?)"
             + " ON DUPLICATE KEY UPDATE timestamp = ?, sourceIp = ?, price = ?, currencyNum = ?";
@@ -109,7 +112,7 @@ class KeyedJdbcProcessFunctionIT {
                 final String sourceId = price.getSourceId();
                 final long timestamp = price.getTimestamp();
                 BigDecimal priceValue = price.getValue();
-                // This is wrong data type example, database has correct datatype for it (INT)
+                // This is a wrong data type example, database has correct datatype for it (INT)
                 String currencyNum = price.getCurrencyNum();
 
                 int idx = 0;
@@ -131,9 +134,10 @@ class KeyedJdbcProcessFunctionIT {
 
         Assertions.assertEquals(5, getRecordsNumber(), "Table should contains only valid records. "
             + "One broken and duplicated records must be excluded");
-        Assertions.assertEquals(6, PRICE_WITH_EMISSION_TIMES.size(),
+        var output = testSink.getRemainingOutput();
+        Assertions.assertEquals(6, output.size(),
             "Number of passing records can't contains broken messages");
-        for (PriceWithEmissionTime priceWithEmissionTime : PRICE_WITH_EMISSION_TIMES) {
+        for (PriceWithEmissionTime priceWithEmissionTime : output) {
             Assertions.assertNotNull(priceWithEmissionTime);
             Assertions.assertNotEquals(0, priceWithEmissionTime.getEmissionTimestamp());
             Assertions.assertNotEquals(6, priceWithEmissionTime.getId());
@@ -146,8 +150,8 @@ class KeyedJdbcProcessFunctionIT {
     void shouldExecuteJob() {
         StreamBuilder streamBuilder = StreamBuilder.from(params);
 
-        DefaultSource<Price> testSource = source(TestSourceFunction.from(
-                    jdbcSinkProperties.getMaxWaitThreshold() + 5000,
+        DefaultSource<Price> testSource = source(
+                    jdbcSinkProperties.getMaxWaitThreshold(),
                     Price.builder().id(1).value(new BigDecimal("23.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(2).value(new BigDecimal("5.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build(),
@@ -155,7 +159,7 @@ class KeyedJdbcProcessFunctionIT {
                     Price.builder().id(5).value(new BigDecimal("6.9")).sourceId("127.0.0.3").build(),
                     // duplicate
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build()
-                ));
+                );
 
         String sql = "INSERT INTO price (id, timestamp, sourceIp, price) values (?, ?, ?, ?)"
             + " ON DUPLICATE KEY UPDATE timestamp = ?, sourceIp = ?, price = ?";
@@ -185,10 +189,10 @@ class KeyedJdbcProcessFunctionIT {
         };
 
         runJob(jdbcSinkProperties, sql, jdbcStatementBuilder, streamBuilder, testSource);
-
-        Assertions.assertEquals(6, PRICE_WITH_EMISSION_TIMES.size(),
+        var output = testSink.getRemainingOutput();
+        Assertions.assertEquals(5, output.size(),
             "Number of passing records must be equals to original data");
-        for (PriceWithEmissionTime priceWithEmissionTime : PRICE_WITH_EMISSION_TIMES) {
+        for (PriceWithEmissionTime priceWithEmissionTime : output) {
             Assertions.assertNotNull(priceWithEmissionTime);
             Assertions.assertNotEquals(0, priceWithEmissionTime.getEmissionTimestamp());
             Assertions.assertTrue(priceWithEmissionTime.getEmissionTimestamp() >= priceWithEmissionTime.getTimestamp());
@@ -197,17 +201,27 @@ class KeyedJdbcProcessFunctionIT {
         Assertions.assertEquals(5, getRecordsNumber(), "Table should contains only this number of records");
     }
 
-    private DefaultSource<Price> source(SourceFunction<Price> sourceFunction) {
+    private DefaultSource<Price> source(long delay, Price... prices) {
         return new DefaultSource<>("test.source") {
             @Override
             public SingleOutputStreamOperator<Price> build(StreamExecutionEnvironment streamExecutionEnvironment) {
-                return streamExecutionEnvironment.addSource(sourceFunction);
+                return streamExecutionEnvironment.fromSource(sleepingSource(delay, prices),
+                    WatermarkStrategy.noWatermarks(), getName());
             }
             @Override
             public Optional<Integer> getMaxParallelism() {
                 return Optional.empty();
             }
         };
+    }
+
+    private DataGeneratorSource<Price> sleepingSource(long delay, Price... prices) {
+        GeneratorFunction<Long, Price> generatorFunction = total -> {
+            Thread.sleep(delay);
+            return prices[total.intValue()];
+        };
+        return new DataGeneratorSource<>(generatorFunction, prices.length,
+            TypeInformation.of(Price.class));
     }
 
     private void runJob(JdbcSinkProperties jdbcSinkProperties, String sql,
@@ -234,14 +248,7 @@ class KeyedJdbcProcessFunctionIT {
             .stream()
             .source(testSource)
             .addKeyedProcessor(stringPricePriceWithEmissionTimeKeyedProcessorDefinition)
-            .addSink(() -> new SinkFunction<>() {
-                private static final long serialVersionUID = -2159861918086239581L;
-
-                @Override
-                public void invoke(PriceWithEmissionTime value, Context context) {
-                    PRICE_WITH_EMISSION_TIMES.add(value);
-                }
-            })
+            .addSink(() -> testSink)
             .build()
             .run("test.jdbc.sink");
     }

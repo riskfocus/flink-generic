@@ -17,9 +17,9 @@
 package com.ness.flink.config.operator;
 
 
-import com.ness.flink.assigner.WindowGeneratorWatermarkWithIdle;
 import com.ness.flink.config.properties.WatermarkProperties;
 import com.ness.flink.config.properties.WatermarkType;
+import com.ness.flink.watermark.WatermarkWithIdle;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.api.common.eventtime.TimestampAssignerSupplier;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -51,7 +51,10 @@ public abstract class WatermarkAwareSource<S> extends DefaultSource<S> {
                 break;
             case CUSTOM_WITH_IDLE:
                 watermarkStrategy = WatermarkStrategy
-                    .forGenerator(new WindowGeneratorWatermarkWithIdle<>(watermarkProperties.getWindowSizeMs()));
+                    .forGenerator(
+                        new WatermarkWithIdle<>(watermarkProperties.buildMaxOutOfOrderliness(),
+                            watermarkProperties.buildIdlenessDetectionDuration(),
+                            watermarkProperties.buildProcessingTimeTrailingDuration()));
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported WatermarkType: " + watermarkType);
