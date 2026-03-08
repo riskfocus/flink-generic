@@ -42,8 +42,8 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <sonar.organization>ness.com</sonar.organization>
-        <lombok.version>1.18.22</lombok.version>
-        <guava.version>31.1-jre</guava.version>
+        <lombok.version>1.18.42</lombok.version>
+        <guava.version>33.5.0-jre</guava.version>
         <spring.boot.version>2.5.14</spring.boot.version>
         <test.containers.version>2.0.1</test.containers.version>
     </properties>
