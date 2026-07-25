@@ -20,6 +20,7 @@ import com.ness.flink.domain.KafkaKeyedAware;
 import com.ness.flink.domain.IncomingEvent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Khokhlov Pavel
@@ -39,6 +40,6 @@ public class InterestRate extends IncomingEvent implements KafkaKeyedAware {
 
     @Override
     public byte[] kafkaKey() {
-        return maturity.getBytes();
+        return maturity.getBytes(StandardCharsets.UTF_8);
     }
 }

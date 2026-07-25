@@ -107,10 +107,11 @@ public abstract class KafkaProperties {
      * @param secretProviderProperties secret provider settings
      * @return Credentials if they required
      */
-    protected @Nullable Credentials getCredentials(String prefix, @Nullable RawProperties<?> secretProviderProperties) {
+    @Nullable
+    protected Credentials getCredentials(String prefix, @Nullable RawProperties<?> secretProviderProperties) {
         String secretName = rawValues.get(prefix + SECRET_NAME);
         if (secretName != null) {
-            var errorMsg = String.format("Secret name provided %s", secretName);
+            String errorMsg = String.format("Secret name provided %s", secretName);
             // we got secret name from user
             String secretProviderStr = rawValues.get(SECRET_PROVIDER_KEY);
             if (secretProviderStr == null) {

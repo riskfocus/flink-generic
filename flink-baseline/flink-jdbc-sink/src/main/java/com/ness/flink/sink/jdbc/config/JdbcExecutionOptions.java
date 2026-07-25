@@ -31,6 +31,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder(setterPrefix = "with")
 @ToString
+@SuppressWarnings("PMD.DataClass") // immutable JDBC batching config holder
 public class JdbcExecutionOptions implements Serializable {
     private static final long serialVersionUID = 6733329665168348494L;
 

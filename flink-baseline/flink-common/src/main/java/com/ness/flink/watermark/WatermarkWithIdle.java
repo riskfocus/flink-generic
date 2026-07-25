@@ -80,7 +80,7 @@ public class WatermarkWithIdle<T> implements WatermarkGeneratorSupplier<T> {
     }
 
     @VisibleForTesting
-    static class WindowBasedWatermarkGenerator<E> implements WatermarkGenerator<E> {
+    static final class WindowBasedWatermarkGenerator<E> implements WatermarkGenerator<E> {
         /**
          * The (fixed) interval between the maximum seen timestamp seen in the records
          * and that of the watermark to be emitted.
@@ -104,7 +104,7 @@ public class WatermarkWithIdle<T> implements WatermarkGeneratorSupplier<T> {
         /** The timestamp of the last emitted watermark. */
         private long lastEmittedWatermark = Long.MIN_VALUE;
 
-        long lastUpdatedTimestamp = Long.MAX_VALUE;
+        /* default */ long lastUpdatedTimestamp = Long.MAX_VALUE;
 
         private WindowBasedWatermarkGenerator(long maxOutOfOrderness, long idlenessDetectionDuration,
                                              long processingTimeTrailingDuration) {
@@ -166,7 +166,7 @@ public class WatermarkWithIdle<T> implements WatermarkGeneratorSupplier<T> {
             output.emitWatermark(new Watermark(lastEmittedWatermark));
         }
 
-        protected long currentTimeMs() {
+        /* default */ long currentTimeMs() {
             return System.currentTimeMillis();
         }
     }

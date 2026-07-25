@@ -18,6 +18,7 @@ package com.ness.flink.config.channel.kafka.confluent;
 
 import com.ness.flink.config.channel.kafka.AvroSpecificRecordSource;
 import com.ness.flink.config.channel.kafka.KafkaSourceFactory;
+import com.ness.flink.config.properties.KafkaConsumerProperties;
 import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.config.properties.WatermarkProperties;
 import org.apache.avro.specific.SpecificRecordBase;
@@ -31,7 +32,7 @@ public class ConfluentSourceFactory extends KafkaSourceFactory {
     public <S extends SpecificRecordBase> DefaultSource<S> sourceAvroSpecific(String sourceName, Class<S> domainClass,
         ParameterTool parameterTool, WatermarkProperties watermarkProperties,
         TimestampAssignerSupplier<S> timestampAssignerFunction) {
-        var kafkaConsumerProperties = buildKafkaConsumerProperties(sourceName, parameterTool);
+        KafkaConsumerProperties kafkaConsumerProperties = buildKafkaConsumerProperties(sourceName, parameterTool);
         return AvroSpecificRecordSource.<S>builder()
             .domainClass(domainClass)
             .name(sourceName)

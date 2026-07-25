@@ -54,11 +54,12 @@ public class RedisProperties implements RawProperties<RedisProperties>  {
     }
 
     public RedisURI build() {
-        RedisURI redisURI = new RedisURI();
-        redisURI.setHost(host);
-        redisURI.setPassword(password);
-        redisURI.setPort(port);
-        return redisURI;
+        // Lettuce 7 removed the mutable RedisURI setters (setHost/setPort/setPassword); use the builder.
+        RedisURI.Builder builder = RedisURI.builder().withHost(host).withPort(port);
+        if (password != null) {
+            builder.withPassword(password.toCharArray());
+        }
+        return builder.build();
     }
 
     @Override

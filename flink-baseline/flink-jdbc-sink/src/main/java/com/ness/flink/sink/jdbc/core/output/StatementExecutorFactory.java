@@ -26,6 +26,7 @@ import org.apache.flink.api.connector.sink2.WriterInitContext;
  *
  * @param <T> The type of instance.
  */
+@FunctionalInterface
 public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>> extends Function<WriterInitContext, T>,
     Serializable {
 

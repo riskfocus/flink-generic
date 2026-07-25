@@ -46,7 +46,6 @@ public class StreamBuilder {
         return from(ParameterTool.fromArgs(args));
     }
 
-    @SuppressWarnings("PMD.CloseResource")
     public static StreamBuilder from(ParameterTool parameterTool) {
         StreamExecutionEnvironment env = EnvironmentFactory.from(parameterTool);
         return from(env, parameterTool);

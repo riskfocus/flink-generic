@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import java.nio.charset.StandardCharsets;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class InterestRates extends IncomingEvent implements KafkaKeyedAware {
 
     @Override
     public byte[] kafkaKey() {
-        return currency.getBytes();
+        return currency.getBytes(StandardCharsets.UTF_8);
     }
 }
 

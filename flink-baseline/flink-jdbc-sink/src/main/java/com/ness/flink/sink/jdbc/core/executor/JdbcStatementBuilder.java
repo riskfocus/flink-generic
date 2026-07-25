@@ -31,6 +31,7 @@ import java.sql.SQLException;
  *            {@link com.ness.flink.sink.jdbc.core.executor.JdbcBatchStatementExecutor}
  */
 @PublicEvolving
+@FunctionalInterface
 public interface JdbcStatementBuilder<T>
     extends BiConsumerWithException<PreparedStatement, T, SQLException>, Serializable {
 

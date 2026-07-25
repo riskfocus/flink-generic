@@ -20,6 +20,7 @@ import com.ness.flink.domain.IncomingEvent;
 import com.ness.flink.domain.KafkaKeyedAware;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Khokhlov Pavel
@@ -43,6 +44,6 @@ public class OptionPrice extends IncomingEvent implements KafkaKeyedAware {
 
     @Override
     public byte[] kafkaKey() {
-        return instrumentId.getBytes();
+        return instrumentId.getBytes(StandardCharsets.UTF_8);
     }
 }

@@ -30,7 +30,6 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-@SuppressWarnings("PMD.AbstractClassWithoutAnyMethod")
 public abstract class IncomingEvent implements Event {
 
     private static final long serialVersionUID = -4232714269203508651L;

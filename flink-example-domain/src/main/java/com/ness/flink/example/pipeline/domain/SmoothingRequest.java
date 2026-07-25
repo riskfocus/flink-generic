@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import java.nio.charset.StandardCharsets;
 
 import java.util.Map;
 
@@ -47,6 +48,6 @@ public class SmoothingRequest extends IncomingEvent implements KafkaKeyedAware {
 
     @Override
     public byte[] kafkaKey() {
-        return underlying.getName().getBytes();
+        return underlying.getName().getBytes(StandardCharsets.UTF_8);
     }
 }
