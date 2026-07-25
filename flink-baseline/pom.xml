@@ -36,15 +36,15 @@
     <artifactId>flink-baseline</artifactId>
 
     <properties>
-        <flink.version>2.2.0</flink.version>
-        <flink.connector.kafka>4.0.1-2.0</flink.connector.kafka>
-        <jackson.version>2.15.3</jackson.version>
-        <redis.lettuce.version>5.3.7.RELEASE</redis.lettuce.version>
-        <log4j.version>2.19.0</log4j.version>
-        <dropwizard.metrics.version>4.1.10.1</dropwizard.metrics.version>
+        <flink.version>2.3.0</flink.version>
+        <flink.connector.kafka>5.0.0-2.2</flink.connector.kafka>
+        <jackson.version>2.22.1</jackson.version>
+        <redis.lettuce.version>7.6.0.RELEASE</redis.lettuce.version>
+        <log4j.version>2.25.1</log4j.version>
+        <dropwizard.metrics.version>4.2.39</dropwizard.metrics.version>
         <aws-kinesisanalytics-runtime.version>1.2.0</aws-kinesisanalytics-runtime.version>
-        <aws.glue.flink.serde.version>1.1.14</aws.glue.flink.serde.version>
-        <aws.secret.manager.version>1.0.2</aws.secret.manager.version>
+        <aws.glue.flink.serde.version>1.1.27</aws.glue.flink.serde.version>
+        <aws.secret.manager.version>2.0.0</aws.secret.manager.version>
     </properties>
 
     <dependencyManagement>
@@ -71,10 +71,15 @@
                 <scope>runtime</scope>
             </dependency>
 
+            <!-- Align ALL jackson artifacts (core/databind/annotations) to one version. jackson-annotations
+                 rides a coarser train (e.g. 2.22, not 2.22.1), so pinning it to ${jackson.version} directly
+                 requests a non-existent jar; let the bom pick each module's matching version. -->
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
                 <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>

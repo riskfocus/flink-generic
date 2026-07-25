@@ -79,7 +79,8 @@ public class TestConfig {
                     return v;
                 }));
 
-        Map<String, Object> streamsProperties = springKafkaProperties.buildStreamsProperties();
+        // spring-kafka 3.x added an SslBundles parameter; null == no SSL bundles (not used here).
+        Map<String, Object> streamsProperties = springKafkaProperties.buildStreamsProperties(null);
         Properties properties = new Properties();
         properties.putAll(streamsProperties);
 

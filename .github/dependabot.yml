@@ -1,0 +1,13 @@
+# Keeps Maven dependencies and GitHub Actions patched via weekly Dependabot PRs.
+# Requires the repo's Dependency Graph feature to be enabled (Settings > Code security).
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

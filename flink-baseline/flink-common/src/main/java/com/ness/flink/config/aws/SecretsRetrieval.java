@@ -17,7 +17,6 @@
 package com.ness.flink.config.aws;
 
 import com.amazonaws.secretsmanager.caching.SecretCache;
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.ness.flink.config.properties.AwsProperties;
 import com.ness.flink.config.properties.RawProperties;
 import com.ness.flink.security.Credentials;
@@ -26,6 +25,9 @@ import com.ness.flink.security.SecretsAware;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.apache.flink.annotation.Internal;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClientBuilder;
 
 /**
  * Retrieve secrets from AWS Secret manager
@@ -64,12 +66,14 @@ public class SecretsRetrieval implements SecretsAware {
      * @return SecretsRetrieval
      */
     public static SecretsRetrieval build(RawProperties<?> secretProviderProperties) {
-        AWSSecretsManagerClientBuilder standard = AWSSecretsManagerClientBuilder.standard();
+        // aws-secretsmanager-caching-java 2.x builds its client on AWS SDK v2. Pass the builder (not a
+        // built client) so credentials/region resolve lazily, matching the previous v1 behaviour.
+        SecretsManagerClientBuilder clientBuilder = SecretsManagerClient.builder();
         String region = secretProviderProperties.getRawValues().get(AwsProperties.AWS_REGION);
         if (region != null) {
-            standard.setRegion(region);
+            clientBuilder.region(Region.of(region));
         }
-        SecretCache secretCache = new SecretCache(standard);
+        SecretCache secretCache = new SecretCache(clientBuilder);
         return new SecretsRetrieval(secretCache);
     }
 }
