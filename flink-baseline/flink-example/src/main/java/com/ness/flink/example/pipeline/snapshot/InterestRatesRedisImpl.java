@@ -65,17 +65,17 @@ public class InterestRatesRedisImpl implements InterestRatesLoader {
         URL url = Resources.getResource("snapshot-loader.lua");
         String luaScript = Resources.toString(url, StandardCharsets.UTF_8);
         // load script to Redis
-        scriptDigest = connect.sync().scriptLoad(luaScript.getBytes());
+        scriptDigest = connect.sync().scriptLoad(luaScript.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
     public Optional<SnapshotData<InterestRates>> loadInterestRates(ContextMetadata context) throws IOException {
-        byte[] getKey = interestRatesMapper.buildKey(InterestRates.EMPTY_RATES, context).getBytes();
-        byte[] indexKey = interestRatesMapper.buildSnapshotIndexKey(context).getBytes();
-        byte[] snapshotPrefix = interestRatesMapper.buildSnapshotPrefix(context).getBytes();
+        byte[] getKey = interestRatesMapper.buildKey(InterestRates.EMPTY_RATES, context).getBytes(StandardCharsets.UTF_8);
+        byte[] indexKey = interestRatesMapper.buildSnapshotIndexKey(context).getBytes(StandardCharsets.UTF_8);
+        byte[] snapshotPrefix = interestRatesMapper.buildSnapshotPrefix(context).getBytes(StandardCharsets.UTF_8);
 
         byte[][] keys = convert(getKey, indexKey, snapshotPrefix);
-        byte[][] values = convert(InterestRates.EMPTY_RATES.getCurrency().getBytes(), String.valueOf(context.getContextId()).getBytes(), context.getDate().getBytes());
+        byte[][] values = convert(InterestRates.EMPTY_RATES.getCurrency().getBytes(StandardCharsets.UTF_8), String.valueOf(context.getContextId()).getBytes(StandardCharsets.UTF_8), context.getDate().getBytes(StandardCharsets.UTF_8));
 
         byte[] data = connect.sync().evalsha(scriptDigest, ScriptOutputType.VALUE, keys, values);
         if (data != null) {

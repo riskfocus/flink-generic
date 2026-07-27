@@ -27,6 +27,7 @@ import io.lettuce.core.api.sync.RedisCommands;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -53,9 +54,9 @@ public class RedisSnapshotExecutor<T extends TimeAware> implements SnapshotAware
         // write data to Redis in one Transaction
         commands.multi();
 
-        commands.psetex(snapshotMapper.buildKey(data, ctx).getBytes(), expireAt, snapshotMapper.getValueFromData(data).getBytes());
-        byte[] windowBytes = String.valueOf(contextId).getBytes();
-        byte[] indexKey = snapshotMapper.buildSnapshotIndexKey(ctx).getBytes();
+        commands.psetex(snapshotMapper.buildKey(data, ctx).getBytes(StandardCharsets.UTF_8), expireAt, snapshotMapper.getValueFromData(data).getBytes(StandardCharsets.UTF_8));
+        byte[] windowBytes = String.valueOf(contextId).getBytes(StandardCharsets.UTF_8);
+        byte[] indexKey = snapshotMapper.buildSnapshotIndexKey(ctx).getBytes(StandardCharsets.UTF_8);
         commands.zadd(indexKey, new ZAddArgs(), contextId, windowBytes);
         TransactionResult result = commands.exec();
         if (result.wasDiscarded()) {

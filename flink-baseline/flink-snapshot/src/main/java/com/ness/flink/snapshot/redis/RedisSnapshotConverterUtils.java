@@ -21,6 +21,7 @@ import com.ness.flink.json.UncheckedObjectMapper;
 import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Khokhlov Pavel
@@ -33,7 +34,7 @@ public class RedisSnapshotConverterUtils implements Serializable {
     private static final String DELIMITER = ":";
 
     public static <T> SnapshotData<T> convertTo(Class<T> destClass, byte[] bytes) {
-        String src = new String(bytes);
+        String src = new String(bytes, StandardCharsets.UTF_8);
         int delimiterIdx = src.indexOf(DELIMITER);
         String contextIdStr = src.substring(0, delimiterIdx);
         String data = src.substring(delimiterIdx + 1);

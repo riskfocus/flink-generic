@@ -85,7 +85,7 @@ public class InterestRateStream {
             }
         };
 
-        var keyedProcessorDefinition = JdbcKeyedProcessorBuilder.<String, InterestRate, InterestRate>builder()
+        KeyedProcessorDefinition<String, InterestRate, InterestRate> keyedProcessorDefinition = JdbcKeyedProcessorBuilder.<String, InterestRate, InterestRate>builder()
             .jdbcSinkProperties(jdbcSinkProperties)
             .sql(sql)
             .jdbcStatementBuilder(jdbcStatementBuilder)
@@ -160,7 +160,7 @@ public class InterestRateStream {
         interestRatesDataStream.addToStream(stream -> stream
             .flatMap((FlatMapFunction<InterestRates, InterestRate>) (value, out) -> {
             Map<String, InterestRate> rates = value.getRates();
-            for (var rate : rates.values()) {
+            for (InterestRate rate : rates.values()) {
                 out.collect(rate);
             }
         }).returns(InterestRate.class)

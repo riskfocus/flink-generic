@@ -31,6 +31,7 @@ import org.apache.flink.util.Preconditions;
  * @author Khokhlov Pavel
  */
 @Slf4j
+@SuppressWarnings("PMD.UselessPureMethodCall") // DriverManager.getDrivers() is a deliberate class-init side effect
 public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
     private static final long serialVersionUID = 1L;
 

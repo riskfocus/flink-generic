@@ -49,7 +49,6 @@ import org.apache.flink.util.concurrent.ExecutorThreadFactory;
  * @author Khokhlov Pavel
  */
 @Slf4j
-@SuppressWarnings("PMD.TooManyMethods")
 public class JdbcBatchingOutputFormat<R, T, J extends JdbcBatchStatementExecutor<T>> extends AbstractSinkWriter<R> {
     @Serial
     private static final long serialVersionUID = 1373809219726488314L;

@@ -55,6 +55,17 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Import BEFORE spring-boot-dependencies: Spring Boot's BOM pins io.netty to an
+                 older line (4.1.x), and the first import wins for a given artifact. Keeping netty
+                 aligned with the rest of the reactor (4.2.16, needed by Lettuce 7) also clears the
+                 netty-transport CVEs the AWS SDK's netty-nio-client would otherwise drag in here. -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>

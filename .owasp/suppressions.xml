@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ OWASP dependency-check false-positive / accepted-risk suppressions.
+  ~
+  ~ Only the `mvn -Powasp ...` profile reads this file.
+  ~
+  ~ SCHEMA RULES (dependency-suppression.1.3) — a <suppress> is a strict sequence:
+  ~     1. <notes>                              (optional)
+  ~     2. exactly ONE of filePath | sha1 | gav | packageUrl   (the "which dependency" selector)
+  ~     3. at least ONE of cve | cpe | vulnerabilityName | cwe | cvssBelow   (the "what to suppress")
+  ~   You cannot combine two selectors (e.g. packageUrl AND filePath), and step 3 is mandatory —
+  ~   omit it and the WHOLE FILE fails to parse and every rule is silently ignored. Validate before
+  ~   committing by running xmllint against the dependency-suppression.1.3 schema.
+  ~
+  ~   `until="YYYY-MM-DDZ"` makes a suppression auto-expire on that date, so accepted risks
+  ~   resurface for review instead of rotting. Re-check, then bump the date or remove the rule.
+  ~
+  ~ Docs: https://dependency-check.github.io/DependencyCheck/general/suppression.html
+  -->
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+
+    <!-- Flink web dashboard — bundled front-end assets (false positives).
+         org.apache.flink:flink-runtime-web ships Flink's browser dashboard as minified JS inside
+         the jar (web/**.js). dependency-check's RetireJS analyzer fingerprints those bundles and
+         reports CVEs against the JS libraries they were built from (DOMPurify, @angular/core, ...).
+         None of it is on flink-generic's JVM runtime classpath, and none is shipped or executed by
+         this library — it belongs to Flink's dashboard and is patched by upgrading Flink.
+         Scope: everything inside the flink-runtime-web jar. Auto-expires 2026-09-30; on that date
+         re-check whether the current Flink release still bundles vulnerable assets. -->
+    <suppress until="2026-09-30Z">
+        <notes><![CDATA[
+            Bundled front-end assets inside org.apache.flink:flink-runtime-web (Flink's web
+            dashboard UI) — not on flink-generic's runtime classpath, not shipped or executed by
+            this library. Fix rides on future Flink upgrades. Reviewed 2026-07-26.
+        ]]></notes>
+        <filePath regex="true">.*flink-runtime-web-.*\.jar.*</filePath>
+        <vulnerabilityName regex="true">.*</vulnerabilityName>
+    </suppress>
+
+    <!-- ============================================================================
+         Accepted risk — no upstream fix available yet (auto-expire 2026-09-30).
+
+         These 15 CVSS>=7 findings are all transitive and have no patched release to bump to.
+         Each rule lists the SPECIFIC accepted CVEs, so a *new* CVE on the same library still
+         fails the build. Dependabot alerts (repo Security tab) will notify when fixes ship —
+         they are independent of these suppressions. On 2026-09-30 these expire: re-check whether
+         upstream has released fixes, then bump the deps or refresh the dates.
+         ============================================================================ -->
+
+    <suppress until="2026-09-30Z">
+        <notes><![CDATA[
+            Log4j 2.25.1 is already the newest 2.x line; no patched release exists for these yet.
+            Affected features (RFC5424Layout, XmlLayout) are not used by this library. Transitive
+            log4j-core 2.24.3 rides the same rationale. Reviewed 2026-07-26; re-check by until date.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.logging\.log4j/log4j-.*@.*$</packageUrl>
+        <cve>CVE-2026-34478</cve>
+        <cve>CVE-2026-34479</cve>
+        <cve>CVE-2026-34480</cve>
+    </suppress>
+
+    <suppress until="2026-09-30Z">
+        <notes><![CDATA[
+            kotlin-stdlib (1.9.25 / 1.7.10) is a transitive test/runtime dependency of the Kafka
+            client stack (kafka-clients 4.2.0). CVE-2026-53914 is a build-cache deserialization
+            issue not reachable in this library's use. Fix rides on a kafka-clients upgrade.
+            Reviewed 2026-07-26; re-check by until date.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin-.*@.*$</packageUrl>
+        <cve>CVE-2026-53914</cve>
+    </suppress>
+
+    <suppress until="2026-09-30Z">
+        <notes><![CDATA[
+            protobuf-java (3.25.5 / 4.31.1) transitive from the Kafka client stack. CVE-2026-0994 is
+            a Python json_format DoS; the Java runtime path here is not affected. Fix rides on a
+            kafka-clients upgrade. Reviewed 2026-07-26; re-check by until date.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf-.*@.*$</packageUrl>
+        <cve>CVE-2026-0994</cve>
+    </suppress>
+
+    <suppress until="2026-09-30Z">
+        <notes><![CDATA[
+            okio-fakefilesystem 3.2.0 transitive from the Kafka client stack; a test-only fake
+            filesystem. CVE-2023-3635 (GzipSource DoS) is not on this library's runtime path. Fix
+            rides on a kafka-clients upgrade. Reviewed 2026-07-26; re-check by until date.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.squareup\.okio/okio.*@.*$</packageUrl>
+        <cve>CVE-2023-3635</cve>
+    </suppress>
+
+    <suppress until="2026-09-30Z">
+        <notes><![CDATA[
+            wire-schema 5.2.0 transitive from the Kafka client stack. CVE-2018-8909 is a
+            path-traversal in the unrelated Wire Android messaging app, a well-known false match on
+            the coordinate name. Reviewed 2026-07-26; re-check by until date.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.squareup\.wire/wire-.*@.*$</packageUrl>
+        <cve>CVE-2018-8909</cve>
+    </suppress>
+
+    <suppress until="2026-09-30Z">
+        <notes><![CDATA[
+            flink-avro 2.3.0 transitive from Apache Flink (provided-scope; the cluster supplies it).
+            CVE-2023-37475 is a Go (hamba/avro) OOM, a false match on the "avro" name. Fix rides on
+            a Flink upgrade. Reviewed 2026-07-26; re-check by until date.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.flink/flink-avro.*@.*$</packageUrl>
+        <cve>CVE-2023-37475</cve>
+    </suppress>
+
+    <!-- Example (disabled) — copy, adjust, and document before enabling:
+    <suppress until="2027-01-01Z">
+        <notes><![CDATA[ CVE-XXXX-YYYYY does not apply: <reason>. Reviewed <name> <date>. ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.example/some-artifact@.*$</packageUrl>
+        <cve>CVE-XXXX-YYYYY</cve>
+    </suppress>
+    -->
+
+</suppressions>

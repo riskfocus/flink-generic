@@ -34,7 +34,7 @@ public class MskSourceFactory extends KafkaSourceFactory {
         TimestampAssignerSupplier<S> timestampAssignerFunction) {
         KafkaConsumerProperties kafkaConsumerProperties = buildKafkaConsumerProperties(sourceName,
             parameterTool);
-        var awsProperties = AwsProperties.from(parameterTool);
+        AwsProperties awsProperties = AwsProperties.from(parameterTool);
         return AvroSpecificRecordSource.<S>builder()
             .domainClass(domainClass)
             .name(sourceName)

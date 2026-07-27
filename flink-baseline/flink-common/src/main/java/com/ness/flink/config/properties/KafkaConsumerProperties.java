@@ -96,7 +96,7 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
         filtered.putIfAbsent(KafkaSourceOptions.CLIENT_ID_PREFIX.key(), getName());
         consumerProperties.putAll(filtered);
 
-        HashMap<Object, Object> forPrint = new HashMap<>(consumerProperties);
+        Map<Object, Object> forPrint = new HashMap<>(consumerProperties);
         if (masked != null) {
             // Masks credential configuration
             forPrint.replace(SASL_JAAS_CONFIG, masked);

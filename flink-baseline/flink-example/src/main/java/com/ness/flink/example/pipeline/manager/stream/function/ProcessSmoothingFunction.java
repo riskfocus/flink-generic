@@ -58,7 +58,7 @@ import org.apache.flink.util.ParameterTool;
  * @author Khokhlov Pavel
  */
 @Slf4j
-@SuppressWarnings({"PMD.ExcessiveImports", "PMD.TooManyMethods"})
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.TooManyMethods", "PMD.CouplingBetweenObjects"})
 public class ProcessSmoothingFunction extends KeyedBroadcastProcessFunction<String, OptionPrice, JobConfig, SmoothingRequest> {
 
     @Serial
@@ -255,10 +255,7 @@ public class ProcessSmoothingFunction extends KeyedBroadcastProcessFunction<Stri
     }
 
     private boolean updateRequired(Event fromStorage, Event fromCurrentWindow) {
-        if (fromStorage == null) {
-            return true;
-        }
-        return !fromStorage.equals(fromCurrentWindow);
+        return fromStorage == null || !fromStorage.equals(fromCurrentWindow);
     }
 
     private SmoothingRequest createFrom(String underlyingKey, Map<String, OptionPrice> prices,

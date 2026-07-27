@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Khokhlov Pavel
  */
+@SuppressWarnings("PMD.CouplingBetweenObjects") // central channel registry wires many factory types
 public enum ChannelType implements SinkFactory, SourceFactory {
 
     KAFKA_CONFLUENT {

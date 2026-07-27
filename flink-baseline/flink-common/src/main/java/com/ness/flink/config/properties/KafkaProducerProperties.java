@@ -80,7 +80,7 @@ public class KafkaProducerProperties extends KafkaProperties implements RawPrope
         String masked = replaceKafkaCredentials(filtered, secretProviderProperties);
         producerProperties.putAll(filtered);
 
-        HashMap<Object, Object> forPrint = new HashMap<>(producerProperties);
+        Map<Object, Object> forPrint = new HashMap<>(producerProperties);
         if (masked != null) {
             // Masks credential configuration
             forPrint.replace(SASL_JAAS_CONFIG, masked);
