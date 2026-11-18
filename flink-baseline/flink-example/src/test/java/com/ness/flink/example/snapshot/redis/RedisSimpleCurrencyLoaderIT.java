@@ -116,7 +116,7 @@ class RedisSimpleCurrencyLoaderIT {
         SimpleCurrency gbp = save(now + (windowSize * 3), "GBP", 30);
 
         // create a stream of custom elements and apply transformations
-        env.fromElements(usd, eur, gbp).name("source").uid("source")
+        env.fromData(usd, eur, gbp).name("source").uid("source")
                 .sinkTo(sink).uid("test").name("test");
         env.execute();
 

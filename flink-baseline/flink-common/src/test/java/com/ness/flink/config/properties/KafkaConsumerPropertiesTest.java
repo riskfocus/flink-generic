@@ -21,6 +21,7 @@ import static io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfi
 import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
 import static org.mockito.ArgumentMatchers.eq;
 
+import com.ness.flink.config.properties.KafkaConsumerProperties.OffsetResetStrategy;
 import com.ness.flink.config.properties.KafkaConsumerProperties.Offsets;
 import com.ness.flink.security.Credentials;
 import com.ness.flink.security.SecretsProviderFactory;
@@ -31,7 +32,6 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import org.apache.flink.util.ParameterTool;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -72,7 +72,7 @@ class KafkaConsumerPropertiesTest {
 
             Assertions.assertEquals(Offsets.COMMITTED, properties.getOffsets());
             OffsetsInitializer offsetsInitializer = properties.getOffsetsInitializer();
-            Assertions.assertEquals(OffsetResetStrategy.EARLIEST, offsetsInitializer.getAutoOffsetResetStrategy());
+            Assertions.assertEquals(OffsetResetStrategy.EARLIEST.name(), offsetsInitializer.getAutoOffsetResetStrategy().name());
 
             Assertions.assertNull(properties.getTimestamp());
             Assertions.assertNull(properties.getTopic());
@@ -107,7 +107,7 @@ class KafkaConsumerPropertiesTest {
         Assertions.assertEquals(123, properties.getTimestamp());
         OffsetsInitializer offsetsInitializer = properties.getOffsetsInitializer();
         Assertions.assertEquals(Offsets.TIMESTAMP, properties.getOffsets());
-        Assertions.assertEquals(OffsetResetStrategy.LATEST, offsetsInitializer.getAutoOffsetResetStrategy());
+        Assertions.assertEquals(OffsetResetStrategy.LATEST.name(), offsetsInitializer.getAutoOffsetResetStrategy().name());
 
         Properties consumerProperties = properties.buildProperties(null);
         Assertions.assertEquals("localhost:9092",
