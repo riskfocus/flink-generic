@@ -35,7 +35,6 @@ import org.apache.flink.connector.kafka.source.KafkaSourceOptions;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.util.ParameterTool;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 
 
 /**
@@ -87,6 +86,14 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
         EARLIEST, LATEST, TIMESTAMP, COMMITTED
     }
 
+    /**
+     * Strategy used when no committed offset exists (only for {@link Offsets#COMMITTED}).
+     * Project-owned replacement for Kafka's deprecated {@code org.apache.kafka.clients.consumer.OffsetResetStrategy}.
+     */
+    public enum OffsetResetStrategy {
+        EARLIEST, LATEST, NONE
+    }
+
     @Override
     public Properties buildProperties(@Nullable RawProperties<?> secretProviderProperties) {
         Properties consumerProperties = new Properties();
@@ -110,19 +117,22 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
      * @return an OffsetsInitializer which initializes the offsets.
      */
     public OffsetsInitializer getOffsetsInitializer() {
-        switch (offsets) {
-            case LATEST:
-                return OffsetsInitializer.latest();
-            case EARLIEST:
-                return OffsetsInitializer.earliest();
-            case TIMESTAMP:
-                return OffsetsInitializer.timestamp(getTimestamp());
-            case COMMITTED:
-                return OffsetsInitializer.committedOffsets(offsetResetStrategy);
+        return switch (offsets) {
+            case LATEST -> OffsetsInitializer.latest();
+            case EARLIEST -> OffsetsInitializer.earliest();
+            case TIMESTAMP -> OffsetsInitializer.timestamp(getTimestamp());
+            case COMMITTED -> committedOffsets(offsetResetStrategy);
+        };
+    }
 
-            default:
-                throw new IllegalArgumentException("Unsupported value: " + offsets);
-        }
+    /**
+     * flink-connector-kafka (5.0.0-2.2) only exposes {@link OffsetsInitializer#committedOffsets} with Kafka's
+     * deprecated {@code OffsetResetStrategy}; there is no non-deprecated alternative yet, so the bridge is isolated here.
+     */
+    @SuppressWarnings("deprecation")
+    private static OffsetsInitializer committedOffsets(OffsetResetStrategy strategy) {
+        return OffsetsInitializer.committedOffsets(
+                org.apache.kafka.clients.consumer.OffsetResetStrategy.valueOf(strategy.name()));
     }
 
     private Map<String, String> filterNonConsumerProperties() {

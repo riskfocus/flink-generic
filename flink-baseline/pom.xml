@@ -36,11 +36,11 @@
     <artifactId>flink-baseline</artifactId>
 
     <properties>
-        <flink.version>2.2.0</flink.version>
-        <flink.connector.kafka>4.0.1-2.0</flink.connector.kafka>
-        <jackson.version>2.15.3</jackson.version>
+        <flink.version>2.3.0</flink.version>
+        <flink.connector.kafka>5.0.0-2.2</flink.connector.kafka>
+        <jackson.version>2.20.1</jackson.version>
         <redis.lettuce.version>5.3.7.RELEASE</redis.lettuce.version>
-        <log4j.version>2.19.0</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
         <dropwizard.metrics.version>4.1.10.1</dropwizard.metrics.version>
         <aws-kinesisanalytics-runtime.version>1.2.0</aws-kinesisanalytics-runtime.version>
         <aws.glue.flink.serde.version>1.1.14</aws.glue.flink.serde.version>
@@ -71,10 +71,13 @@
                 <scope>runtime</scope>
             </dependency>
 
+            <!-- Align all Jackson modules (connector brings core/databind transitively) -->
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
                 <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>

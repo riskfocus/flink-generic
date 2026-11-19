@@ -17,6 +17,7 @@
 package com.ness.flink.sink.jdbc.connector;
 
 import com.ness.flink.sink.jdbc.config.JdbcConnectionOptions;
+import java.io.Serial;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -32,6 +33,7 @@ import org.apache.flink.util.Preconditions;
  */
 @Slf4j
 public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final JdbcConnectionOptions jdbcConnectionOptions;
@@ -69,8 +71,8 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider {
         // * driver is not installed as a service provider.
         Class<?> clazz = Class.forName(driverName, true, Thread.currentThread().getContextClassLoader());
         try {
-            return (Driver) clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            return (Driver) clazz.getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
             throw new SQLException("Fail to create driver of class " + driverName, e);
         }
     }
