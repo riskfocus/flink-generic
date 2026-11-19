@@ -17,16 +17,16 @@
 package com.ness.flink.sink.jdbc.core.output;
 
 import com.ness.flink.sink.jdbc.core.executor.JdbcBatchStatementExecutor;
-import org.apache.flink.api.connector.sink2.Sink.InitContext;
 import java.io.Serializable;
 import java.util.function.Function;
+import org.apache.flink.api.connector.sink2.WriterInitContext;
 
 /**
  * A factory for creating {@link JdbcBatchStatementExecutor} instance.
  *
  * @param <T> The type of instance.
  */
-public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>> extends Function<InitContext, T>,
+public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>> extends Function<WriterInitContext, T>,
     Serializable {
 
 }

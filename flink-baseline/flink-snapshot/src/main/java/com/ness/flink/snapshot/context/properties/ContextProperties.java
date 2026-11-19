@@ -16,6 +16,8 @@
 
 package com.ness.flink.snapshot.context.properties;
 
+import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.OperatorPropertiesFactory;
 import com.ness.flink.window.generator.GeneratorType;
@@ -25,9 +27,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
-
-import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * @author Khokhlov Pavel

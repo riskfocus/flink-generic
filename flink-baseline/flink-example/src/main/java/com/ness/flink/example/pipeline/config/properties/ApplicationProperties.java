@@ -16,6 +16,8 @@
 
 package com.ness.flink.example.pipeline.config.properties;
 
+import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.properties.OperatorPropertiesFactory;
 import com.ness.flink.example.pipeline.config.JobMode;
@@ -26,9 +28,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
-
-import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * Smoothing application properties
@@ -50,6 +50,9 @@ public class ApplicationProperties {
     private EntityTypeEnum snapshotType = EntityTypeEnum.MEM_CACHE_WITH_INDEX_SUPPORT_ONLY;
     private JobMode jobMode = JobMode.FULL;
     private boolean interestRatesKafkaSnapshotEnabled;
+
+    private boolean enabledExtendedLogging;
+
     public static ApplicationProperties from(@NonNull ParameterTool parameterTool) {
         ApplicationProperties properties = from(NAME, parameterTool, DEFAULT_CONFIG_FILE);
         log.info("Build parameters: applicationProperties={}", properties);

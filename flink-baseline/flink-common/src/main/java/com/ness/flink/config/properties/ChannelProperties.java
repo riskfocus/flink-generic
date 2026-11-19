@@ -22,7 +22,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * Channel configuration
@@ -54,11 +54,4 @@ public class ChannelProperties {
                 .genericProperties(name, CONFIG_NAME, parameterTool, ChannelProperties.class, ymlConfigFile);
     }
 
-    /**
-     * Different set of Channels (could be Kafka/Kinesis etc)
-     * @author Khokhlov Pavel
-     */
-    public enum ChannelType {
-        KAFKA_CONFLUENT, KAFKA_MSK, AWS_KINESIS
-    }
 }

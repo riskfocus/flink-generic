@@ -24,10 +24,6 @@ import java.util.Map;
  */
 public interface RawProperties<T> extends Serializable {
     Map<String, String> getRawValues();
-
-    @SuppressWarnings("unchecked")
-    default T withRawValues(Map<String, String> defaults) {
-        return (T) this;
-    }
+    T withRawValues(Map<String, String> defaults);
 
 }

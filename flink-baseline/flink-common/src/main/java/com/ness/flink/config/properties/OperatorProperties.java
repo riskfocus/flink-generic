@@ -17,13 +17,13 @@
 package com.ness.flink.config.properties;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
-import java.io.Serializable;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * Any Flink Operator properties

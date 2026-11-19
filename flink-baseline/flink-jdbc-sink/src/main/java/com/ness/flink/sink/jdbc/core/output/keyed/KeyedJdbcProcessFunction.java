@@ -27,26 +27,26 @@ import com.ness.flink.sink.jdbc.core.recovery.RecoveryOperations;
 import com.ness.flink.window.WindowAware;
 import com.ness.flink.window.WindowContext;
 import com.ness.flink.window.generator.impl.BasicGenerator;
+import java.io.IOException;
+import java.io.Serial;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.functions.OpenContext;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.metrics.groups.OperatorMetricGroup;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.function.SerializableFunction;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Any JDBC KeyedProcessFunction
@@ -60,6 +60,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @SuppressWarnings("PMD.ExcessiveImports")
 public class KeyedJdbcProcessFunction<K, I, O> extends KeyedProcessFunction<K, I, O> {
+    @Serial
     private static final long serialVersionUID = -977755296123316334L;
 
     @Nonnull
@@ -85,8 +86,8 @@ public class KeyedJdbcProcessFunction<K, I, O> extends KeyedProcessFunction<K, I
     private transient Histogram batchSizeHistogram;
 
     @Override
-    public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
+    public void open(OpenContext openContext) throws Exception {
+        super.open(openContext);
 
         this.windowAware = new BasicGenerator(jdbcExecutionOptions.getBatchMaxWaitThresholdMs());
 
@@ -134,7 +135,7 @@ public class KeyedJdbcProcessFunction<K, I, O> extends KeyedProcessFunction<K, I
                 if (!emitted.isEmpty() && transformerFunction != null) {
                     emitted.stream().map(transformerFunction).forEach(out::collect);
                 }
-                // Clean-up state after successful batch execution
+                // Cleanup state after successful batch execution
                 jdbcKeyedBatchStatementExecutor.cleanUp();
                 break;
             } catch (SQLException e) {

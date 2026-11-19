@@ -20,10 +20,10 @@ package com.ness.flink.window.generator;
 import com.ness.flink.config.properties.WatermarkProperties;
 import com.ness.flink.window.WindowAware;
 import com.ness.flink.window.WindowContext;
-import org.apache.flink.api.java.utils.ParameterTool;
+import java.util.Map;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import java.util.Map;
 
 
 /**

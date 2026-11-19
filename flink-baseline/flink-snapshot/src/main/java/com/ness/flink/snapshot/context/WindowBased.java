@@ -36,7 +36,7 @@ public class WindowBased implements ContextService {
     public ContextMetadata generate(TimeAware timeAware, String contextName) {
         WindowContext windowContext = windowAware.generateWindowPeriod(timeAware.getTimestamp());
         String dateStr = DateTimeUtils.formatDate(windowContext.getStart());
-        return ContextMetadata.builder().id(windowContext.getId()).date(dateStr).contextName(contextName).build();
+        return ContextMetadata.builder().contextId(windowContext.getWindowId()).date(dateStr).contextName(contextName).build();
     }
 
     @Override

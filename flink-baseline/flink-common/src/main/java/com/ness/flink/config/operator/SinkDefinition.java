@@ -16,17 +16,17 @@
 
 package com.ness.flink.config.operator;
 
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.api.connector.sink2.Sink;
 
 /**
- * Adds sink capabilities to operator definition (for Sinks based on old Flink API).
+ * Adds Sink capabilities to operator definition
  *
  * @param <T> Sink event type
  */
 @FunctionalInterface
 public interface SinkDefinition<T> extends OperatorDefinition {
     /**
-     * Builds Flink {@link SinkFunction}
+     * Builds Flink {@link Sink}
      */
-    SinkFunction<T> buildSink();
+    Sink<T> build();
 }

@@ -18,29 +18,29 @@ package com.ness.flink.sink.jdbc.core.output;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
+import java.io.Serial;
 import java.io.Serializable;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.connector.sink2.Sink.InitContext;
 import org.apache.flink.api.connector.sink2.SinkWriter;
+import org.apache.flink.api.connector.sink2.WriterInitContext;
 
 /**
  * @author Khokhlov Pavel
  */
 @Slf4j
 public abstract class AbstractSinkWriter<T> implements SinkWriter<T>, Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final String sinkName;
-    protected transient InitContext context;
+    protected transient WriterInitContext writerInitContext;
 
     protected AbstractSinkWriter(String sinkName) {
         this.sinkName = checkNotNull(sinkName);
     }
 
-    @SneakyThrows
-    public void open(InitContext context) {
-        this.context = context;
+    public void open(WriterInitContext writerInitContext) {
+        this.writerInitContext = writerInitContext;
     }
 
 }

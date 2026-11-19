@@ -18,9 +18,10 @@ package com.ness.flink.sink.jdbc;
 
 import com.ness.flink.config.operator.DefaultSource;
 import com.ness.flink.sink.jdbc.core.executor.JdbcStatementBuilder;
-import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
 import com.ness.flink.sink.jdbc.domain.Price;
+import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
 import com.ness.flink.stream.StreamBuilder;
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -32,15 +33,14 @@ import java.util.Collections;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.source.FromElementsFunction;
+import org.apache.flink.util.ParameterTool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.mysql.MySQLContainer;
 
 /**
  * Example of JdbcSink to Mysql database
@@ -49,12 +49,13 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
  */
 @Slf4j
 class JdbcSinkIT implements Serializable {
+    @Serial
     private static final long serialVersionUID = 6264113652492089626L;
 
     static ParameterTool params = ParameterTool.fromMap(Collections.emptyMap());
     static JdbcSinkProperties jdbcSinkProperties = JdbcSinkProperties.from("test.jdbc.sink", params);
     
-    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:5.7.41")
+    static MySQLContainer mysql = new MySQLContainer("mysql:8.4.7")
         .withDatabaseName("test")
         .withUsername(jdbcSinkProperties.getUsername()).withPassword(jdbcSinkProperties.getPassword())
         .withInitScript("price.sql")
@@ -75,14 +76,13 @@ class JdbcSinkIT implements Serializable {
         DefaultSource<Price> testSource = new DefaultSource<>("test.source") {
             @Override
             public SingleOutputStreamOperator<Price> build(StreamExecutionEnvironment streamExecutionEnvironment) {
-                return streamExecutionEnvironment.addSource(TestSourceFunction.from(
-                    jdbcSinkProperties.getMaxWaitThreshold() + 5000,
+                return streamExecutionEnvironment.fromData(
                     Price.builder().id(1).value(new BigDecimal("23.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(2).value(new BigDecimal("5.2")).sourceId("127.0.0.1").build(),
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build(),
                     // duplicate
                     Price.builder().id(3).value(new BigDecimal("6.2")).sourceId("127.0.0.1").build()
-                ));
+                );
             }
 
             @Override
@@ -142,28 +142,6 @@ class JdbcSinkIT implements Serializable {
             }
         }
         return 0;
-    }
-
-    static class TestSourceFunction extends FromElementsFunction<Price> {
-        private static final long serialVersionUID = 7060005340557699393L;
-        private final long waitTime;
-
-        private TestSourceFunction(long waitTime, Price... elements) {
-            super(elements);
-            this.waitTime = waitTime;
-        }
-
-        public static TestSourceFunction from(long waitTime, Price... elements) {
-            return new TestSourceFunction(waitTime, elements);
-        }
-
-        @Override
-        public void run(SourceContext<Price> ctx) throws Exception {
-            super.run(ctx);
-            if (waitTime > 0) {
-                Thread.sleep(waitTime);
-            }
-        }
     }
 
 }

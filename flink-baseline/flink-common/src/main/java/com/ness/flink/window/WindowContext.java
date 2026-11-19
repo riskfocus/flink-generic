@@ -37,8 +37,7 @@ public class WindowContext implements Serializable {
     /**
      * Window identifier
      */
-    @SuppressWarnings("PMD.ShortVariable")
-    private final long id;
+    private final long windowId;
 
     /**
      * Start time of Window

@@ -17,7 +17,7 @@ jdbc.shared:
   password: "12345678-a"
   maxRetries: 10
   batchSize: 100
-  maxWaitThreshold: 10000
+  maxWaitThreshold: 1000
 
 test.jdbc.sink:
   parallelism: 2

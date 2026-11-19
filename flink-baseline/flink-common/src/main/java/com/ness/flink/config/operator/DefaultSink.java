@@ -16,6 +16,8 @@
 
 package com.ness.flink.config.operator;
 
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.apache.flink.api.connector.sink2.Sink;
@@ -27,7 +29,9 @@ import org.apache.flink.api.connector.sink2.Sink;
  */
 @SuperBuilder
 @AllArgsConstructor
-public abstract class DefaultSink<S> implements OperatorDefinition {
+public abstract class DefaultSink<S> implements OperatorDefinition, Serializable {
+    @Serial
+    private static final long serialVersionUID = -476351208578350251L;
     private final String name;
 
     public abstract Sink<S> build();

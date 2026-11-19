@@ -16,24 +16,25 @@
 
 package com.ness.flink.config.properties;
 
+import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
+import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
+
 import com.google.common.annotations.VisibleForTesting;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.connector.kafka.source.KafkaSourceOptions;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.util.ParameterTool;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
-import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT_CONFIG_FILE;
 
 
 /**
@@ -48,7 +49,6 @@ import static com.ness.flink.config.properties.OperatorPropertiesFactory.DEFAULT
 public class KafkaConsumerProperties extends KafkaProperties implements RawProperties<KafkaConsumerProperties> {
     private static final long serialVersionUID = 8374164378532623386L;
 
-    private static final String CONFLUENT_SCHEMA_REGISTRY_KEY = "schema.registry.url";
     private static final String SHARED_PROPERTY_NAME = "kafka.consumer";
 
     private Long timestamp;
@@ -86,13 +86,29 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
         EARLIEST, LATEST, TIMESTAMP, COMMITTED
     }
 
-    public Properties getConsumerProperties() {
+    /**
+     * Strategy used when no committed offset exists (only for {@link Offsets#COMMITTED}).
+     * Project-owned replacement for Kafka's deprecated {@code org.apache.kafka.clients.consumer.OffsetResetStrategy}.
+     */
+    public enum OffsetResetStrategy {
+        EARLIEST, LATEST, NONE
+    }
+
+    @Override
+    public Properties buildProperties(@Nullable RawProperties<?> secretProviderProperties) {
         Properties consumerProperties = new Properties();
         Map<String, String> filtered = filterNonConsumerProperties();
+        String masked = replaceKafkaCredentials(filtered, secretProviderProperties);
         // We should provide unique prefix (in our case it's Operator name) for building "client.id"
         filtered.putIfAbsent(KafkaSourceOptions.CLIENT_ID_PREFIX.key(), getName());
         consumerProperties.putAll(filtered);
-        log.info("Building Kafka ConsumerProperties: properties={}", consumerProperties);
+
+        HashMap<Object, Object> forPrint = new HashMap<>(consumerProperties);
+        if (masked != null) {
+            // Masks credential configuration
+            forPrint.replace(SASL_JAAS_CONFIG, masked);
+        }
+        log.info("Building Kafka ConsumerProperties: properties={}", forPrint);
         return consumerProperties;
     }
 
@@ -101,19 +117,22 @@ public class KafkaConsumerProperties extends KafkaProperties implements RawPrope
      * @return an OffsetsInitializer which initializes the offsets.
      */
     public OffsetsInitializer getOffsetsInitializer() {
-        switch (offsets) {
-            case LATEST:
-                return OffsetsInitializer.latest();
-            case EARLIEST:
-                return OffsetsInitializer.earliest();
-            case TIMESTAMP:
-                return OffsetsInitializer.timestamp(getTimestamp());
-            case COMMITTED:
-                return OffsetsInitializer.committedOffsets(offsetResetStrategy);
+        return switch (offsets) {
+            case LATEST -> OffsetsInitializer.latest();
+            case EARLIEST -> OffsetsInitializer.earliest();
+            case TIMESTAMP -> OffsetsInitializer.timestamp(getTimestamp());
+            case COMMITTED -> committedOffsets(offsetResetStrategy);
+        };
+    }
 
-            default:
-                throw new IllegalArgumentException("Unsupported value: " + offsets);
-        }
+    /**
+     * flink-connector-kafka (5.0.0-2.2) only exposes {@link OffsetsInitializer#committedOffsets} with Kafka's
+     * deprecated {@code OffsetResetStrategy}; there is no non-deprecated alternative yet, so the bridge is isolated here.
+     */
+    @SuppressWarnings("deprecation")
+    private static OffsetsInitializer committedOffsets(OffsetResetStrategy strategy) {
+        return OffsetsInitializer.committedOffsets(
+                org.apache.kafka.clients.consumer.OffsetResetStrategy.valueOf(strategy.name()));
     }
 
     private Map<String, String> filterNonConsumerProperties() {

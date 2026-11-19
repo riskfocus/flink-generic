@@ -63,8 +63,8 @@ public class RestBased implements ContextService {
     public ContextMetadata generate(TimeAware timeAware, String contextName) {
         WindowContext windowContext = windowAware.generateWindowPeriod(timeAware.getTimestamp());
         String dateStr = DateTimeUtils.formatDate(windowContext.getStart());
-        long ctxId = createOrGet(windowContext.getId(), dateStr, contextName);
-        return ContextMetadata.builder().contextName(contextName).id(ctxId).date(dateStr).build();
+        long ctxId = createOrGet(windowContext.getWindowId(), dateStr, contextName);
+        return ContextMetadata.builder().contextName(contextName).contextId(ctxId).date(dateStr).build();
     }
 
     private Long createOrGet(long windowId, String dateStr, String type) {

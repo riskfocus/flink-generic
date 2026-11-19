@@ -26,6 +26,7 @@ import com.ness.flink.sink.jdbc.connector.JdbcConnectionProvider;
 import com.ness.flink.sink.jdbc.core.executor.JdbcBatchStatementExecutor;
 import com.ness.flink.sink.jdbc.core.recovery.RecoveryOperations;
 import java.io.IOException;
+import java.io.Serial;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nonnull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.connector.sink2.Sink.InitContext;
+import org.apache.flink.api.connector.sink2.WriterInitContext;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.util.concurrent.ExecutorThreadFactory;
 
@@ -50,6 +51,7 @@ import org.apache.flink.util.concurrent.ExecutorThreadFactory;
 @Slf4j
 @SuppressWarnings("PMD.TooManyMethods")
 public class JdbcBatchingOutputFormat<R, T, J extends JdbcBatchStatementExecutor<T>> extends AbstractSinkWriter<R> {
+    @Serial
     private static final long serialVersionUID = 1373809219726488314L;
 
     private final JdbcConnectionProvider jdbcConnectionProvider;
@@ -87,23 +89,23 @@ public class JdbcBatchingOutputFormat<R, T, J extends JdbcBatchStatementExecutor
     /**
      * Connects to the target database and initializes the prepared statement.
      *
-     * @param context InitContext
+     * @param writerInitContext WriterInitContext
      */
     @SneakyThrows
     @Override
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    public void open(InitContext context) {
-        super.open(context);
-        jdbcStatementExecutor = statementExecutorFactory.apply(context);
+    public void open(WriterInitContext writerInitContext) {
+        super.open(writerInitContext);
+        jdbcStatementExecutor = statementExecutorFactory.apply(writerInitContext);
         recoveryOperations = new RecoveryOperations(jdbcConnectionProvider, jdbcExecutionOptions, jdbcStatementExecutor);
         lastUsage = new AtomicLong(now());
 
-        latencyHistogram = MetricsBuilder.histogram(context.metricGroup(), sinkName, Metrics.JDBC_BATCH_LATENCY.getMetricName());
-        batchSizeHistogram = MetricsBuilder.histogram(context.metricGroup(), sinkName, Metrics.JDBC_BATCH_SIZE.getMetricName());
+        latencyHistogram = MetricsBuilder.histogram(writerInitContext.metricGroup(), sinkName, Metrics.JDBC_BATCH_LATENCY.getMetricName());
+        batchSizeHistogram = MetricsBuilder.histogram(writerInitContext.metricGroup(), sinkName, Metrics.JDBC_BATCH_SIZE.getMetricName());
 
         if (jdbcExecutionOptions.getBatchCheckIntervalMs() != 0 && jdbcExecutionOptions.getBatchSize() != 1) {
-            // Register one thread in background since we have to emit batch which couldn't be fulled by incoming data
-            this.scheduler = Executors.newSingleThreadScheduledExecutor(new ExecutorThreadFactory("jdbc-scheduled-" + context.getSubtaskId()));
+            // Register one thread in background since we have to emit batch which couldn't be full by incoming data
+            this.scheduler = Executors.newSingleThreadScheduledExecutor(new ExecutorThreadFactory("jdbc-scheduled"));
             this.scheduledFuture = this.scheduler.scheduleWithFixedDelay(() -> {
                 if (!closed && flushRequired()) {
                     try {

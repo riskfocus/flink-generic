@@ -16,7 +16,6 @@
 
 package com.ness.flink.config.channel.kafka;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.ness.flink.config.aws.MetricsBuilder;
 import com.ness.flink.config.metrics.Metrics;
 import java.io.IOException;
@@ -46,8 +45,7 @@ final class WithMetricsKafkaDeserialization<T> implements KafkaRecordDeserializa
     /**
      * Number of messages which can't be deserialized
      */
-    @VisibleForTesting
-    transient Counter brokenMessages;
+    /* default */ transient Counter brokenMessages;
 
     private WithMetricsKafkaDeserialization(String operatorName, DeserializationSchema<T> deserializationSchema, boolean skipBrokenMessages) {
         this.operatorName = operatorName;
@@ -55,8 +53,7 @@ final class WithMetricsKafkaDeserialization<T> implements KafkaRecordDeserializa
         this.skipBrokenMessages = skipBrokenMessages;
     }
 
-    @VisibleForTesting
-    static <T> WithMetricsKafkaDeserialization<T> build(String operatorName,
+    /* default */ static <T> WithMetricsKafkaDeserialization<T> build(String operatorName,
                                                             DeserializationSchema<T> valueDeserializationSchema,
                                                             boolean skipBrokenMessages) {
         return new WithMetricsKafkaDeserialization<>(operatorName, valueDeserializationSchema, skipBrokenMessages);

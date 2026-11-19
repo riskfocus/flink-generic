@@ -27,7 +27,7 @@ import com.ness.flink.sink.jdbc.core.output.AbstractSinkWriter;
 import com.ness.flink.sink.jdbc.core.output.JdbcBatchingOutputFormat;
 import com.ness.flink.sink.jdbc.core.output.RecordExtractor;
 import com.ness.flink.sink.jdbc.properties.JdbcSinkProperties;
-import java.io.IOException;
+import java.io.Serial;
 import java.util.Optional;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
@@ -35,6 +35,8 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.connector.sink2.Sink;
+import org.apache.flink.api.connector.sink2.SinkWriter;
+import org.apache.flink.api.connector.sink2.WriterInitContext;
 
 /**
  * Builder for {@link JdbcSink}
@@ -44,6 +46,7 @@ import org.apache.flink.api.connector.sink2.Sink;
 @SuperBuilder
 @PublicEvolving
 public class JdbcSinkBuilder<S> extends DefaultSink<S> {
+    @Serial
     private static final long serialVersionUID = 4898245000242257142L;
     private final JdbcSinkProperties jdbcSinkProperties;
     private final String sql;
@@ -82,12 +85,13 @@ public class JdbcSinkBuilder<S> extends DefaultSink<S> {
     @Slf4j
     @AllArgsConstructor
     private static class JdbcSink<T> implements Sink<T> {
+        @Serial
         private static final long serialVersionUID = 362373966141992666L;
         private final AbstractSinkWriter<T> outputFormat;
 
         @Override
-        public org.apache.flink.api.connector.sink2.SinkWriter<T> createWriter(InitContext context) throws IOException {
-            outputFormat.open(context);
+        public SinkWriter<T> createWriter(WriterInitContext writerInitContext) {
+            outputFormat.open(writerInitContext);
             return outputFormat;
         }
     }

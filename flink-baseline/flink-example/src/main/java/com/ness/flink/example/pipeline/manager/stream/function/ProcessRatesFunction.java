@@ -23,21 +23,23 @@ import com.ness.flink.util.EventUtils;
 import com.ness.flink.window.WindowAware;
 import com.ness.flink.window.WindowContext;
 import com.ness.flink.window.generator.WindowGeneratorProvider;
+import java.io.Serial;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.common.functions.OpenContext;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.ParameterTool;
 
 /**
  * @author Khokhlov Pavel
  */
 @Slf4j
 public class ProcessRatesFunction extends KeyedProcessFunction<String, InterestRate, InterestRates> {
+    @Serial
     private static final long serialVersionUID = -1673971835941156836L;
 
     private transient ValueState<Boolean> updateRequired;
@@ -46,15 +48,14 @@ public class ProcessRatesFunction extends KeyedProcessFunction<String, InterestR
     private transient WindowAware windowAware;
 
     @Override
-    public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
+    public void open(OpenContext openContext) throws Exception {
+        super.open(openContext);
         String opName = getClass().getName();
         MapStateDescriptor<String, InterestRate> ratesValueStateDescriptor =
                 new MapStateDescriptor<>(opName + "-interestRates", String.class, InterestRate.class);
         latest = getRuntimeContext().getMapState(ratesValueStateDescriptor);
         updateRequired = getRuntimeContext().getState(new ValueStateDescriptor<>(opName + "UpdateRequiredState", Boolean.class));
-
-        ParameterTool parameterTool = (ParameterTool) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
+        ParameterTool parameterTool = ParameterTool.fromMap(getRuntimeContext().getGlobalJobParameters());
         WatermarkProperties watermarkProperties = WatermarkProperties.from(parameterTool);
 
         windowAware = WindowGeneratorProvider.create(watermarkProperties);
